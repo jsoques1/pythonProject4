@@ -24,6 +24,34 @@ def last_passwords():
 def display_players ():
     interface = IHM(8, 5)
 
+def modify_rank():
+    Input_frame = Frame()
+    Input_frame.pack()
+
+    id = Label(Input_frame, text="First Name")
+    id.grid(row=0, column=0)
+
+    full_Name = Label(Input_frame, text="Last Name")
+    full_Name.grid(row=0, column=1)
+
+    award = Label(Input_frame, text="Rank")
+    award.grid(row=0, column=2)
+
+    id_entry = Entry(Input_frame)
+    id_entry.grid(row=1, column=0)
+
+    fullname_entry = Entry(Input_frame)
+    fullname_entry.grid(row=1, column=1)
+
+    award_entry = Entry(Input_frame)
+    award_entry.grid(row=1, column=2)
+
+    buttonApply = Button(Input_frame, text="Apply", fg="red", command=lambda: print('Not implemented'))
+    buttonApply.grid(row=2, column=0)
+
+    buttonClose = Button(Input_frame, text="close", fg="red", command=Input_frame.destroy)
+    buttonClose.grid(row=2, column=1)
+
 class IHM(Frame):
 
     ROW_START = 10
@@ -100,7 +128,7 @@ class IHM(Frame):
 #creer une fenetre
 window = Tk()
 
-window.title("Password_generator")
+window.title("Chess Tournaments")
 window.geometry("720x480")
 window.minsize(320, 320)
 window.config(bg="#4065A4")
@@ -130,12 +158,32 @@ file_menu.add_command(label="🗙 Exit", command=window.quit)
 menu_bar.add_cascade(label="📁 File", menu=file_menu)
 
 #creer un 2nd menu
+player_report_menu = Menu(tearoff=0)
+player_report_menu.add_command(label="🔎 Alphabetic order", command=display_players)
+player_report_menu.add_command(label="🔎 Ranking order", command=display_players)
+
 player_menu = Menu(menu_bar, tearoff=0)
 player_menu.add_command(label="🔎 Display", command=display_players)
 player_menu.add_command(label="🔎 Add", command=display_players)
-player_menu.add_command(label="🔎 Modify Rank", command=display_players)
+player_menu.add_command(label="🔎 Modify Rank", command=modify_rank)
+player_menu.add_cascade(label="🔎 Report", menu=player_report_menu)
 player_menu.add_command(label="🗙 Exit", command=window.quit)
 menu_bar.add_cascade(label="📁 Player", menu=player_menu)
+
+#creer un 3eme menu
+tournament_list_menu = Menu(tearoff=0)
+tournament_list_menu.add_command(label="🔎 All", command=lambda: print('Not implemented'))
+tournament_list_menu.add_command(label="🔎 Single", command=lambda: print('Not implemented'))
+
+tournament_menu = Menu(menu_bar, tearoff=0)
+tournament_menu.add_command(label="🔎 Create", command=lambda: print('Not implemented'))
+tournament_menu.add_command(label="🔎 Start", command=lambda: print('Not implemented'))
+tournament_menu.add_command(label="🔎 Suspend", command=lambda: print('Not implemented'))
+tournament_menu.add_command(label="🔎 Resume", command=lambda: print('Not implemented'))
+tournament_menu.add_command(label="🔎 Cancel", command=lambda: print('Not implemented'))
+tournament_menu.add_cascade(label="🔎 List", menu=tournament_list_menu)
+tournament_menu.add_command(label="🗙 Exit", command=lambda: print('Not implemented'))
+menu_bar.add_cascade(label="📁 Tournament", menu=tournament_menu)
 
 #Configurer notre fenetre pour ajouter le menu_bar
 window.config(menu=menu_bar)
