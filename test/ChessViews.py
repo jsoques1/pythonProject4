@@ -62,6 +62,9 @@ class IHM(Frame):
         self.numberColumns = width
         self.pack(fill=Y)
         self.data = list()
+
+
+
         first_Name = Label(self, text="First Name", bg='Grey', fg='White')
         first_Name.grid(row=self.ROW_START, column=0)
         print(f'top level window title={first_Name.winfo_toplevel().title()}')
@@ -98,6 +101,19 @@ class IHM(Frame):
 
         self.buttonClose = Button(self, text="close", fg="red", command=self.destroy)
         self.buttonClose.grid(row=self.numberLines+self.ROW_START+2, column=2)
+
+        #canv = Canvas(self, width=600, height=400)
+        #canv.grid(row=0, column=0)
+
+        #defilY = Scrollbar(self, orient='vertical',
+        #                   command=canv.yview)
+        #defilY.grid(row=0, column=1, sticky='ns')
+
+        #y_scrollbar = Scrollbar(self)
+        #y_scrollbar.grid(row=self.numberLines, column=self.numberColumns, widthside="right", fill="y")
+
+        #x_scrollbar = Scrollbar(self, orient=HORIZONTAL)
+        #x_scrollbar.pack(side="bottom", fill="x")
 
     def display(self):
         for j in range(self.numberColumns):
@@ -187,5 +203,8 @@ menu_bar.add_cascade(label="📁 Tournament", menu=tournament_menu)
 
 #Configurer notre fenetre pour ajouter le menu_bar
 window.config(menu=menu_bar)
+
+
+
 window.mainloop()
 #window.destroy()
