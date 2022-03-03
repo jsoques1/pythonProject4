@@ -22,8 +22,8 @@ def last_passwords():
         title.insert(0, file.read())
         file.close()
 
-def display_players ():
-    interface = ChessPlayersView()
+def display_players (frame):
+    interface = ChessPlayersView(frame)
 
 def modify_rank():
     Input_frame = Frame()
@@ -118,16 +118,21 @@ class ChessPlayersView(Frame):
         self.add_table_actions(self.numberLines + 3)
 
     def generate_table_actions(self, row):
-        self.buttonInsert = Button(self, text="Insert", fg="red", command=self.insert)
-        self.buttonDisplay = Button(self, text="Display", fg="red", command=self.display)
-        self.buttonClose = Button(self, text="close", fg="red", command=self.destroy)
+        self.button_add = Button(self, text="Add", fg="red", command=self.button_add)
+        self.button_save = Button(self, text="Save", fg="red", command=self.button_save)
+        self.button_close = Button(self, text="Close", fg="red", command=self.button_close)
 
     def add_table_actions(self, row):
-        self.buttonInsert.grid(row=row, column=0)
-        self.buttonDisplay.grid(row=row, column=1)
-        self.buttonClose.grid(row=row, column=2)
+        self.button_add.grid(row=row, column=0)
+        self.button_save.grid(row=row, column=1)
+        self.button_close.grid(row=row, column=2)
 
-    def display(self):
+    def button_add(self):
+        self.numberLines += 1
+        self.widgets_list.append(self.chess_players_table.generate_new_player_entry(self, self.numberLines + 2))
+        self.add_table_actions(self.numberLines + 3)
+
+    def button_save(self):
         for i in range(self.numberLines):
             result = ''
             for j in range(self.numberColumns):
@@ -136,14 +141,21 @@ class ChessPlayersView(Frame):
             #self.results[j].delete(0, END)
             #self.results[j].insert(0, result)
 
+    def button_close(self):
+        self.destroy()
 
-    def insert(self):
-        self.numberLines += 1
-        self.widgets_list.append(self.chess_players_table.generate_new_player_entry(self, self.numberLines + 2))
-        self.add_table_actions(self.numberLines + 3)
 
-class ChessMainView:
+class VirtualView():
     def __init__(self):
+        pass
+
+    def display_interface(self):
+        pass
+
+class ChessMainView(VirtualView):
+    def __init__(self):
+
+        self.my_controller = None
         self.main_window = Tk()
 
         self.main_window.title("Chess Tournaments")
@@ -153,7 +165,11 @@ class ChessMainView:
 
 
         #creer une boite
-        #frame = Frame(window, bg='#4065A4')
+        self.list_frame = LabelFrame(self.main_window, bg='#4065A4')
+        self.message_frame = LabelFrame(self.main_window, bg='grey')
+
+        self.list_frame.pack(side=TOP)
+        self.message_frame.pack(side=BOTTOM)
 
         #creer une sous boite
         #sub_frame = Frame(frame, bg='#4065A4')
@@ -164,6 +180,7 @@ class ChessMainView:
 
         #Affiche la boite
         #frame.pack(expand=YES)
+
 
         #Creation d'une barre de menu
         menu_bar = Menu(self.main_window)
@@ -180,8 +197,8 @@ class ChessMainView:
         player_report_menu.add_command(label="🔎 Ranking order", command=lambda: print('Not implemented'))
 
         player_menu = Menu(menu_bar, tearoff=0)
-        player_menu.add_command(label="🔎 Display", command=display_players)
-        player_menu.add_command(label="🔎 Add", command=display_players)
+        player_menu.add_command(label="🔎 Display", command=lambda: display_players(self.list_frame))
+        player_menu.add_command(label="🔎 Add", command=lambda: display_players(self.list_frame))
         player_menu.add_command(label="🔎 Modify Rank", command=modify_rank)
         player_menu.add_cascade(label="🔎 Report", menu=player_report_menu)
         player_menu.add_command(label="🗙 Exit", command=self.main_window.quit)
@@ -204,6 +221,9 @@ class ChessMainView:
 
         #Configurer notre fenetre pour ajouter le menu_bar
         self.main_window.config(menu=menu_bar)
+
+    def set_my_controller(self, controller):
+        self.my_controller = controller
 
     def display_interface(self):
         self.main_window.mainloop()
