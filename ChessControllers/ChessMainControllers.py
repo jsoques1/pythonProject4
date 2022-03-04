@@ -1,19 +1,32 @@
-import string
-from random import randint, choice
-from ChessViews import ChessViews
+import logging
+from ChessViews import ChessMainViews
+from ChessModels import ChessMainModels
 
 
 class VirtualController:
     def __init__(self):
         pass
 
-    def display_interface(self):
+    def run(self):
         pass
 
 
 class ChessMainController(VirtualController):
-    def __init__(self, view):
-        self.view = view
+    def __init__(self):
+        super().__init__()
+        self.my_view = ChessMainViews.ChessMainView()
+        self.my_model = ChessMainModels.ChessMainModel()
 
     def run(self):
-        self.view.display_interface()
+        self.my_view.set_my_controller(self)
+        self.my_model.set_my_controller(self)
+        self.my_view.display_interface()
+
+    def save_players_list(self, players_list):
+        status = self.my_model.check_and_insert_players_in_db(players_list)
+        return status
+
+    def load_players_list(self):
+        logging.debug('load_players_list')
+        result = self.my_model.load_players_in_db()
+        return result
