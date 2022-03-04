@@ -5,6 +5,8 @@ import os
 import shutil
 import logging
 from ChessControllers import ChessMainControllers
+from ChessViews import ChessMainViews
+from ChessModels import ChessMainModels
 
 DEFAULT_LOGGING_DIR = 'c:/temp/P4/'
 DEFAULT_LOGGING_FILE_NAME = 'log.txt'
@@ -44,7 +46,9 @@ def start_logging():
 def main():
     clean_up_log()
     start_logging()
-    chess_main_controller = ChessMainControllers.ChessMainController()
+    # self.my_view = ChessMainViews.ChessMainView()
+    # self.my_model = ChessMainModels.ChessMainModel()
+    chess_main_controller = ChessMainControllers.ChessMainController(ChessMainViews.ChessMainView(), ChessMainModels.ChessMainModel())
     chess_main_controller.run()
 
 

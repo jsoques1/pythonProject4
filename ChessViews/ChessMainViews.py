@@ -1,12 +1,13 @@
 import logging
 from tkinter import *
+#from tkinter import ttk
 from tkcalendar import Calendar, DateEntry
 
 
 def display_players(my_controller):
     view = ChessPlayersView()
     view.set_my_controller(my_controller)
-    view.make_chess_players_table()
+    view.make_chess_players_view()
     view.load_players_list()
 
 
@@ -39,94 +40,109 @@ def modify_rank():
     button_close.grid(row=2, column=1)
 
 
-class ChessPlayersTable:
-    def __init__(self):
-        pass
-
-    def generate_table_labels(self, frame):
-        last_name = Label(frame, text="Last Name", bg='Grey', fg='White')
-        last_name.grid(row=0, column=0)
-        first_name = Label(frame, text="First Name", bg='Grey', fg='White')
-        first_name.grid(row=0, column=1)
-        birthdate = Label(frame, text="Birthdate", bg='Grey', fg='White')
-        birthdate.grid(row=0, column=2)
-        gender = Label(frame, text="Gender", bg='Grey', fg='White')
-        gender.grid(row=0, column=3)
-        rank = Label(frame, text="Rank", bg='Grey', fg='White')
-        rank.grid(row=0, column=4)
-
-    def generate_new_player_entry(self, frame, row):
-        widgets_list = []
-
-        player_last_name = Entry(frame, textvariable=StringVar())
-        player_last_name.insert(0, '')
-        player_last_name.grid(row=row, column=0)
-        widgets_list.append(player_last_name)
-
-        player_first_name = Entry(frame, textvariable=StringVar())
-        player_first_name.insert(0, '')
-        player_first_name.grid(row=row, column=1)
-        widgets_list.append(player_first_name)
-
-        player_birthdate = DateEntry(frame, textvariable=StringVar())
-        player_birthdate.grid(row=row, column=2)
-        widgets_list.append(player_birthdate)
-
-        player_gender = Spinbox(frame, values=('', 'Male', 'Female'), textvariable=StringVar())
-        player_gender.insert(0, '')
-        player_gender.grid(row=row, column=3)
-        widgets_list.append(player_gender)
-
-        player_rank = Entry(frame, textvariable=StringVar())
-        player_rank.insert(0, '')
-        player_rank.grid(row=row, column=4)
-        widgets_list.append(player_rank)
-
-        return widgets_list
-
-
-class ChessPlayersView(Frame):
-    def __init__(self, height=8, width=5):
-        Frame.__init__(self)
+class ChessPlayersView(LabelFrame):
+    def __init__(self, numberLines=9, numberColumns=5):
+        LabelFrame.__init__(self, bd=10)
         self.my_controller = None
-
-        self.numberLines = height
-        self.numberColumns = width
+        self.numberLines = numberLines
+        self.numberColumns = numberColumns
         self.pack(fill=Y)
 
-        self.widgets_list = list()
-        self.chess_players_table = None
+        self.players_widgets_list = list()
         self.button_add = None
         self.button_load = None
         self.button_save = None
+        self.button_clear = None
         self.button_close = None
+        self.current_entry_row = None
 
-    def make_chess_players_table(self):
-        self.chess_players_table = ChessPlayersTable()
-        self.generate_table_actions()
-        self.chess_players_table.generate_table_labels(self)
+    def select_player_entry(self, event, row):
+        self.current_entry_row = row
+        print(row)
 
+    def generate_new_player_entry(self, row):
+        players_widgets_list = []
+
+        player_last_name = Entry(self, textvariable=StringVar())
+        player_last_name.insert(0, '')
+        player_last_name.bind("<Button>", lambda event, row=row: self.select_player_entry(event, row))
+        player_last_name.grid(row=row, column=0)
+        players_widgets_list.append(player_last_name)
+
+        player_first_name = Entry(self, textvariable=StringVar())
+        player_first_name.insert(0, '')
+        player_first_name.bind("<Button>", lambda event, row=row: self.select_player_entry(event, row))
+        player_first_name.grid(row=row, column=1)
+        players_widgets_list.append(player_first_name)
+
+        player_birthdate = DateEntry(self, textvariable=StringVar(), date_pattern='dd/mm/yyyy')
+        player_birthdate.insert(0, '')
+        player_birthdate.bind("<Button>", lambda event, row=row: self.select_player_entry(event, row))
+        player_birthdate.grid(row=row, column=2)
+        players_widgets_list.append(player_birthdate)
+
+        player_gender = Spinbox(self, values=('', 'Male', 'Female'), textvariable=StringVar())
+        player_gender.insert(0, '')
+        player_gender.bind("<Button>", lambda event, row=row: self.select_player_entry(event, row))
+        player_gender.grid(row=row, column=3)
+        players_widgets_list.append(player_gender)
+
+        player_rank = Entry(self, textvariable=StringVar())
+        player_rank.insert(0, '')
+        player_rank.bind("<Button>", lambda event, row=row: self.select_player_entry(event, row))
+        player_rank.grid(row=row, column=4)
+        players_widgets_list.append(player_rank)
+
+        return players_widgets_list
+
+    def generate_player_labels_view(self):
+        last_name = Label(self, text="Last Name", bg='Grey', fg='White')
+        last_name.grid(row=0, column=0)
+        first_name = Label(self, text="First Name", bg='Grey', fg='White')
+        first_name.grid(row=0, column=1)
+        birthdate = Label(self, text="Birthdate", bg='Grey', fg='White')
+        birthdate.grid(row=0, column=2)
+        gender = Label(self, text="Gender", bg='Grey', fg='White')
+        gender.grid(row=0, column=3)
+        rank = Label(self, text="Rank", bg='Grey', fg='White')
+        rank.grid(row=0, column=4)
+
+    def make_chess_players_view(self):
+        self.generate_player_labels_view()
+        self.generate_players_entry_view()
+        self.generate_players_actions_view()
+ 
+    def generate_players_entry_view(self):
         for i in range(int(self.numberLines)):
-            self.widgets_list.append(self.chess_players_table.generate_new_player_entry(self, i + 2))
+            self.players_widgets_list.append(self.generate_new_player_entry(i + 2))
 
-        self.add_table_actions(self.numberLines + 3)
+    def clear_player(self):
+        if self.current_entry_row is not None:
+            print(f'{len(self.players_widgets_list)} {self.numberLines}')
+            for i in range(int(self.numberColumns)):
+                self.players_widgets_list[self.current_entry_row - 2][i].delete(0, END)
+            self.current_entry_row = None
 
-    def generate_table_actions(self):
+    def generate_players_actions_view(self):
         self.button_add = Button(self, text="Add", fg="red", command=self.add_player)
         self.button_load = Button(self, text="Load", fg="red", command=self.load_players_list)
         self.button_save = Button(self, text="Save", fg="red", command=self.save_players_list)
+        self.button_clear = Button(self, text="Clear", fg="red", command=self.clear_player)
         self.button_close = Button(self, text="Close", fg="red", command=self.close_players_list_frame)
-
-    def add_table_actions(self, row):
-        self.button_add.grid(row=row, column=0)
-        self.button_load.grid(row=row, column=1)
-        self.button_save.grid(row=row, column=2)
-        self.button_close.grid(row=row, column=3)
+        self.add_table_actions_view()
+        
+    def add_table_actions_view(self):
+        self.button_add.grid(row=self.numberLines + 3, column=0)
+        self.button_load.grid(row=self.numberLines + 3, column=1)
+        self.button_save.grid(row=self.numberLines + 3, column=2)
+        self.button_clear.grid(row=self.numberLines + 3, column=3)
+        self.button_close.grid(row=self.numberLines + 3, column=4)
 
     def add_player(self):
         self.numberLines += 1
-        self.widgets_list.append(self.chess_players_table.generate_new_player_entry(self, self.numberLines + 2))
-        self.add_table_actions(self.numberLines + 3)
+        logging.debug(f'add_player({self.numberLines + 1})')
+        self.players_widgets_list.append(self.generate_new_player_entry(self.numberLines + 1))
+        self.add_table_actions_view()
 
     def save_players_list(self):
         logging.debug('save_players_list')
@@ -134,7 +150,7 @@ class ChessPlayersView(Frame):
         for i in range(int(self.numberLines)):
             player = []
             for j in range(int(self.numberColumns)):
-                player.append(self.widgets_list[i][j].get())
+                player.append(self.players_widgets_list[i][j].get())
             players_list.append(player)
         logging.info(f'players_list={players_list}')
         result = self.my_controller.save_players_list(players_list)
@@ -143,15 +159,16 @@ class ChessPlayersView(Frame):
         logging.debug('load_players_list')
         players_list = self.my_controller.load_players_list()
         logging.info(f'{len(players_list)} players={players_list}')
-        lines_to_add = len(players_list) - int(self.numberLines)
-        for i in range(lines_to_add):
-            self.add_player()
-        self.add_table_actions(self.numberLines + 3)
+        if len(players_list) != 0:
+            lines_to_add = len(players_list) - int(self.numberLines)
+            for i in range(lines_to_add):
+                self.add_player()
+            self.add_table_actions_view()
 
-        for i in range(int(self.numberLines)):
-            for j in range(int(self.numberColumns)):
-                self.widgets_list[i][j].delete(0, END)
-                self.widgets_list[i][j].insert(0, players_list[i][j])
+            for i in range(int(self.numberLines)):
+                for j in range(int(self.numberColumns)):
+                    self.players_widgets_list[i][j].delete(0, END)
+                    self.players_widgets_list[i][j].insert(0, players_list[i][j])
 
     def set_my_controller(self, controller):
         self.my_controller = controller
@@ -179,9 +196,9 @@ class ChessMainView(VirtualView):
         self.main_window.title("Chess Tournaments")
         self.main_window.geometry("720x480")
         self.main_window.minsize(320, 320)
-        self.main_window.config(bg="#4065A4")
+        self.main_window.config(bg='Blue')
 
-        self.list_frame = LabelFrame(self.main_window, bg='#4065A4')
+        self.list_frame = LabelFrame(self.main_window, bg='Blue')
         self.message_frame = LabelFrame(self.main_window, bg='grey')
 
         self.list_frame.pack(side=TOP)

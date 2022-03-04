@@ -12,10 +12,10 @@ class VirtualController:
 
 
 class ChessMainController(VirtualController):
-    def __init__(self):
+    def __init__(self, view, model):
         super().__init__()
-        self.my_view = ChessMainViews.ChessMainView()
-        self.my_model = ChessMainModels.ChessMainModel()
+        self.my_view = view
+        self.my_model = model
 
     def run(self):
         self.my_view.set_my_controller(self)
