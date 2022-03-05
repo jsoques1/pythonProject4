@@ -4,16 +4,9 @@ from tkinter import ttk
 from tkcalendar import Calendar, DateEntry
 
 
-def display_players(my_controller):
-    view = ChessPlayersView()
-    view.set_my_controller(my_controller)
-    view.add_a_vertical_scrollbar()
-    view.make_chess_players_view()
-    view.load_players_list()
-
-def onFrameConfigure(canvas):
-    '''Reset the scroll region to encompass the inner frame'''
-    canvas.configure(scrollregion=canvas.bbox("all"))
+# def onFrameConfigure(canvas):
+#     '''Reset the scroll region to encompass the inner frame'''
+#     canvas.configure(scrollregion=canvas.bbox("all"))
 
 def modify_rank():
     input_frame = Frame()
@@ -45,12 +38,12 @@ def modify_rank():
 
 
 class ChessPlayersView(LabelFrame):
-    def __init__(self, numberLines=9, numberColumns=5):
+    def __init__(self, controller, numberLines=9, numberColumns=5):
         LabelFrame.__init__(self, text='Players List')
-        self.my_controller = None
+        self.my_controller = controller
         self.numberLines = numberLines
         self.numberColumns = numberColumns
-        #self.pack(fill=Y)
+        self.is_built = False
 
         self.players_widgets_list = list()
         self.button_add = None
@@ -58,13 +51,14 @@ class ChessPlayersView(LabelFrame):
         self.button_save = None
         self.button_clear = None
         self.button_close = None
+        self.button_open = None
         self.current_entry_row = None
 
         self.myFrame = None
 
     def add_a_vertical_scrollbar(self):
         canvas = Canvas(self, borderwidth=0, background="#ffffff")
-        canvas.pack(side=LEFT, fill=BOTH, expand="yes")
+        canvas.pack(side=LEFT, fill=BOTH, expand=True)
 
         verticalScrollbar = ttk.Scrollbar(self, orient="vertical", command=canvas.yview)
         verticalScrollbar.pack(side=RIGHT, fill='y')
@@ -78,7 +72,7 @@ class ChessPlayersView(LabelFrame):
 
         canvas.create_window((0,0), window=self.myFrame, anchor="nw")
 
-        self.pack(fill="both",  expand="yes", padx=10, pady=10)
+        self.pack(fill="both",  expand=True, padx=10, pady=10)
 
         # for i in range(50):
         #     myButton = Button(self.myFrame, text='my Button - ' + str(i))
@@ -141,37 +135,41 @@ class ChessPlayersView(LabelFrame):
         rank.grid(row=0, column=4)
         rank.bind("<Button>", lambda event: self.sort_players_list_by_rank())
 
-    def sort_players_list_by_name(self):
-        logging.debug('sort_players_list_by_name')
+    def make_players_list_from_widgets(self):
         players_list = []
         for i in range(int(self.numberLines)):
             player = []
             for j in range(int(self.numberColumns)):
                 player.append(self.players_widgets_list[i][j].get())
             players_list.append(player)
+        return players_list
 
-        sorted_players_list = self.my_controller.sort_players_list_by_name(players_list)
+    def clean_players_list(self):
+        players_list = []
+        for i in range(int(self.numberLines)):
+            player = []
+            for j in range(int(self.numberColumns)):
+                player.append(self.players_widgets_list[i][j].get())
+            players_list.append(player)
+        return players_list
 
+    def fill_players_widgets_list(self, sorted_players_list):
         for i in range(int(self.numberLines)):
             for j in range(int(self.numberColumns)):
                 self.players_widgets_list[i][j].delete(0, END)
                 self.players_widgets_list[i][j].insert(0, sorted_players_list[i][j])
+
+    def sort_players_list_by_name(self):
+        logging.debug('sort_players_list_by_name')
+        players_list = self.make_players_list_from_widgets()
+        sorted_players_list = self.my_controller.sort_players_list_by_name(players_list)
+        self.fill_players_widgets_list(sorted_players_list)
 
     def sort_players_list_by_rank(self):
         logging.debug('sort_players_list_by_rank')
-        players_list = []
-        for i in range(int(self.numberLines)):
-            player = []
-            for j in range(int(self.numberColumns)):
-                player.append(self.players_widgets_list[i][j].get())
-            players_list.append(player)
-
+        players_list = self.make_players_list_from_widgets()
         sorted_players_list = self.my_controller.sort_players_list_by_rank(players_list)
-
-        for i in range(int(self.numberLines)):
-            for j in range(int(self.numberColumns)):
-                self.players_widgets_list[i][j].delete(0, END)
-                self.players_widgets_list[i][j].insert(0, sorted_players_list[i][j])
+        self.fill_players_widgets_list(sorted_players_list)
 
     def make_chess_players_view(self):
         self.generate_player_labels_view()
@@ -236,6 +234,15 @@ class ChessPlayersView(LabelFrame):
                     self.players_widgets_list[i][j].delete(0, END)
                     self.players_widgets_list[i][j].insert(0, players_list[i][j])
 
+    def display_players(self):
+        if self.is_built is False:
+            self.add_a_vertical_scrollbar()
+            self.make_chess_players_view()
+            self.load_players_list()
+            self.is_built = True
+        else:
+            self.open_players_list_frame()
+
     # def players_list_sort_decorator(self, fonction):
     #     def wrapper(self):
     #         logging.debug('players_list_sort_decorator')
@@ -254,13 +261,16 @@ class ChessPlayersView(LabelFrame):
     #                     self.players_widgets_list[i][j].insert(0, sorted_players_list[i][j])
     #         return wrapper
 
-
-
     def set_my_controller(self, controller):
         self.my_controller = controller
 
+    def open_players_list_frame(self):
+        logging.debug('open_players_list_frame')
+        self.pack(fill="both", expand=True)
+
     def close_players_list_frame(self):
-        self.destroy()
+        logging.debug('close_players_list_frame')
+        self.pack_forget()
 
 
 class VirtualView:
@@ -281,7 +291,6 @@ class ChessMainView(VirtualView):
 
         self.main_window.title("Chess Tournaments")
         self.main_window.geometry("720x480")
-        # self.main_window.geometry("500x500")
         self.main_window.minsize(320, 320)
         self.main_window.config(bg='Blue')
         # self.main_window.resizable(False, False)
@@ -292,15 +301,8 @@ class ChessMainView(VirtualView):
         self.list_frame.pack(side=TOP)
         self.message_frame.pack(side=BOTTOM)
 
-        Label(self.list_frame, text="Frame 1").pack(padx=10, pady=10)
-        Label(self.message_frame, text="Frame 2").pack(padx=10, pady=10)
-
-        #sub_frame = Frame(frame, bg='#4065A4')
-        #packer sub_frame
-        #sub_frame.grid(row=0, column=1, sticky=W)
-
-        #Affiche la boite
-        #frame.pack(expand=YES)
+        Label(self.list_frame, text="for future use 1").pack(padx=10, pady=10)
+        Label(self.message_frame, text="for future use 2").pack(padx=10, pady=10)
 
         # Creation d'une barre de menu
         menu_bar = Menu(self.main_window)
@@ -312,7 +314,7 @@ class ChessMainView(VirtualView):
 
         #creer un 2nd menu
         player_menu = Menu(menu_bar, tearoff=0)
-        player_menu.add_command(label="🔎 Display", command=lambda: display_players(self.my_controller))
+        player_menu.add_command(label="🔎 Display", command=lambda: self.player_view.display_players())
         player_menu.add_command(label="🗙 Exit", command=self.main_window.quit)
         menu_bar.add_cascade(label="📁 Players", menu=player_menu)
 
@@ -334,10 +336,9 @@ class ChessMainView(VirtualView):
         #Configurer notre fenetre pour ajouter le menu_bar
         self.main_window.config(menu=menu_bar)
 
-        self.player_view = ChessPlayersView(self.my_controller)
-
     def set_my_controller(self, controller):
         self.my_controller = controller
+        self.player_view = ChessPlayersView(controller)
 
     def display_interface(self):
         self.main_window.mainloop()
