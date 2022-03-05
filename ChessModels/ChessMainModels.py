@@ -1,9 +1,8 @@
 import json
+import configparser
 import logging
 from tinydb import TinyDB, Query
 
-PLAYERS_DB = 'c:/temp/P4/players_db.json'
-TOURNAMENTS_DB = 'c:/temp/P4/tournaments_db.json'
 
 
 class VirtualModel:
@@ -42,11 +41,23 @@ class Player:
 class ChessMainModel(VirtualModel):
     def __init__(self):
         super().__init__()
+
         self.my_controller = None
-        players_db = TinyDB(PLAYERS_DB)
+        db_dir, players_db, tournaments_db = ChessMainModel.read_models_section_config_file()
+        players_db = TinyDB(db_dir + '/' + players_db)
         self.players_table = players_db.table('Players')
-        tournaments_db = TinyDB(TOURNAMENTS_DB)
+        tournaments_db = TinyDB(db_dir + '/' + tournaments_db)
         self.tournaments_table = tournaments_db.table('Tournaments')
+
+
+    @staticmethod
+    def read_models_section_config_file():
+        config = configparser.ConfigParser()
+        config.read('setup.cfg')
+        db_dir = config['models']['db_dir']
+        players_db = config['models']['players_db']
+        tournaments_db = config['models']['tournaments_db']
+        return db_dir, players_db, tournaments_db
 
     def set_my_controller(self, controller):
         self.my_controller = controller
