@@ -11,7 +11,7 @@ from ChessModels import ChessMainModels
 
 def read_main_section_config_file():
     config = configparser.ConfigParser()
-    config.read('setup.cfg')
+    config.read('MyChessApp.ini')
     log_dir = config['main']['log_dir']
     log_file = config['main']['log_file']
     log_level = config['main']['log_level']
