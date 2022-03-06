@@ -53,7 +53,7 @@ class ChessMainModel(VirtualModel):
     @staticmethod
     def read_models_section_config_file():
         config = configparser.ConfigParser()
-        config.read('setup.cfg')
+        config.read('MyChessApp.ini')
         db_dir = config['models']['db_dir']
         players_db = config['models']['players_db']
         tournaments_db = config['models']['tournaments_db']
