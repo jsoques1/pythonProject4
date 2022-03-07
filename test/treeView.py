@@ -28,7 +28,12 @@ birthdate_var2 = tk.StringVar()
 gender_var2 = tk.StringVar()
 rank_var2 = tk.StringVar()
 tree = None
-
+is_already_created = False
+tree_frame = None
+action_frame = None
+add_a_player_frame = None
+change_a_player_rank_frame = None
+player_id = 0
 
 def item_selected(event, tree):
     print(tree.index(tree.selection()))
@@ -51,11 +56,11 @@ def modify_a_player_rank():
     temp = tree.item(selected, 'values')
     print(temp)
     print(rank_var2.get())
-    print((temp[0], temp[1], temp[2], temp[3], rank_var2.get()))
+    print((temp[0], temp[1], temp[2], temp[3], rank_var2.get(), temp[5]))
     if check_int('Rank', rank_var2.get()) is False:
         return False
 
-    tree.item(selected, text='', values=(temp[0], temp[1], temp[2], temp[3], rank_var2.get()))
+    tree.item(selected, text='', values=(temp[0], temp[1], temp[2], temp[3], rank_var2.get(), temp[5]))
     last_name_var2.set("")
     first_name_var2.set("")
     birthdate_var2.set("")
@@ -80,14 +85,19 @@ def sort_tree_column(event, tree):
         print(f'sorted_values = {sorted_values}')
         tree.delete(*tree.get_children())
         for value in sorted_values:
-            player = (value[0], value[1], value[2], value[3], value[4])
+            player = (value[0], value[1], value[2], value[3], value[4], value[5])
             tree.insert('', tk.END, values=player)
     else:
         print('not a head')
         return None
 
+def get_player_id():
+    global player_id
+    player_id += 1
+    return player_id
 
 def create_tree_widget(frame):
+    global player_id
     style = ttk.Style()
     style.theme_use('clam')
     bg = style.lookup('TFrame', 'background')
@@ -112,23 +122,23 @@ def create_tree_widget(frame):
     tree.configure(yscrollcommand=scrollbar.set)
     scrollbar.grid(row=0, column=1, sticky='ns')
 
-    dummy_players_list = [('a', 'f', '07/03/2022', 'Male', 10),
-                          ('c', 'b', '07/02/2022', 'Female', 1000),
-                          # ('c', 'b', '07/02/2022', 'Female', 1000),
-                          # ('c', 'b', '07/02/2022', 'Female', 1000),
-                          # ('c', 'b', '07/02/2022', 'Female', 1000),
-                          # ('c', 'b', '07/02/2022', 'Female', 1000),
-                          # ('c', 'b', '07/02/2022', 'Female', 1000),
-                          # ('c', 'b', '07/02/2022', 'Female', 1000),
-                          # ('c', 'b', '07/02/2022', 'Female', 1000),
-                          # ('c', 'b', '07/02/2022', 'Female', 1000),
-                          # ('c', 'b', '07/02/2022', 'Female', 1000),
-                          # ('c', 'b', '07/02/2022', 'Female', 1000),
-                          # ('c', 'b', '07/02/2022', 'Female', 1000),
-                          # ('c', 'b', '07/02/2022', 'Female', 1000),
-                          # ('c', 'b', '07/02/2022', 'Female', 1000),
-                          # ('c', 'b', '07/02/2022', 'Female', 1000),
-                          ('d', 'a', '07/02/2022', 'Female', 50)
+    dummy_players_list = [('a', 'f', '07/03/2022', 'Male', 10, get_player_id()),
+                          ('c', 'b', '07/02/2022', 'Female', 1000, get_player_id()),
+                          ('c', 'b', '07/02/2022', 'Female', 1000, get_player_id()),
+                          ('c', 'b', '07/02/2022', 'Female', 1000, get_player_id()),
+                          ('c', 'b', '07/02/2022', 'Female', 1000, get_player_id()),
+                          ('c', 'b', '07/02/2022', 'Female', 1000, get_player_id()),
+                          ('c', 'b', '07/02/2022', 'Female', 1000, get_player_id()),
+                          ('c', 'b', '07/02/2022', 'Female', 1000, get_player_id()),
+                          ('c', 'b', '07/02/2022', 'Female', 1000, get_player_id()),
+                          ('c', 'b', '07/02/2022', 'Female', 1000, get_player_id()),
+                          ('c', 'b', '07/02/2022', 'Female', 1000, get_player_id()),
+                          ('c', 'b', '07/02/2022', 'Female', 1000, get_player_id()),
+                          ('c', 'b', '07/02/2022', 'Female', 1000, get_player_id()),
+                          ('c', 'b', '07/02/2022', 'Female', 1000, get_player_id()),
+                          ('c', 'b', '07/02/2022', 'Female', 1000, get_player_id()),
+                          ('c', 'b', '07/02/2022', 'Female', 1000, get_player_id()),
+                          ('d', 'a', '07/02/2022', 'Female', 50, get_player_id())
                           ]
     for dummy_player in dummy_players_list:
         tree.insert('', tk.END, values=dummy_player)
@@ -199,7 +209,8 @@ def add_a_player():
         check_int('Rank', rank) is False:
         return False
 
-    player = (last_name, first_name, birthdate, gender, rank)
+    player = (last_name, first_name, birthdate, gender, rank, get_player_id())
+    print(player)
     tree.insert('', tk.END, values=player)
     last_name_var.set("")
     first_name_var.set("")
@@ -211,12 +222,14 @@ def add_a_player():
 
 def show_players_list_frame():
     global tree
+    global tree_frame
     tree_frame = LabelFrame(main_window, text='Players list')
     tree_frame.pack()
     tree = create_tree_widget(tree_frame)
 
 
 def show_actions_frame():
+    global action_frame
     action_frame = LabelFrame(main_window, text='Actions')
     action_frame.pack()
 
@@ -224,7 +237,7 @@ def show_actions_frame():
     load_btn.grid(row=0, column=0, padx=10, pady=10)
     save_btn = Button(action_frame, text='Save', command=lambda: print('Not implemented'))
     save_btn.grid(row=0, column=1, padx=10, pady=10)
-    close_btn = Button(action_frame, text='Close', command=lambda: print('Not implemented'))
+    close_btn = Button(action_frame, text='Close', command=hide_all)
     close_btn.grid(row=0, column=2, padx=10, pady=10)
 
 
@@ -266,6 +279,7 @@ def fill_a_player_form(frame, string_var_list, widget_state=NORMAL):
 
 
 def show_add_a_player_frame():
+    global add_a_player_frame
     add_a_player_frame = LabelFrame(text='Add a player')
     add_a_player_frame.pack()
     string_var_list = [last_name_var, first_name_var, birthdate_var, gender_var, rank_var]
@@ -276,6 +290,7 @@ def show_add_a_player_frame():
 
 
 def show_change_a_player_rank_frame():
+    global change_a_player_rank_frame
     change_a_player_rank_frame = LabelFrame(main_window, text='Modify Rank')
     change_a_player_rank_frame.pack()
     string_var_list = [last_name_var2, first_name_var2, birthdate_var2, gender_var2, rank_var2]
@@ -284,9 +299,57 @@ def show_change_a_player_rank_frame():
     change_a_player_rank_button.grid(row=2, column=0)
 
 
-show_players_list_frame()
-show_actions_frame()
-show_add_a_player_frame()
-show_change_a_player_rank_frame()
+def show_all():
+    global is_already_created
+    global tree_frame
+    global action_frame
+    global add_a_player_frame
+    global change_a_player_rank_frame
 
+    if is_already_created is False:
+        print('create all frame')
+        show_players_list_frame()
+        show_actions_frame()
+        show_change_a_player_rank_frame()
+        show_add_a_player_frame()
+        is_already_created = True
+    else:
+        print('reopen all frame')
+        tree_frame.pack()
+        action_frame.pack()
+        change_a_player_rank_frame.pack()
+        add_a_player_frame.pack()
+
+def hide_all():
+    global tree_frame
+    global action_frame
+    global add_a_player_frame
+    global change_a_player_rank_frame
+
+    if is_already_created is True:
+        tree_frame.pack_forget()
+        action_frame.pack_forget()
+        change_a_player_rank_frame.pack_forget()
+        add_a_player_frame.pack_forget()
+
+
+def add_main_menu():
+        # Creation d'une barre de menu
+        menu_bar = Menu(main_window)
+
+        #creer un 1er menu
+        file_menu = Menu(menu_bar, tearoff=0)
+        file_menu.add_command(label="🗙 Exit", command=main_window.quit)
+        menu_bar.add_cascade(label="📁 File", menu=file_menu)
+
+        #creer un 2nd menu
+        player_menu = Menu(menu_bar, tearoff=0)
+        player_menu.add_command(label="🔎 Display", command=show_all)
+        player_menu.add_command(label="🗙 Exit", command=main_window.quit)
+        menu_bar.add_cascade(label="📁 Players", menu=player_menu)
+
+        #Configurer notre fenetre pour ajouter le menu_bar
+        main_window.config(menu=menu_bar)
+
+add_main_menu()
 main_window.mainloop()

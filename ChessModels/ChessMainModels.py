@@ -1,7 +1,7 @@
 import json
 import configparser
 import logging
-from tinydb import TinyDB, Query
+from tinydb import TinyDB, where, Query
 
 
 
@@ -44,14 +44,14 @@ class ChessMainModel(VirtualModel):
 
         self.my_controller = None
         db_dir, players_db, tournaments_db = ChessMainModel.read_models_section_config_file()
-        players_db = TinyDB(db_dir + '/' + players_db)
-        self.players_table = players_db.table('Players')
-        tournaments_db = TinyDB(db_dir + '/' + tournaments_db)
-        self.tournaments_table = tournaments_db.table('Tournaments')
-
+        self.players_db = TinyDB(db_dir + '/' + players_db)
+        self.players_table = self.players_db.table('Players')
+        self.tournaments_db = TinyDB(db_dir + '/' + tournaments_db)
+        self.tournaments_table = self.tournaments_db.table('Tournaments')
 
     @staticmethod
     def read_models_section_config_file():
+        logging.debug('read_models_section_config_file')
         config = configparser.ConfigParser()
         config.read('MyChessApp.ini')
         db_dir = config['models']['db_dir']
@@ -71,6 +71,23 @@ class ChessMainModel(VirtualModel):
             for player in players_list:
                 player_entry = self.serialize_player(player)
                 self.players_table.insert(player_entry)
+            return True
+        else:
+            return False
+
+    def check_and_insert_a_player_in_db(self, player):
+        if self.is_players_validate([player]):
+            player_entry = self.serialize_player(player)
+            self.players_table.insert(player_entry)
+            return True
+        else:
+            return False
+
+    def check_and_udate_a_player_rank_in_db(self, player):
+        if self.is_players_validate([player]):
+            print(f'update Rank = {player.rank} where PlayerdId == {player.player_id}')
+            retval = self.players_table.update({"Rank": int(player.rank)}, doc_ids=[int(player.player_id)])
+            print(retval)
             return True
         else:
             return False
