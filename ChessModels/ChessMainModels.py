@@ -32,10 +32,10 @@ class Player:
         return player_entry
 
     def unserialize(self):
-        return [self.last_name, self.first_name, self.birthdate, self.gender, self.rank]
+        return (self.last_name, self.first_name, self.birthdate, self.gender, self.rank, self.player_id)
 
     def __str__(self):
-        return f'{self.last_name} {self.first_name} {self.birthdate} {self.gender} {self.rank}'
+        return f'{self.last_name} {self.first_name} {self.birthdate} {self.gender} {self.rank} {self.player_id}'
 
 
 class ChessMainModel(VirtualModel):
@@ -44,10 +44,10 @@ class ChessMainModel(VirtualModel):
 
         self.my_controller = None
         db_dir, players_db, tournaments_db = ChessMainModel.read_models_section_config_file()
-        self.players_db = TinyDB(db_dir + '/' + players_db)
-        self.players_table = self.players_db.table('Players')
-        self.tournaments_db = TinyDB(db_dir + '/' + tournaments_db)
-        self.tournaments_table = self.tournaments_db.table('Tournaments')
+        players_db = TinyDB(db_dir + '/' + players_db)
+        self.players_table = players_db.table('Players')
+        tournaments_db = TinyDB(db_dir + '/' + tournaments_db)
+        self.tournaments_table = tournaments_db.table('Tournaments')
 
     @staticmethod
     def read_models_section_config_file():
