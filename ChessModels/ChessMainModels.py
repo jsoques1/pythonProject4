@@ -13,13 +13,12 @@ class VirtualModel:
         pass
 
 class Round:
-    # def __init__(self, name=None, begin_time=None, end_time=None, list_of_finished_matchs=None):
-    #     self.name = name
-    #     self.begin_time = begin_time
-    #     self.end_time = end_time
-    #     self.list_of_finished_matchs = list_of_finished_matchs
-    #     self.list_of_tours = []
-    #
+    def __init__(self, start_time=None, end_time=None, match_list=None):
+        self.start_time = start_time
+        self.end_time = end_time
+        self.match_list = []
+        self.round_list = []
+
     # def serialized(self):
     #     tour_infos = {}
     #     tour_infos['Nom'] = self.name
