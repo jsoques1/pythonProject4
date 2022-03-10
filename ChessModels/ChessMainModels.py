@@ -12,6 +12,98 @@ class VirtualModel:
     def run(self):
         pass
 
+class Round:
+    # def __init__(self, name=None, begin_time=None, end_time=None, list_of_finished_matchs=None):
+    #     self.name = name
+    #     self.begin_time = begin_time
+    #     self.end_time = end_time
+    #     self.list_of_finished_matchs = list_of_finished_matchs
+    #     self.list_of_tours = []
+    #
+    # def serialized(self):
+    #     tour_infos = {}
+    #     tour_infos['Nom'] = self.name
+    #     tour_infos['Debut'] = self.begin_time
+    #     tour_infos['Fin'] = self.end_time
+    #     tour_infos['Matchs'] = self.list_of_finished_matchs
+    #     return tour_infos
+    #
+    # def unserialized(self, serialized_tour):
+    #     name = serialized_tour['Nom']
+    #     begin_time = serialized_tour['Debut']
+    #     end_time = serialized_tour['Fin']
+    #     list_of_finished_matchs = serialized_tour['Matchs']
+    #     return Tour(name,
+    #                 begin_time,
+    #                 end_time,
+    #                 list_of_finished_matchs
+    #                 )
+    #
+    # def __repr__(self):
+    #     return f"{self.name} - Début : {self.begin_time}. Fin : {self.end_time}."
+    #
+    # def run(self, sorted_players_list, tournament_object):
+    #     self.view = view_main.TourDisplay()
+    #     self.list_of_tours = []
+    #     self.list_of_finished_matchs = []
+    #     self.name = "Tour " + str(len(tournament_object.list_of_tours) + 1)
+    #     # Tour.TOUR_NUMBER += 1
+    #
+    #     self.begin_time, self.end_time = self.view.display_tournament_time()
+    #
+    #     # tant qu'il y a des joueurs dans la liste, ajoute des instances de 'match' dans la liste 'list_of_tours'
+    #     while len(sorted_players_list) > 0:
+    #         match_instance = Match(self.name, sorted_players_list[0], sorted_players_list[1])
+    #         Match.MATCH_NUMBER += 1
+    #         self.list_of_tours.append(match_instance)
+    #         del sorted_players_list[0:2]
+    #
+    #     self.view.display_tour(self.name, self.list_of_tours)
+    #
+    #     for match in self.list_of_tours:
+    #
+    #         valid_score_player_1 = False
+    #         while not valid_score_player_1:
+    #             try:
+    #                 score_player_1 = input(f"Entrez le score de {match.player_1} :")
+    #                 float(score_player_1)
+    #             except Exception:
+    #                 print("Vous devez entrer 0, 0.5, ou 1")
+    #             else:
+    #                 match.score_player_1 = float(score_player_1)
+    #                 match.player_1.tournament_score += float(score_player_1)
+    #                 valid_score_player_1 = True
+    #
+    #         valid_score_player_2 = False
+    #         while not valid_score_player_2:
+    #             try:
+    #                 score_player_2 = input(f"Entrez le score de {match.player_2} :")
+    #                 float(score_player_2)
+    #             except Exception:
+    #                 print("Vous devez entrer 0, 0.5, ou 1")
+    #             else:
+    #                 match.score_player_2 = float(score_player_2)
+    #                 match.player_2.tournament_score += float(score_player_2)
+    #                 valid_score_player_2 = True
+    #
+    #         self.list_of_finished_matchs.append(([match.player_1.player_id, match.score_player_1],
+    #                                              [match.player_2.player_id, match.score_player_2]))
+    #
+    #     return Tour(self.name, self.begin_time, self.end_time, self.list_of_finished_matchs)
+
+
+class Match:
+    def __init__(self, first_player=None, second_player=None, first_player_score=0, second_player_score=0, match_id=0):
+        self.first_player = first_player
+        self.second_player = second_player
+        self.first_player_score = first_player_score
+        self.second_player_score = second_player_score
+        self.match_id = match_id
+
+    def __str__(self):
+        return f"{self.match_id} {self.first_player} {self.second_player}"
+
+
 class Tournament:
     def __init__(self, name=None, location=None, date=None, tournament_round=None, time_control=None, description=None, tournament_id=0):
         self.name = name
@@ -32,6 +124,7 @@ class Tournament:
         tournament_entry['Description'] = self.description
         tournament_entry['TournamentId'] = self.tournament_id
         tournament_entry['Players'] = []
+        tournament_entry['Rounds'] = []
         return tournament_entry
 
     def unserialize(self):
