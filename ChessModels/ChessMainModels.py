@@ -12,6 +12,33 @@ class VirtualModel:
     def run(self):
         pass
 
+class Tournament:
+    def __init__(self, name=None, location=None, date=None, tournament_round=None, time_control=None, description=None, tournament_id=0):
+        self.name = name
+        self.location = location
+        self.date = date
+        self.round = tournament_round
+        self.time_control = time_control
+        self.description = description
+        self.tournament_id = tournament_id
+
+    def serialize(self):
+        tournament_entry = dict()
+        tournament_entry['Name'] = self.name
+        tournament_entry['Location'] = self.location
+        tournament_entry['Date'] = self.date
+        tournament_entry['Round'] = self.round
+        tournament_entry['TimeControl'] = self.time_control
+        tournament_entry['Description'] = self.description
+        tournament_entry['TournamentId'] = self.tournament_id
+        return tournament_entry
+
+    def unserialize(self):
+        return (self.name, self.location, self.date, self.round, self.time_control, self.description, self.tournament_id)
+
+    def __str__(self):
+        return f'{self.name} {self.location} {self.date} {self.round} {self.time_control} {self.description} {self.tournament_id}'
+    
 class Player:
     def __init__(self, last_name=None, first_name=None, birthdate=None, gender=None, rank=None, player_id=0):
         self.last_name = last_name
@@ -116,3 +143,47 @@ class ChessMainModel(VirtualModel):
         logging.info(f'player={str(player)}')
         return player
 
+
+    def is_tournaments_validate(self, tournaments_list):
+        return True
+
+    def check_and_insert_tournaments_in_db(self, tournaments_list):
+        if self.is_tournaments_validate(tournaments_list):
+            self.tournaments_table.truncate()
+            for tournament in tournaments_list:
+                tournament_entry = self.serialize_tournament(tournament)
+                self.tournaments_table.insert(tournament_entry)
+            return True
+        else:
+            return False
+
+    def check_and_insert_a_tournament_in_db(self, tournament):
+        if self.is_tournaments_validate([tournament]):
+            tournament_entry = self.serialize_tournament(tournament)
+            self.tournaments_table.insert(tournament_entry)
+            return True
+        else:
+            return False
+
+    def load_tournaments_in_db(self):
+        logging.debug('load_tournaments_in_db')
+        tournaments_list = []
+        for tournament_entry in self.tournaments_table.all():
+            tournaments_list.append(self.unserialize_tournament(tournament_entry))
+        return tournaments_list
+
+    def serialize_tournament(self, tournament):
+        tournament_entry = tournament.serialize()
+        logging.info(f'tournament_entry={tournament_entry}')
+        return tournament_entry
+
+    def unserialize_tournament(self, tournament_entry):
+        tournament = Tournament(tournament_entry["Name"],
+                                tournament_entry["Location"],
+                                tournament_entry["Date"],
+                                tournament_entry["Round"],
+                                tournament_entry["TimeControl"],
+                                tournament_entry["Description"],
+                                tournament_entry["TournamentId"])
+        logging.info(f'tournament={str(tournament)}')
+        return tournament

@@ -8,11 +8,311 @@ from tkcalendar import DateEntry
 from ChessUtils import ChessUtils
 
 
-class ChessPlayersView:
+class ChessBasicView:
     def __init__(self, controller):
         self.my_controller = controller
         self.is_built = False
-        self.is_debug = None
+        self.is_debug = ChessBasicView.read_views_section_config_file()
+        self.tree = None
+        self.is_already_created = False
+        self.main_window = None
+        self.tree_frame = None
+        self.is_on = False
+
+    def is_visible(self):
+        return self.is_on
+
+    def set_visible(self):
+        self.is_on = True
+        return self.is_on
+
+    def set_not_visible(self):
+        self.is_on = False
+        return self.is_on
+
+    def set_my_controller(self, controller):
+        self.my_controller = controller
+
+    def item_selected(self, event, tree):
+        pass
+
+    def sort_tree_column(self, event):
+        pass
+
+    def show_all(self):
+        pass
+
+    def hide_all(self):
+        pass
+
+    def show_actions_frame(self):
+        pass
+
+    @staticmethod
+    def read_views_section_config_file():
+        logging.debug('read_views_section_config_file')
+        config = configparser.ConfigParser()
+        config.read('MyChessApp.ini')
+        is_debug = config['views']['is_debug']
+        return is_debug
+
+    def generate_report(self):
+        pass
+
+    def activate_debug(self, is_debug):
+        pass
+
+
+"""
+    ChessTournamentsView
+"""
+class ChessTournamentsView(ChessBasicView):
+    def __init__(self, controller):
+        super().__init__(controller)
+        # self.my_controller = controller
+        # self.is_built = False
+        # self.is_debug = None
+
+        self.add_a_tournament_frame = None
+
+        self.tournament_name_var = StringVar()
+        self.tournament_location_var = StringVar()
+        self.tournament_date_var = StringVar()
+        self.tournament_round_var = StringVar()
+        self.tournament_time_control_var = StringVar()
+        self.tournament_description_var = StringVar()
+
+    def activate_debug(self, is_debug):
+        if is_debug == 'ON':
+            dummy_tournaments_list = self.my_controller.get_dummy_tournaments_list()
+            for dummy_tournament in dummy_tournaments_list:
+                self.tree.insert('', END, values=dummy_tournament)
+        else:
+            self.load_tournaments_list_in_view()
+
+    def item_selected(self, event, tree):
+        for selected_item in self.tree.selection():
+            item = self.tree.item(selected_item)
+            tournament = item['values']
+            # show a message
+            self.tournament_name_var.set(tournament[0])
+            self.tournament_location_var.set(tournament[1])
+            self.tournament_date_var.set(tournament[2])
+            self.tournament_round_var.set(tournament[3])
+            self.tournament_time_control_var.set(tournament[4])
+            self.tournament_description_var.set(tournament[5])
+
+    def sort_tree_column(self, event):
+        values = []
+        heading = self.tree.identify("region", event.x, event.y)
+        column = int(self.tree.identify_column(event.x)[1:])
+        if heading == 'heading':
+            for line in self.tree.get_children():
+                values.append(self.tree.item(line)['values'])
+            sorted_values = sorted(values, key=itemgetter(column - 1))
+            self.tree.delete(*self.tree.get_children())
+            for value in sorted_values:
+                tournament = (value[0], value[1], value[2], value[3], value[4], value[5], value[6])
+                self.tree.insert('', END, values=tournament)
+        else:
+            return None
+
+    def create_tree_widget(self, frame):
+        style = ttk.Style()
+        style.theme_use('clam')
+        bg = style.lookup('TFrame', 'background')
+        style.configure('Treeview.Heading', background=bg,  font=('calibre', 10, 'bold'))
+
+        columns = ('name', 'location', 'date', 'round', 'time control', 'description')
+        self.tree = ttk.Treeview(frame, columns=columns, show='headings')
+        self.tree.bind('<Button>', lambda event: self.sort_tree_column(event))
+
+        self.tournament_name_var = StringVar()
+        self.tournament_location_var = StringVar()
+        self.tournament_date_var = StringVar()
+        self.tournament_round_var = StringVar()
+        self.tournament_time_control_var = StringVar()
+        self.tournament_description_var = StringVar()
+
+        # define headings
+        self.tree.heading('name', text='Name')
+        self.tree.heading('location', text='Location')
+        self.tree.heading('date', text='Date')
+        self.tree.heading('round', text='Round')
+        self.tree.heading('time control', text='Time Control')
+        self.tree.heading('description', text='Description')
+
+        self.tree.bind('<<TreeviewSelect>>', lambda event: self.item_selected(event, self.tree))
+        self.tree.grid(row=0, column=0, sticky=NSEW)
+
+        # add a scrollbar
+        yscrollbar = ttk.Scrollbar(frame, orient=VERTICAL, command=self.tree.yview)
+        self.tree.configure(yscrollcommand=yscrollbar.set)
+        yscrollbar.grid(row=0, column=1, sticky='ns')
+
+        xscrollbar = ttk.Scrollbar(frame, orient=HORIZONTAL, command=self.tree.xview)
+        self.tree.configure(xscrollcommand=xscrollbar.set)
+        xscrollbar.grid(row=1, column=0, sticky='ew')
+
+        self.activate_debug(self.is_debug)
+
+    def load_tournaments_list_in_view(self):
+        logging.debug('load_tournaments_list_in_view')
+        self.clear_tournaments_list()
+        tournaments_list = self.my_controller.load_tournaments_list()
+        logging.info(tournaments_list)
+        for tournament in tournaments_list:
+            self.tree.insert('', END, values=tournament)
+        self.my_controller.set_tournament_id(len(tournaments_list))
+
+    def show_tournaments_list_frame(self):
+        self.tree_frame = LabelFrame(self.main_window, text='Tournaments list')
+        self.tree_frame.pack()
+        self.create_tree_widget(self.tree_frame)
+
+    def show_actions_frame(self):
+        self.action_frame = LabelFrame(self.main_window, text='Actions')
+        self.action_frame.pack()
+
+        load_btn = Button(self.action_frame, text='Load', command=lambda: self.load_tournaments_list_in_view())
+        load_btn.grid(row=0, column=0, padx=10, pady=10)
+        save_btn = Button(self.action_frame, text='Report', command=lambda: self.generate_report())
+        save_btn.grid(row=0, column=1, padx=10, pady=10)
+        close_btn = Button(self.action_frame, text='Close', command=lambda: self.hide_all())
+        close_btn.grid(row=0, column=2, padx=10, pady=10)
+
+    def show_all(self):
+        if self.is_already_created is False:
+            self.show_tournaments_list_frame()
+            self.show_actions_frame()
+            # self.show_change_a_tournament_frame()
+            self.show_add_a_tournament_frame()
+            self.is_already_created = True
+        else:
+            self.tree_frame.pack()
+            self.action_frame.pack()
+            self.add_a_tournament_frame.pack()
+        self.set_visible()
+
+            # self.change_a_player_rank_frame.pack()
+
+
+    def hide_all(self):
+        if self.is_already_created is True:
+            self.tree_frame.pack_forget()
+            self.action_frame.pack_forget()
+            # self.change_a_player_rank_frame.pack_forget()
+            self.add_a_tournament_frame.pack_forget()
+            self.set_not_visible()
+
+    def clear_tournaments_list(self):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+    def generate_report(self):
+        filetypes = (('text files', '*.csv'), ('All files', '*.*'))
+        try:
+            file = filedialog.asksaveasfile(
+                title='Open a file',
+                initialdir='/',
+                filetypes=filetypes)
+            file.write(f"'name','location','date','round','time control','description', 'tournament id'\n")
+            for line in self.tree.get_children():
+                values = self.tree.item(line)['values']
+                file.write(f'{values[0]},{values[1]},{values[2]},{values[3]},{values[4]},{values[5]},{values[6]}\n')
+            file.close()
+        except Exception as error:
+            print(f'Unexpected exception in generate_report(): {error}')
+
+    def show_add_a_tournament_frame(self):
+        self.add_a_tournament_frame = LabelFrame(self.main_window, text='Add a tournament')
+        self.add_a_tournament_frame.pack()
+        string_var_list = [self.tournament_name_var,
+                           self.tournament_location_var,
+                           self.tournament_date_var,
+                           self.tournament_round_var,
+                           self.tournament_time_control_var,
+                           self.tournament_description_var]
+
+        ChessTournamentsView.fill_a_tournament_form(self.add_a_tournament_frame, string_var_list)
+        add_tournament_button = Button(self.add_a_tournament_frame, text='Add', command=self.add_a_tournament)
+        add_tournament_button.grid(row=2, column=0)
+
+
+    @staticmethod
+    def fill_a_tournament_form(frame, string_var_list, widget_state=NORMAL):
+        name_label = Label(frame, text='Name', font=('calibre', 10, 'bold'))
+        name_entry = Entry(frame, textvariable=string_var_list[0], font=('calibre', 10, 'normal'), state=widget_state)
+
+        location_label = Label(frame, text='location', font=('calibre', 10, 'bold'))
+        location_entry = Entry(frame, textvariable=string_var_list[1], font=('calibre', 10, 'normal'), state=widget_state)
+
+        date_label = Label(frame, text='Date', font=('calibre', 10, 'bold'))
+        date_entry = DateEntry(frame, textvariable=string_var_list[2], date_pattern='dd/mm/yyyy', state=widget_state)
+        date_entry.delete(0, END)
+
+        round_label = Label(frame, text='Round', font=('calibre', 10, 'bold'))
+        round_entry = Entry(frame, textvariable=string_var_list[3], state=widget_state)
+
+        time_control_label = Label(frame, text='Time Control', font=('calibre', 10, 'bold'))
+        time_control_entry = Spinbox(frame, values=('', 'Blitz', 'Bullet', 'Fast'), textvariable=string_var_list[4], state=widget_state)
+
+        description_label = Label(frame, text='Description', font=('calibre', 10, 'bold'))
+        description_entry = Entry(frame, textvariable=string_var_list[5], font=('calibre', 10, 'normal'))
+
+        name_label.grid(row=0, column=0)
+        location_label.grid(row=0, column=1)
+        date_label.grid(row=0, column=2)
+        round_label.grid(row=0, column=3)
+        time_control_label.grid(row=0, column=4)
+        description_label.grid(row=0, column=5)
+
+        name_entry.grid(row=1, column=0)
+        location_entry.grid(row=1, column=1)
+        date_entry.grid(row=1, column=2)
+        round_entry.grid(row=1, column=3)
+        time_control_entry.grid(row=1, column=4)
+        description_entry.grid(row=1, column=5)
+
+    def add_a_tournament(self):
+        tournament_name = self.tournament_name_var.get()
+        tournament_location = self.tournament_location_var.get()
+        tournament_date = self.tournament_date_var.get()
+        tournament_round = self.tournament_round_var.get()
+        tournament_time_control = self.tournament_time_control_var.get()
+        tournament_description = self.tournament_description_var.get()
+        if ChessUtils.check_str('Name', tournament_name) is False or \
+                ChessUtils.check_str('Location', tournament_location) is False or \
+                ChessUtils.check_date('Date', tournament_date) is False or \
+                ChessUtils.check_int('Round', tournament_round) is False or \
+                ChessUtils.check_enumerate('time_control',
+                                           tournament_time_control, ['Blitz', 'Bullet', 'Fast']) is False or \
+                ChessUtils.check_str('Description', tournament_description) is False:
+            return False
+
+        tournament = (tournament_name, tournament_location, tournament_date, tournament_round, tournament_time_control,
+                      tournament_description, self.my_controller.get_tournament_id())
+        logging.debug(f'add a tournament {tournament}')
+        self.my_controller.save_a_tournament(tournament)
+
+        self.tree.insert('', END, values=tournament)
+        self.tournament_name_var.set("")
+        self.tournament_location_var.set("")
+        self.tournament_date_var.set("")
+        self.tournament_round_var.set("")
+        self.tournament_time_control_var.set("")
+        self.tournament_description_var.set("")
+        return True
+
+"""
+    ChessPlayersView
+"""
+class ChessPlayersView(ChessBasicView):
+    def __init__(self, controller):
+        super().__init__(controller)
+        self.my_controller = controller
+        # self.is_built = False
+        # self.is_debug = None
 
         # declaring string variable
         self.last_name_var = StringVar()
@@ -27,21 +327,21 @@ class ChessPlayersView:
         self.gender_var2 = StringVar()
         self.rank_var2 = StringVar()
 
-        self.tree = None
-        self.is_already_created = False
-        self.player_id = 0
-
-        self.main_window = None
-        self.tree_frame = None
+        # self.tree = None
+        # self.is_already_created = False
+        #
+        #
+        # self.main_window = None
+        # self.tree_frame = None
         self.action_frame = None
         self.add_a_player_frame = None
         self.change_a_player_rank_frame = None
 
-        self.is_debug = ChessPlayersView.read_views_section_config_file()
+        # self.is_debug = ChessBasicView.read_views_section_config_file()
 
 
-    def set_my_controller(self, controller):
-        self.my_controller = controller
+    # def set_my_controller(self, controller):
+    #     self.my_controller = controller
 
     def item_selected(self, event, tree):
         for selected_item in self.tree.selection():
@@ -65,7 +365,7 @@ class ChessPlayersView:
         logging.info(players_list)
         for player in players_list:
             self.tree.insert('', END, values=player)
-        self.set_player_id(len(players_list))
+        self.my_controller.set_player_id(len(players_list))
 
     def modify_a_player_rank(self):
         logging.debug('modify_a_player_rank')
@@ -93,11 +393,11 @@ class ChessPlayersView:
         if ChessUtils.check_str('Last Name', last_name) is False or \
             ChessUtils.check_str('First Name', first_name) is False or \
             ChessUtils.check_date('Birthdate', birthdate) is False or \
-            ChessUtils.check_gender('Gender', gender) is False or \
+            ChessUtils.check_enumerate('Gender', gender, ['Male', 'Female']) is False or \
             ChessUtils.check_int('Rank', rank) is False:
             return False
 
-        player = (last_name, first_name, birthdate, gender, rank, self.get_player_id())
+        player = (last_name, first_name, birthdate, gender, rank, self.my_controller.get_player_id())
         logging.debug(f'add a player {player}')
         self.my_controller.save_a_player(player)
 
@@ -124,14 +424,6 @@ class ChessPlayersView:
         else:
             return None
 
-    def set_player_id(self, player_id):
-        self.player_id = player_id
-        return self.player_id
-
-    def get_player_id(self):
-        self.player_id += 1
-        return self.player_id
-
     def generate_report(self):
         filetypes = (('text files', '*.csv'), ('All files', '*.*'))
         try:
@@ -149,30 +441,11 @@ class ChessPlayersView:
 
     def activate_debug(self, is_debug):
         if is_debug == 'ON':
-            dummy_players_list = [('Messi', 'Lionel', '07/03/1984', 'Male', 1000, self.get_player_id()),
-                                  ('Bronze', 'Lucy', '07/02/1990', 'Female', 2000, self.get_player_id()),
-                                  ('Greenwood', 'Alex', '07/02/1996', 'Female', 1000, self.get_player_id()),
-                                  ('Hegerberg', 'Ada', '07/02/1998', 'Female', 1000, self.get_player_id()),
-                                  ('Ronaldo', 'Cristiano', '07/02/1990', 'Male', 4000, self.get_player_id()),
-                                  ('Loris', 'Hugo', '07/02/1997', 'Male', 3000, self.get_player_id()),
-                                  ('Weir', 'Stephanie', '07/02/2000', 'Female', 1000, self.get_player_id()),
-                                  ('Bouhaddi', 'Sarah', '07/02/1986', 'Female', 5000, self.get_player_id())
-                                  ]
-
-            self.my_controller.save_players_list(dummy_players_list)
-
+            dummy_players_list = self.my_controller.get_dummy_players_list()
             for dummy_player in dummy_players_list:
                 self.tree.insert('', END, values=dummy_player)
         else:
             self.load_players_list_in_view()
-
-    @staticmethod
-    def read_views_section_config_file():
-        logging.debug('read_views_section_config_file')
-        config = configparser.ConfigParser()
-        config.read('MyChessApp.ini')
-        is_debug = config['views']['is_debug']
-        return is_debug
 
     def create_tree_widget(self, frame):
         style = ttk.Style()
@@ -284,6 +557,7 @@ class ChessPlayersView:
             self.action_frame.pack()
             self.change_a_player_rank_frame.pack()
             self.add_a_player_frame.pack()
+        self.set_visible()
 
     def hide_all(self):
         if self.is_already_created is True:
@@ -291,7 +565,7 @@ class ChessPlayersView:
             self.action_frame.pack_forget()
             self.change_a_player_rank_frame.pack_forget()
             self.add_a_player_frame.pack_forget()
-
+            self.set_not_visible()
 
 class VirtualView:
     def __init__(self):
@@ -307,14 +581,13 @@ class ChessMainView(VirtualView):
 
         self.my_controller = None
         self.player_view = None
+        self.tournament_view = None
 
         self.main_window = Tk()
 
         self.main_window.title("Chess Tournaments")
         self.main_window.geometry("1100x500")
         self.main_window.minsize(1100, 500)
-
-        self.is_debug = ChessPlayersView.read_views_section_config_file()
 
         # Creation d'une barre de menu
         menu_bar = Menu(self.main_window)
@@ -326,32 +599,38 @@ class ChessMainView(VirtualView):
 
         #creer un 2nd menu
         player_menu = Menu(menu_bar, tearoff=0)
-        player_menu.add_command(label="🔎 Display", command=lambda: self.player_view.show_all())
+        # player_menu.add_command(label="🔎 Display", command=lambda: self.player_view.show_all())
+        player_menu.add_command(label="🔎 Display", command=lambda: self.toggle_view(self.player_view, self.tournament_view))
         player_menu.add_command(label="🗙 Exit", command=self.main_window.quit)
         menu_bar.add_cascade(label="📁 Players", menu=player_menu)
 
-        #creer un 3eme menu
-        tournament_list_menu = Menu(tearoff=0)
-        tournament_list_menu.add_command(label="🔎 Display", command=lambda: print('Not implemented'))
 
-        tournament_menu = Menu(menu_bar, tearoff=0)
-        tournament_menu.add_command(label="🔎 Create", command=lambda: print('Not implemented'))
-        tournament_menu.add_command(label="🔎 Start", command=lambda: print('Not implemented'))
-        tournament_menu.add_command(label="🔎 Suspend", command=lambda: print('Not implemented'))
-        tournament_menu.add_command(label="🔎 Resume", command=lambda: print('Not implemented'))
-        tournament_menu.add_command(label="🔎 Cancel", command=lambda: print('Not implemented'))
-        tournament_menu.add_cascade(label="🔎 List", menu=tournament_list_menu)
-        tournament_menu.add_command(label="🗙 Exit", command=lambda: print('Not implemented'))
-        menu_bar.add_cascade(label="📁 Tournaments", menu=tournament_menu)
+        #creer un 3eme menu
+        tournament_list_menu = Menu(menu_bar, tearoff=0)
+        # tournament_list_menu.add_command(label="🔎 Display", command=lambda: self.tournament_view.show_all())
+        tournament_list_menu.add_command(label="🔎 Display", command=lambda: self.toggle_view(self.tournament_view, self.player_view))
+        tournament_list_menu.add_command(label="🗙 Exit", command=self.main_window.quit)
+
+        # tournament_menu.add_command(label="🔎 Create", command=lambda: print('Not implemented'))
+        # tournament_menu.add_command(label="🔎 Start", command=lambda: print('Not implemented'))
+        # tournament_menu.add_command(label="🔎 Suspend", command=lambda: print('Not implemented'))
+        # tournament_menu.add_command(label="🔎 Resume", command=lambda: print('Not implemented'))
+        # tournament_menu.add_command(label="🔎 Cancel", command=lambda: print('Not implemented'))
+        # tournament_menu.add_command(label="🗙 Exit", command=lambda: print('Not implemented'))
+        menu_bar.add_cascade(label="📁 Tournaments", menu=tournament_list_menu)
 
         #Configurer notre fenetre pour ajouter le menu_bar
         self.main_window.config(menu=menu_bar)
 
-
-
     def set_my_controller(self, controller):
         self.my_controller = controller
         self.player_view = ChessPlayersView(controller)
+        self.tournament_view = ChessTournamentsView(controller)
+
+    def toggle_view(self, first_view, second_view):
+        if second_view.is_visible():
+            second_view.hide_all()
+        first_view.show_all()
 
     def display_interface(self):
         self.main_window.mainloop()
