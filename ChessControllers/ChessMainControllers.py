@@ -1,7 +1,9 @@
 import logging
 from operator import itemgetter
 from ChessViews import ChessMainViews
+from tkinter import messagebox
 from ChessModels import ChessMainModels
+
 
 
 class VirtualController:
@@ -19,11 +21,41 @@ class ChessMainController(VirtualController):
         self.my_model = model
         self.player_id = 0
         self.tournament_id = 0
+        self.selected_players_list = []
+        self.selected_tournament = None
 
     def run(self):
         self.my_view.set_my_controller(self)
         self.my_model.set_my_controller(self)
         self.my_view.display_interface()
+
+    def set_selected_tournament(self, tournament):
+        self.selected_tournament = tournament
+
+    def get_selected_tournament(self):
+        return self.selected_tournament
+
+    def set_selected_players_list(self, selected_players_list):
+        print(selected_players_list)
+        self.selected_players_list = selected_players_list
+
+    def get_selected_players_list(self):
+        return(self.selected_players_list)
+
+    def assign_selected_players_to_selected_tournament(self):
+        logging.debug('assign_selected_players_to_selected_tournament')
+        selected_tournament = self.get_selected_tournament()
+        selected_players_list = self.get_selected_players_list()
+        if selected_tournament is None:
+            messagebox.showerror('Error', 'No selected tournament')
+        elif selected_players_list == []:
+            messagebox.showerror('Error', 'No selected players')
+        else:
+            messagebox.showinfo('Info', 'Selected players have been assigned to the tournament')
+            sorted_selected_players_list = sorted(selected_players_list, key=itemgetter(4), reverse=True)
+            logging.info(sorted_selected_players_list)
+            self.my_model.update_a_tournament_players_list(selected_tournament, sorted_selected_players_list)
+
 
     def set_player_id(self, player_id):
         self.player_id = player_id
@@ -108,6 +140,12 @@ class ChessMainController(VirtualController):
         model_tournament = ChessMainModels.Tournament(tournament[0], tournament[1], tournament[2], tournament[3],
                                                       tournament[4], tournament[5], tournament[6])
         status = self.my_model.check_and_insert_a_tournament_in_db(model_tournament)
+        return status
+
+    def update_a_tournament_players_list(self, tournament, players_list):
+        model_tournament = ChessMainModels.Tournament(tournament[0], tournament[1], tournament[2], tournament[3],
+                                                      tournament[4], tournament[5], tournament[6])
+        status = self.my_model.update_a_tournament_players_list(model_tournament, players_list)
         return status
 
     def load_tournaments_list(self):

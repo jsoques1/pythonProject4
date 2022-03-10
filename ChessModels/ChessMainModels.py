@@ -31,6 +31,7 @@ class Tournament:
         tournament_entry['TimeControl'] = self.time_control
         tournament_entry['Description'] = self.description
         tournament_entry['TournamentId'] = self.tournament_id
+        tournament_entry['Players'] = []
         return tournament_entry
 
     def unserialize(self):
@@ -164,6 +165,10 @@ class ChessMainModel(VirtualModel):
             return True
         else:
             return False
+
+    def update_a_tournament_players_list(self, tournament, players_list):
+        retval = self.tournaments_table.update({"Players": players_list}, doc_ids=[int(tournament[6])])
+        print(retval)
 
     def load_tournaments_in_db(self):
         logging.debug('load_tournaments_in_db')

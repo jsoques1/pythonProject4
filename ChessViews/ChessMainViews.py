@@ -4,6 +4,7 @@ from operator import itemgetter
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
+from tkinter import messagebox
 from tkcalendar import DateEntry
 from ChessUtils import ChessUtils
 
@@ -91,16 +92,22 @@ class ChessTournamentsView(ChessBasicView):
             self.load_tournaments_list_in_view()
 
     def item_selected(self, event, tree):
-        for selected_item in self.tree.selection():
+        if len(self.tree.selection()) != 1:
+            messagebox.showerror('Error', 'Select only one entry')
+            return False
+        else:
+            selected_item = self.tree.selection()[0]
             item = self.tree.item(selected_item)
             tournament = item['values']
+            self.my_controller.set_selected_tournament(tournament)
             # show a message
-            self.tournament_name_var.set(tournament[0])
-            self.tournament_location_var.set(tournament[1])
-            self.tournament_date_var.set(tournament[2])
-            self.tournament_round_var.set(tournament[3])
-            self.tournament_time_control_var.set(tournament[4])
-            self.tournament_description_var.set(tournament[5])
+            # self.tournament_name_var.set(tournament[0])
+            # self.tournament_location_var.set(tournament[1])
+            # self.tournament_date_var.set(tournament[2])
+            # self.tournament_round_var.set(tournament[3])
+            # self.tournament_time_control_var.set(tournament[4])
+            # self.tournament_description_var.set(tournament[5])
+            return True
 
     def sort_tree_column(self, event):
         values = []
@@ -170,6 +177,9 @@ class ChessTournamentsView(ChessBasicView):
         self.tree_frame.pack()
         self.create_tree_widget(self.tree_frame)
 
+    def add_players_list(self):
+        self.my_controller.assign_selected_players_to_selected_tournament()
+
     def show_actions_frame(self):
         self.action_frame = LabelFrame(self.main_window, text='Actions')
         self.action_frame.pack()
@@ -178,8 +188,10 @@ class ChessTournamentsView(ChessBasicView):
         load_btn.grid(row=0, column=0, padx=10, pady=10)
         save_btn = Button(self.action_frame, text='Report', command=lambda: self.generate_report())
         save_btn.grid(row=0, column=1, padx=10, pady=10)
-        close_btn = Button(self.action_frame, text='Close', command=lambda: self.hide_all())
+        close_btn = Button(self.action_frame, text='Add Players', command=lambda: self.add_players_list())
         close_btn.grid(row=0, column=2, padx=10, pady=10)
+        close_btn = Button(self.action_frame, text='Close', command=lambda: self.hide_all())
+        close_btn.grid(row=0, column=3, padx=10, pady=10)
 
     def show_all(self):
         if self.is_already_created is False:
@@ -344,7 +356,10 @@ class ChessPlayersView(ChessBasicView):
     #     self.my_controller = controller
 
     def item_selected(self, event, tree):
-        for selected_item in self.tree.selection():
+        nb_selected = len(self.tree.selection())
+        selected_players_list = []
+        if nb_selected == 1:
+            selected_item = self.tree.selection()[0]
             item = self.tree.item(selected_item)
             player = item['values']
             # show a message
@@ -353,6 +368,24 @@ class ChessPlayersView(ChessBasicView):
             self.birthdate_var2.set(player[2])
             self.gender_var2.set(player[3])
             self.rank_var2.set(player[4])
+            return True
+        elif nb_selected % 2:
+            messagebox.showerror('Error', 'select an even number of entries')
+            return False
+        else:
+            self.last_name_var2.set("")
+            self.first_name_var2.set("")
+            self.birthdate_var2.set("")
+            self.gender_var2.set("")
+            self.rank_var2.set("")
+            for selected_item in self.tree.selection():
+                item = self.tree.item(selected_item)
+                player = item['values']
+                selected_players_list.append(player)
+            self.my_controller.set_selected_players_list(selected_players_list)
+
+            return True
+
 
     def clear_players_list(self):
         for item in self.tree.get_children():
