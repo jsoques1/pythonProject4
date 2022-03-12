@@ -1,9 +1,10 @@
+import configparser
 import logging
+import time
 from operator import itemgetter
 from ChessViews import ChessMainViews
 from tkinter import messagebox
 from ChessModels import ChessMainModels
-
 
 
 class VirtualController:
@@ -17,11 +18,13 @@ class VirtualController:
 class ChessMainController(VirtualController):
     def __init__(self, view, model):
         super().__init__()
+        self.is_debug = ChessMainController.read_controllers_section_config_file()
         self.my_view = view
         self.my_model = model
         self.player_id = 0
         self.tournament_id = 0
         self.selected_players_list = []
+        self.players_couple_list = []
         self.selected_tournament = None
 
     def run(self):
@@ -30,7 +33,10 @@ class ChessMainController(VirtualController):
         self.my_view.display_interface()
 
     def set_selected_tournament(self, tournament):
+        logging.debug('set_selected_tournament')
+        logging.info(f'{tournament}')
         self.selected_tournament = tournament
+
 
     def get_selected_tournament(self):
         return self.selected_tournament
@@ -56,6 +62,32 @@ class ChessMainController(VirtualController):
             logging.info(sorted_selected_players_list)
             self.my_model.update_a_tournament_players_list(selected_tournament, sorted_selected_players_list)
 
+    def get_rounds_players_from_selected_tournament(self):
+        logging.debug('get_selected_players_to_selected_tournament')
+        selected_tournament = self.get_selected_tournament()
+        rounds_list = []
+        players_list = []
+        if selected_tournament is None:
+            messagebox.showerror('Error', 'No selected tournament')
+        else:
+            rounds_list, players_list = self.my_model.get_tournament_rounds_players_list(selected_tournament)
+            logging.info(f'retval {rounds_list}= {players_list}')
+        return rounds_list, players_list
+
+    def get_current_time(self):
+        return time.strftime(format("%H:%M:%S"))
+
+    def get_rounds_players_couple_list(self):
+        rounds_list, players_list = self.get_rounds_players_from_selected_tournament()
+        nb_players_couple = int(len(players_list) / 2)
+        self.players_couple_list = []
+        opponent = 0
+        for current in range(nb_players_couple):
+            opponent = current + nb_players_couple
+            self.players_couple_list.append([players_list[current][0], players_list[current][5], 0])
+            self.players_couple_list.append([players_list[opponent][0], players_list[opponent][5], 0])
+        logging.info(f'players couples = {self.players_couple_list}')
+        return rounds_list, self.players_couple_list
 
     def set_player_id(self, player_id):
         self.player_id = player_id
@@ -65,15 +97,14 @@ class ChessMainController(VirtualController):
         self.player_id += 1
         return self.player_id
 
-    # @staticmethod
-    # def read_controls_section_config_file():
-    #     logging.debug('read_models_section_config_file')
-    #     config = configparser.ConfigParser()
-    #     config.read('MyChessApp.ini')
-    #     db_dir = config['controls']['db_dir']
-    #     players_db = config['models']['players_db']
-    #     tournaments_db = config['models']['tournaments_db']
-    #     return db_dir, players_db, tournaments_db
+    @staticmethod
+    def read_controllers_section_config_file():
+        logging.debug('read_views_section_config_file')
+        config = configparser.ConfigParser()
+        config.read('MyChessApp.ini')
+        is_debug = config['controllers']['is_debug']
+        return is_debug
+
     def get_dummy_players_list(self):
         dummy_players_list = [('Messi', 'Lionel', '07/03/1984', 'Male', 1000, self.get_player_id()),
                           ('Bronze', 'Lucy', '07/02/1990', 'Female', 2000, self.get_player_id()),
@@ -147,6 +178,17 @@ class ChessMainController(VirtualController):
                                                       tournament[4], tournament[5], tournament[6])
         status = self.my_model.update_a_tournament_players_list(model_tournament, players_list)
         return status
+
+    def update_a_match_results_list_round(self, round_number, round_start_time, round_end_time, match_results_list):
+        match_list = []
+        selected_tournament = self.get_selected_tournament()
+        for a_match_result in match_results_list:
+            match_list.append([a_match_result[3], a_match_result[4]])
+        next_round_number = int(round_number) + 1
+
+        status = self.my_model.update_a_tournament_round(selected_tournament, round_number, round_start_time,
+                                                         round_end_time, match_list)
+        return next_round_number, status
 
     def load_tournaments_list(self):
         logging.debug('load_tournaments_list')

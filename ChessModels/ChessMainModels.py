@@ -12,125 +12,42 @@ class VirtualModel:
     def run(self):
         pass
 
-class Round:
-    def __init__(self, start_time=None, end_time=None, match_list=None):
-        self.start_time = start_time
-        self.end_time = end_time
-        self.match_list = []
-        self.round_list = []
-
-    # def serialized(self):
-    #     tour_infos = {}
-    #     tour_infos['Nom'] = self.name
-    #     tour_infos['Debut'] = self.begin_time
-    #     tour_infos['Fin'] = self.end_time
-    #     tour_infos['Matchs'] = self.list_of_finished_matchs
-    #     return tour_infos
-    #
-    # def unserialized(self, serialized_tour):
-    #     name = serialized_tour['Nom']
-    #     begin_time = serialized_tour['Debut']
-    #     end_time = serialized_tour['Fin']
-    #     list_of_finished_matchs = serialized_tour['Matchs']
-    #     return Tour(name,
-    #                 begin_time,
-    #                 end_time,
-    #                 list_of_finished_matchs
-    #                 )
-    #
-    # def __repr__(self):
-    #     return f"{self.name} - Début : {self.begin_time}. Fin : {self.end_time}."
-    #
-    # def run(self, sorted_players_list, tournament_object):
-    #     self.view = view_main.TourDisplay()
-    #     self.list_of_tours = []
-    #     self.list_of_finished_matchs = []
-    #     self.name = "Tour " + str(len(tournament_object.list_of_tours) + 1)
-    #     # Tour.TOUR_NUMBER += 1
-    #
-    #     self.begin_time, self.end_time = self.view.display_tournament_time()
-    #
-    #     # tant qu'il y a des joueurs dans la liste, ajoute des instances de 'match' dans la liste 'list_of_tours'
-    #     while len(sorted_players_list) > 0:
-    #         match_instance = Match(self.name, sorted_players_list[0], sorted_players_list[1])
-    #         Match.MATCH_NUMBER += 1
-    #         self.list_of_tours.append(match_instance)
-    #         del sorted_players_list[0:2]
-    #
-    #     self.view.display_tour(self.name, self.list_of_tours)
-    #
-    #     for match in self.list_of_tours:
-    #
-    #         valid_score_player_1 = False
-    #         while not valid_score_player_1:
-    #             try:
-    #                 score_player_1 = input(f"Entrez le score de {match.player_1} :")
-    #                 float(score_player_1)
-    #             except Exception:
-    #                 print("Vous devez entrer 0, 0.5, ou 1")
-    #             else:
-    #                 match.score_player_1 = float(score_player_1)
-    #                 match.player_1.tournament_score += float(score_player_1)
-    #                 valid_score_player_1 = True
-    #
-    #         valid_score_player_2 = False
-    #         while not valid_score_player_2:
-    #             try:
-    #                 score_player_2 = input(f"Entrez le score de {match.player_2} :")
-    #                 float(score_player_2)
-    #             except Exception:
-    #                 print("Vous devez entrer 0, 0.5, ou 1")
-    #             else:
-    #                 match.score_player_2 = float(score_player_2)
-    #                 match.player_2.tournament_score += float(score_player_2)
-    #                 valid_score_player_2 = True
-    #
-    #         self.list_of_finished_matchs.append(([match.player_1.player_id, match.score_player_1],
-    #                                              [match.player_2.player_id, match.score_player_2]))
-    #
-    #     return Tour(self.name, self.begin_time, self.end_time, self.list_of_finished_matchs)
-
-
-class Match:
-    def __init__(self, first_player=None, second_player=None, first_player_score=0, second_player_score=0, match_id=0):
-        self.first_player = first_player
-        self.second_player = second_player
-        self.first_player_score = first_player_score
-        self.second_player_score = second_player_score
-        self.match_id = match_id
-
-    def __str__(self):
-        return f"{self.match_id} {self.first_player} {self.second_player}"
-
 
 class Tournament:
-    def __init__(self, name=None, location=None, date=None, tournament_round=None, time_control=None, description=None, tournament_id=0):
+    def __init__(self, name=None, location=None, date=None, tournament_rounds_number=None, time_control=None,
+                 description=None, tournament_id=0, players=[], rounds=[]):
         self.name = name
         self.location = location
         self.date = date
-        self.round = tournament_round
+        self.rounds_number = tournament_rounds_number
         self.time_control = time_control
         self.description = description
         self.tournament_id = tournament_id
+        self.players = players
+        self.rounds = rounds
 
     def serialize(self):
         tournament_entry = dict()
         tournament_entry['Name'] = self.name
         tournament_entry['Location'] = self.location
         tournament_entry['Date'] = self.date
-        tournament_entry['Round'] = self.round
+        tournament_entry['RoundsNumber'] = self.rounds_number
         tournament_entry['TimeControl'] = self.time_control
         tournament_entry['Description'] = self.description
         tournament_entry['TournamentId'] = self.tournament_id
-        tournament_entry['Players'] = []
-        tournament_entry['Rounds'] = []
+        tournament_entry['Players'] = self.players
+        tournament_entry['Rounds'] = self.rounds
         return tournament_entry
 
     def unserialize(self):
-        return (self.name, self.location, self.date, self.round, self.time_control, self.description, self.tournament_id)
+        retval = (self.name, self.location, self.date, self.rounds_number, self.time_control, self.description,
+                  self.tournament_id, self.players, self.rounds)
+        return retval
 
     def __str__(self):
-        return f'{self.name} {self.location} {self.date} {self.round} {self.time_control} {self.description} {self.tournament_id}'
+        return f'{self.name} {self.location} {self.date} {self.rounds_number} {self.time_control} {self.description} \
+{self.tournament_id} {self.players} {self.rounds}'
+
     
 class Player:
     def __init__(self, last_name=None, first_name=None, birthdate=None, gender=None, rank=None, player_id=0):
@@ -152,10 +69,61 @@ class Player:
         return player_entry
 
     def unserialize(self):
-        return (self.last_name, self.first_name, self.birthdate, self.gender, self.rank, self.player_id)
+        retval = (self.last_name, self.first_name, self.birthdate, self.gender, self.rank, self.player_id)
+        return retval
 
     def __str__(self):
         return f'{self.last_name} {self.first_name} {self.birthdate} {self.gender} {self.rank} {self.player_id}'
+
+
+class Round:
+    def __init__(self, rounds_number=1, start_time=None, end_time=None, match_list=None):
+        self.rounds_number = rounds_number
+        self.start_time = start_time
+        self.end_time = end_time
+        self.match_list = match_list
+
+    def serialize(self):
+        round_entry = dict()
+        round_entry['RoundsNumber'] = self.rounds_number
+        round_entry['StartTime'] = self.start_time
+        round_entry['EndTime'] = self.end_time
+        round_entry['MatchList'] = self.match_list
+        return round_entry
+
+    def unserialize(self):
+        retval = (self.rounds_number, self.start_time, self.end_time, self.match_list)
+        return retval
+
+    def __repr__(self):
+        return f"{self.start_time} {self.end_time} {self.match_list}"
+    
+    
+class Match:
+    def __init__(self, first_player=None, second_player=None, first_player_score=0, second_player_score=0, match_id=0):
+        self.first_player = first_player
+        self.second_player = second_player
+        self.first_player_score = first_player_score
+        self.second_player_score = second_player_score
+        self.match_id = match_id
+
+    def serialize(self):
+        match_entry = dict()
+        match_entry['first_player'] = self.first_player
+        match_entry['second_player'] = self.second_player
+        match_entry['first_player_score'] = self.first_player_score
+        match_entry['second_player_score'] = self.second_player_score
+        match_entry['match_id'] = self.match_id
+        return match_entry
+
+    def unserialize(self):
+        retval = (self.first_player, self.second_player, self.first_player_score,
+                  self.second_player_score, self.match_id)
+        return retval
+
+    def __str__(self):
+        return f"{self.match_id} {self.first_player} {self.second_player} {self.first_player_score} \
+    {self.second_player_score} {self.match_id}"
 
 
 class ChessMainModel(VirtualModel):
@@ -164,10 +132,10 @@ class ChessMainModel(VirtualModel):
 
         self.my_controller = None
         db_dir, players_db, tournaments_db = ChessMainModel.read_models_section_config_file()
-        players_db = TinyDB(db_dir + '/' + players_db)
-        self.players_table = players_db.table('Players')
-        tournaments_db = TinyDB(db_dir + '/' + tournaments_db)
-        self.tournaments_table = tournaments_db.table('Tournaments')
+        self.players_db = TinyDB(db_dir + '/' + players_db)
+        self.players_db.default_table_name = 'Players'
+        self.tournaments_db = TinyDB(db_dir + '/' + tournaments_db)
+        self.tournaments_db.default_table_name = 'Tournaments'
 
     @staticmethod
     def read_models_section_config_file():
@@ -187,10 +155,10 @@ class ChessMainModel(VirtualModel):
 
     def check_and_insert_players_in_db(self, players_list):
         if self.is_players_validate(players_list):
-            self.players_table.truncate()
+            self.players_db.truncate()
             for player in players_list:
                 player_entry = self.serialize_player(player)
-                self.players_table.insert(player_entry)
+                self.players_db.insert(player_entry)
             return True
         else:
             return False
@@ -198,7 +166,7 @@ class ChessMainModel(VirtualModel):
     def check_and_insert_a_player_in_db(self, player):
         if self.is_players_validate([player]):
             player_entry = self.serialize_player(player)
-            self.players_table.insert(player_entry)
+            self.players_db.insert(player_entry)
             return True
         else:
             return False
@@ -206,7 +174,7 @@ class ChessMainModel(VirtualModel):
     def check_and_udate_a_player_rank_in_db(self, player):
         if self.is_players_validate([player]):
             print(f'update Rank = {player.rank} where PlayerdId == {player.player_id}')
-            retval = self.players_table.update({"Rank": int(player.rank)}, doc_ids=[int(player.player_id)])
+            retval = self.players_db.update({"Rank": int(player.rank)}, doc_ids=[int(player.player_id)])
             print(retval)
             return True
         else:
@@ -215,16 +183,14 @@ class ChessMainModel(VirtualModel):
     def load_players_in_db(self):
         logging.debug('load_players_in_db')
         players_list = []
-        for player_entry in self.players_table.all():
+        for player_entry in self.players_db.all():
             players_list.append(self.unserialize_player(player_entry))
         return players_list
-
 
     def serialize_player(self, player):
         player_entry = player.serialize()
         logging.info(f'player_entry={player_entry}')
         return player_entry
-
 
     def unserialize_player(self, player_entry):
         player = Player(player_entry["LastName"],
@@ -236,16 +202,15 @@ class ChessMainModel(VirtualModel):
         logging.info(f'player={str(player)}')
         return player
 
-
     def is_tournaments_validate(self, tournaments_list):
         return True
 
     def check_and_insert_tournaments_in_db(self, tournaments_list):
         if self.is_tournaments_validate(tournaments_list):
-            self.tournaments_table.truncate()
+            self.tournaments_db.truncate()
             for tournament in tournaments_list:
                 tournament_entry = self.serialize_tournament(tournament)
-                self.tournaments_table.insert(tournament_entry)
+                self.tournaments_db.insert(tournament_entry)
             return True
         else:
             return False
@@ -253,19 +218,43 @@ class ChessMainModel(VirtualModel):
     def check_and_insert_a_tournament_in_db(self, tournament):
         if self.is_tournaments_validate([tournament]):
             tournament_entry = self.serialize_tournament(tournament)
-            self.tournaments_table.insert(tournament_entry)
+            self.tournaments_db.insert(tournament_entry)
             return True
         else:
             return False
 
     def update_a_tournament_players_list(self, tournament, players_list):
-        retval = self.tournaments_table.update({"Players": players_list}, doc_ids=[int(tournament[6])])
+        logging.debug('update_a_tournament_players_list')
+        logging.info(players_list)
+        retval = self.tournaments_db.update({"Players": players_list}, doc_ids=[int(tournament[6])])
         print(retval)
+
+    def get_tournament_rounds_players_list(self, tournament):
+        logging.debug('update_a_tournament_players_list')
+        logging.info(f'selected_tournament = {tournament}')
+        tournament_entry = self.tournaments_db.get(doc_id=int(tournament[6]))
+        return tournament_entry['Rounds'], tournament_entry['Players']
+
+    def update_a_tournament_round(self, tournament, round_id, round_start_time, round_end_time, match_list):
+        logging.debug('update_a_tournament_rounds')
+        logging.info(f'selected_tournament = {tournament}')
+        tournament_entry = self.tournaments_db.get(doc_id=int(tournament[6]))
+        rounds_list = tournament_entry['Rounds']
+        rounds_list.append([round_id, round_start_time, round_end_time, match_list])
+        retval = self.tournaments_db.update({"Rounds": rounds_list}, doc_ids=[int(tournament[6])])
+        print(retval)
+
+    def get_tournament_rounds_list(self, tournament):
+        logging.debug('get_tournament_rounds_list')
+        logging.info(f'selected_tournament = {tournament}')
+        tournament_entry = self.tournaments_db.get(doc_id=int(tournament[6]))
+        retval = tournament_entry['Rounds']
+        return retval
 
     def load_tournaments_in_db(self):
         logging.debug('load_tournaments_in_db')
         tournaments_list = []
-        for tournament_entry in self.tournaments_table.all():
+        for tournament_entry in self.tournaments_db.all():
             tournaments_list.append(self.unserialize_tournament(tournament_entry))
         return tournaments_list
 
@@ -278,9 +267,19 @@ class ChessMainModel(VirtualModel):
         tournament = Tournament(tournament_entry["Name"],
                                 tournament_entry["Location"],
                                 tournament_entry["Date"],
-                                tournament_entry["Round"],
+                                tournament_entry["RoundsNumber"],
                                 tournament_entry["TimeControl"],
                                 tournament_entry["Description"],
-                                tournament_entry["TournamentId"])
+                                tournament_entry["TournamentId"],
+                                tournament_entry["Players"],
+                                tournament_entry["Rounds"])
         logging.info(f'tournament={str(tournament)}')
         return tournament
+    
+    def unserialize_round(self, round_entry):
+        tournament_rounds_number = Round(round_entry['RoundsNumber'],
+                                 round_entry['StartTime'],
+                                 round_entry['EndTime'],
+                                 round_entry['MatchList'])
+        retval = (f'tournament={str(tournament_rounds_number)}')
+        return retval

@@ -28,6 +28,11 @@ def check_date(name, value):
     else:
         return False
 
+
+def check_time(name, value):
+    return True
+
+
 def check_enumerate(name, value, enumarate):
     if check_str(name, value) is True:
         if value not in enumarate:
