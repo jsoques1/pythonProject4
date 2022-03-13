@@ -28,12 +28,18 @@ def check_date(name, value):
     else:
         return False
 
-def check_gender(name, value):
+
+def check_time(name, value):
+    return True
+
+
+def check_enumerate(name, value, enumarate):
     if check_str(name, value) is True:
-        if value not in ['Male', 'Female']:
+        if value not in enumarate:
             showerror('Error', 'Invalid ' + name)
             return False
         else:
             return True
     else:
         return False
+
