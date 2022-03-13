@@ -15,7 +15,7 @@ class VirtualModel:
 
 class Tournament:
     def __init__(self, name=None, location=None, date=None, tournament_rounds_number=None, time_control=None,
-                 description=None, tournament_id=0, players=[], rounds=[]):
+                 description=None, tournament_id=0, players=[], rounds=[], players_score=[]):
         self.name = name
         self.location = location
         self.date = date
@@ -25,6 +25,7 @@ class Tournament:
         self.tournament_id = tournament_id
         self.players = players
         self.rounds = rounds
+        self.players_score = players_score
 
     def serialize(self):
         tournament_entry = dict()
@@ -37,16 +38,17 @@ class Tournament:
         tournament_entry['TournamentId'] = self.tournament_id
         tournament_entry['Players'] = self.players
         tournament_entry['Rounds'] = self.rounds
+        tournament_entry['PlayersScore'] = self.players_score
         return tournament_entry
 
     def unserialize(self):
         retval = (self.name, self.location, self.date, self.rounds_number, self.time_control, self.description,
-                  self.tournament_id, self.players, self.rounds)
+                  self.tournament_id, self.players, self.rounds, self.players_score)
         return retval
 
     def __str__(self):
         return f'{self.name} {self.location} {self.date} {self.rounds_number} {self.time_control} {self.description} \
-{self.tournament_id} {self.players} {self.rounds}'
+{self.tournament_id} {self.players} {self.rounds} {self.players_score}'
 
     
 class Player:
@@ -139,7 +141,7 @@ class ChessMainModel(VirtualModel):
 
     @staticmethod
     def read_models_section_config_file():
-        logging.debug('read_models_section_config_file')
+        logging.debug('ChessMainModels : read_models_section_config_file')
         config = configparser.ConfigParser()
         config.read('MyChessApp.ini')
         db_dir = config['models']['db_dir']
@@ -181,7 +183,7 @@ class ChessMainModel(VirtualModel):
             return False
 
     def load_players_in_db(self):
-        logging.debug('load_players_in_db')
+        logging.debug('ChessMainModels : load_players_in_db')
         players_list = []
         for player_entry in self.players_db.all():
             players_list.append(self.unserialize_player(player_entry))
@@ -189,7 +191,7 @@ class ChessMainModel(VirtualModel):
 
     def serialize_player(self, player):
         player_entry = player.serialize()
-        logging.info(f'player_entry={player_entry}')
+        logging.info(f'ChessMainModels : player_entry={player_entry}')
         return player_entry
 
     def unserialize_player(self, player_entry):
@@ -199,7 +201,7 @@ class ChessMainModel(VirtualModel):
                         player_entry["Gender"],
                         player_entry["Rank"],
                         player_entry["PlayerId"])
-        logging.info(f'player={str(player)}')
+        logging.info(f'ChessMainModels : player={str(player)}')
         return player
 
     def is_tournaments_validate(self, tournaments_list):
@@ -224,46 +226,58 @@ class ChessMainModel(VirtualModel):
             return False
 
     def update_a_tournament_players_list(self, tournament, players_list):
-        logging.debug('update_a_tournament_players_list')
-        logging.info(players_list)
+        logging.debug('ChessMainModels : update_a_tournament_players_list')
+        logging.info(f'ChessMainModels : players_list = {players_list}')
         retval = self.tournaments_db.update({"Players": players_list}, doc_ids=[int(tournament[6])])
         print(retval)
 
     def get_tournament_rounds_players_list(self, tournament):
-        logging.debug('update_a_tournament_players_list')
-        logging.info(f'selected_tournament = {tournament}')
+        logging.debug('ChessMainModels : get_tournament_rounds_players_list')
+        logging.info(f'ChessMainModels : selected_tournament = {tournament}')
         tournament_entry = self.tournaments_db.get(doc_id=int(tournament[6]))
+        logging.info(f'ChessMainModels : rounds = {tournament_entry["Rounds"]}')
+        logging.info(f'ChessMainModels : players = {tournament_entry["Players"]}')
         return tournament_entry['Rounds'], tournament_entry['Players']
 
-    def update_a_tournament_round(self, tournament, round_id, round_start_time, round_end_time, match_list):
-        logging.debug('update_a_tournament_rounds')
-        logging.info(f'selected_tournament = {tournament}')
+    def update_a_tournament_round(self, tournament, round_id, round_start_time, round_end_time, match_list, players_score):
+        logging.debug('ChessMainModels : update_a_tournament_rounds')
+        logging.info(f'ChessMainModels : selected_tournament = {tournament}')
         tournament_entry = self.tournaments_db.get(doc_id=int(tournament[6]))
         rounds_list = tournament_entry['Rounds']
         rounds_list.append([round_id, round_start_time, round_end_time, match_list])
-        retval = self.tournaments_db.update({"Rounds": rounds_list}, doc_ids=[int(tournament[6])])
-        print(retval)
+        retval1 = self.tournaments_db.update({"Rounds": rounds_list}, doc_ids=[int(tournament[6])])
+        retval2 = self.tournaments_db.update({"PlayersScore": players_score}, doc_ids=[int(tournament[6])])
+        return retval1 and retval2
+
+    def get_players_score(self, tournament):
+        logging.debug('ChessMainModels : get_players_score')
+        logging.info(f'ChessMainModels : selected_tournament = {tournament}')
+        tournament_entry = self.tournaments_db.get(doc_id=int(tournament[6]))
+        retval = tournament_entry['PlayersScore']
+        return retval
 
     def get_tournament_rounds_list(self, tournament):
-        logging.debug('get_tournament_rounds_list')
-        logging.info(f'selected_tournament = {tournament}')
+        logging.debug('ChessMainModels : get_tournament_rounds_list')
+        logging.info(f'ChessMainModels : selected_tournament = {tournament}')
         tournament_entry = self.tournaments_db.get(doc_id=int(tournament[6]))
         retval = tournament_entry['Rounds']
         return retval
 
     def load_tournaments_in_db(self):
-        logging.debug('load_tournaments_in_db')
+        logging.debug('ChessMainModels : load_tournaments_in_db')
         tournaments_list = []
         for tournament_entry in self.tournaments_db.all():
             tournaments_list.append(self.unserialize_tournament(tournament_entry))
+            logging.info(f'ChessMainModels : Rounds = {tournament_entry["Rounds"]}')
         return tournaments_list
 
     def serialize_tournament(self, tournament):
         tournament_entry = tournament.serialize()
-        logging.info(f'tournament_entry={tournament_entry}')
+        logging.info(f'ChessMainModels : tournament_entry={tournament_entry}')
         return tournament_entry
 
     def unserialize_tournament(self, tournament_entry):
+        logging.debug('unserialize_tournament')
         tournament = Tournament(tournament_entry["Name"],
                                 tournament_entry["Location"],
                                 tournament_entry["Date"],
@@ -272,8 +286,9 @@ class ChessMainModel(VirtualModel):
                                 tournament_entry["Description"],
                                 tournament_entry["TournamentId"],
                                 tournament_entry["Players"],
-                                tournament_entry["Rounds"])
-        logging.info(f'tournament={str(tournament)}')
+                                tournament_entry["Rounds"],
+                                tournament_entry['PlayersScore'])
+        logging.info(f'ChessMainModels : tournament={str(tournament)}')
         return tournament
     
     def unserialize_round(self, round_entry):

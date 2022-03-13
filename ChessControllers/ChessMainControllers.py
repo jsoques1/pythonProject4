@@ -3,7 +3,7 @@ import logging
 import time
 from operator import itemgetter
 from ChessViews import ChessMainViews
-from tkinter import messagebox
+
 from ChessModels import ChessMainModels
 
 
@@ -24,8 +24,12 @@ class ChessMainController(VirtualController):
         self.player_id = 0
         self.tournament_id = 0
         self.selected_players_list = []
+        self.selected_rounds_list = []
+        self.players_score = dict()
         self.players_couple_list = []
+        self.players_couple_list_in_all_round = []
         self.selected_tournament = None
+        self.current_tournament = None
 
     def run(self):
         self.my_view.set_my_controller(self)
@@ -33,61 +37,106 @@ class ChessMainController(VirtualController):
         self.my_view.display_interface()
 
     def set_selected_tournament(self, tournament):
-        logging.debug('set_selected_tournament')
-        logging.info(f'{tournament}')
-        self.selected_tournament = tournament
-
+        logging.debug('ChessMainControllers : set_selected_tournament')
+        logging.info(f'ChessMainControllers : {tournament}')
+        if self.current_tournament != None:
+            assert False
+            # self.selected_tournament = tournament
+        else:
+            self.selected_tournament = tournament
 
     def get_selected_tournament(self):
         return self.selected_tournament
 
-    def set_selected_players_list(self, selected_players_list):
-        print(selected_players_list)
+    def set_selected_players_list(self, selected_players_list=[]):
+        logging.debug('ChessMainControllers : set_selected_players_list')
+        logging.info(f'ChessMainControllers : selected_players_list = {selected_players_list}')
         self.selected_players_list = selected_players_list
 
     def get_selected_players_list(self):
         return(self.selected_players_list)
 
+    def set_tournament_completed(self):
+        self.selected_players_list = []
+        self.selected_rounds_list = []
+        self.players_score = dict()
+        self.players_couple_list = []
+        self.players_couple_list_in_all_round = []
+        self.selected_tournament = None
+
     def assign_selected_players_to_selected_tournament(self):
-        logging.debug('assign_selected_players_to_selected_tournament')
+        logging.debug('ChessMainControllers : assign_selected_players_to_selected_tournament')
         selected_tournament = self.get_selected_tournament()
         selected_players_list = self.get_selected_players_list()
         if selected_tournament is None:
-            messagebox.showerror('Error', 'No selected tournament')
+            return('No selected tournament')
         elif selected_players_list == []:
-            messagebox.showerror('Error', 'No selected players')
+            return('No selected players')
         else:
-            messagebox.showinfo('Info', 'Selected players have been assigned to the tournament')
             sorted_selected_players_list = sorted(selected_players_list, key=itemgetter(4), reverse=True)
-            logging.info(sorted_selected_players_list)
+            logging.info(f'ChessMainControllers : sorted_selected_players_list = {sorted_selected_players_list}')
             self.my_model.update_a_tournament_players_list(selected_tournament, sorted_selected_players_list)
+            self.selected_players_list.clear()
+            return('')
 
     def get_rounds_players_from_selected_tournament(self):
-        logging.debug('get_selected_players_to_selected_tournament')
+        logging.debug('ChessMainModels : get_rounds_players_from_selected_tournament')
         selected_tournament = self.get_selected_tournament()
-        rounds_list = []
-        players_list = []
         if selected_tournament is None:
-            messagebox.showerror('Error', 'No selected tournament')
+            return [], []
+        # elif self.players_couple_list_in_all_round:
+        #     pass
         else:
-            rounds_list, players_list = self.my_model.get_tournament_rounds_players_list(selected_tournament)
-            logging.info(f'retval {rounds_list}= {players_list}')
-        return rounds_list, players_list
+            self.selected_rounds_list, self.selected_players_list = self.my_model.get_tournament_rounds_players_list(selected_tournament)
+            logging.info(f'ChessMainControllers : rounds_list = {self.selected_rounds_list}')
+            logging.info(f'ChessMainControllers : players_list = {self.selected_players_list}')
+        return self.selected_rounds_list, self.selected_players_list
 
     def get_current_time(self):
         return time.strftime(format("%H:%M:%S"))
 
-    def get_rounds_players_couple_list(self):
-        rounds_list, players_list = self.get_rounds_players_from_selected_tournament()
-        nb_players_couple = int(len(players_list) / 2)
-        self.players_couple_list = []
-        opponent = 0
-        for current in range(nb_players_couple):
-            opponent = current + nb_players_couple
-            self.players_couple_list.append([players_list[current][0], players_list[current][5], 0])
-            self.players_couple_list.append([players_list[opponent][0], players_list[opponent][5], 0])
-        logging.info(f'players couples = {self.players_couple_list}')
-        return rounds_list, self.players_couple_list
+    def get_max_rounds_number(self):
+        logging.debug('ChessMainModels : get_max_rounds_number')
+        selected_tournament = self.get_selected_tournament()
+        max_rounds_number = selected_tournament[3]
+        logging.info(f'ChessMainControllers : max rounds number = {max_rounds_number}')
+        return max_rounds_number
+
+    def get_rounds_players_couple_list(self, update_to_make=False):
+        logging.debug('ChessMainControllers : get_rounds_players_couple_list')
+        self.selected_rounds_list, players_list = self.get_rounds_players_from_selected_tournament()
+        self.players_score = self.my_model.get_players_score(self.get_selected_tournament())
+        logging.info(f'ChessMainControllers : players = {players_list}')
+        logging.info(f'ChessMainControllers : players_score = {self.players_score}')
+        # if players_list and self.players_score:
+        if players_list:
+            if update_to_make:
+                for current in range(len(players_list)):
+                    players_list[current][4] = self.players_score[players_list[current][0]]
+                logging.info(f'ChessMainControllers : players_list before sort : len = {len(players_list)} players_list = {players_list}')
+                players_list = sorted(players_list, key=lambda x: float(x[4]), reverse=True)
+                logging.info(f'ChessMainControllers : players_list after sort : len = {len(players_list)} players_list = {players_list}')
+
+            nb_players_couple = int(len(players_list) / 2)
+            self.players_couple_list = []
+            for current in range(nb_players_couple):
+                opponent = current + nb_players_couple
+                if update_to_make:
+                    first_player = [players_list[current][0], players_list[current][5], players_list[current][4]]
+                    second_player = [players_list[opponent][0], players_list[opponent][5], players_list[opponent][4]]
+                else:
+                    first_player = [players_list[current][0], players_list[current][5], 0]
+                    second_player = [players_list[opponent][0], players_list[opponent][5], 0]
+
+                self.players_couple_list.append(first_player)
+                self.players_couple_list.append(second_player)
+                self.players_couple_list_in_all_round.append([first_player, second_player])
+            logging.info(f'ChessMainControllers : players couples in all rounds = {self.players_couple_list_in_all_round}')
+            logging.info(f'ChessMainControllers : players couples = {self.players_couple_list}')
+            return self.selected_rounds_list, self.players_couple_list
+        else:
+            logging.debug('ChessMainControllers : get_rounds_players_couple_list - Deadly case (1)')
+            return [], []
 
     def set_player_id(self, player_id):
         self.player_id = player_id
@@ -99,7 +148,7 @@ class ChessMainController(VirtualController):
 
     @staticmethod
     def read_controllers_section_config_file():
-        logging.debug('read_views_section_config_file')
+        logging.debug('ChessMainControllers : read_views_section_config_file')
         config = configparser.ConfigParser()
         config.read('MyChessApp.ini')
         is_debug = config['controllers']['is_debug']
@@ -107,14 +156,14 @@ class ChessMainController(VirtualController):
 
     def get_dummy_players_list(self):
         dummy_players_list = [('Messi', 'Lionel', '07/03/1984', 'Male', 1000, self.get_player_id()),
-                          ('Bronze', 'Lucy', '07/02/1990', 'Female', 2000, self.get_player_id()),
-                          ('Greenwood', 'Alex', '07/02/1996', 'Female', 1000, self.get_player_id()),
-                          ('Hegerberg', 'Ada', '07/02/1998', 'Female', 1000, self.get_player_id()),
-                          ('Ronaldo', 'Cristiano', '07/02/1990', 'Male', 4000, self.get_player_id()),
-                          ('Loris', 'Hugo', '07/02/1997', 'Male', 3000, self.get_player_id()),
-                          ('Weir', 'Stephanie', '07/02/2000', 'Female', 1000, self.get_player_id()),
-                          ('Bouhaddi', 'Sarah', '07/02/1986', 'Female', 5000, self.get_player_id())
-                          ]
+            ('Bronze', 'Lucy', '07/02/1990', 'Female', 2000, self.get_player_id()),
+            ('Greenwood', 'Alex', '07/02/1996', 'Female', 1000, self.get_player_id()),
+            ('Hegerberg', 'Ada', '07/02/1998', 'Female', 1000, self.get_player_id()),
+            ('Ronaldo', 'Cristiano', '07/02/1990', 'Male', 4000, self.get_player_id()),
+            ('Loris', 'Hugo', '07/02/1997', 'Male', 3000, self.get_player_id()),
+            ('Weir', 'Stephanie', '07/02/2000', 'Female', 1000, self.get_player_id()),
+            ('Bouhaddi', 'Sarah', '07/02/1986', 'Female', 5000, self.get_player_id())
+        ]
 
         self.save_players_list(dummy_players_list)
         return dummy_players_list
@@ -138,7 +187,7 @@ class ChessMainController(VirtualController):
         return status
 
     def load_players_list(self):
-        logging.debug('load_players_list')
+        logging.debug('ChessMainControllers : load_players_list')
         model_players_list = self.my_model.load_players_in_db()
         players_list = []
         for model_player in model_players_list:
@@ -180,22 +229,35 @@ class ChessMainController(VirtualController):
         return status
 
     def update_a_match_results_list_round(self, round_number, round_start_time, round_end_time, match_results_list):
+        logging.debug('ChessMainControllers : update_a_match_results_list_round')
         match_list = []
         selected_tournament = self.get_selected_tournament()
+        logging.info(f'ChessMainControllers : len = {len(match_results_list)} match_results_list ={match_results_list}')
         for a_match_result in match_results_list:
             match_list.append([a_match_result[3], a_match_result[4]])
-        next_round_number = int(round_number) + 1
+            player_key = a_match_result[3][0]
+            if player_key in self.players_score:
+                self.players_score[player_key] = float(self.players_score[player_key]) + float(a_match_result[3][2])
+            else:
+                self.players_score[player_key] = float(a_match_result[3][2])
+
+            player_key = a_match_result[4][0]
+            if player_key in self.players_score:
+                self.players_score[player_key] = float(self.players_score[player_key]) + float(a_match_result[4][2])
+            else:
+                self.players_score[player_key] = float(a_match_result[4][2])
 
         status = self.my_model.update_a_tournament_round(selected_tournament, round_number, round_start_time,
-                                                         round_end_time, match_list)
-        return next_round_number, status
+                                                         round_end_time, match_list, self.players_score)
+        return round_number, status
 
     def load_tournaments_list(self):
-        logging.debug('load_tournaments_list')
+        logging.debug('ChessMainControllers : load_tournaments_list')
         model_tournaments_list = self.my_model.load_tournaments_in_db()
         tournaments_list = []
         for model_tournament in model_tournaments_list:
-           tournaments_list.append(model_tournament.unserialize())
+            tournaments_list.append(model_tournament.unserialize())
+            logging.info(f'model_tournament = {model_tournament}')
         return tournaments_list
 
     def set_tournament_id(self, tournament_id):
