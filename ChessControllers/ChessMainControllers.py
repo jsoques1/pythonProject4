@@ -83,14 +83,14 @@ class ChessMainController(VirtualController):
         logging.debug('ChessMainModels : get_rounds_players_from_selected_tournament')
         selected_tournament = self.get_selected_tournament()
         if selected_tournament is None:
-            return [], []
+            return [], [], None
         # elif self.players_couple_list_in_all_round:
         #     pass
         else:
             self.selected_rounds_list, self.selected_players_list = self.my_model.get_tournament_rounds_players_list(selected_tournament)
             logging.info(f'ChessMainControllers : rounds_list = {self.selected_rounds_list}')
             logging.info(f'ChessMainControllers : players_list = {self.selected_players_list}')
-        return self.selected_rounds_list, self.selected_players_list
+        return self.selected_rounds_list, self.selected_players_list, selected_tournament
 
     def get_current_time(self):
         return time.strftime(format("%H:%M:%S"))
@@ -104,39 +104,46 @@ class ChessMainController(VirtualController):
 
     def get_rounds_players_couple_list(self, update_to_make=False):
         logging.debug('ChessMainControllers : get_rounds_players_couple_list')
-        self.selected_rounds_list, players_list = self.get_rounds_players_from_selected_tournament()
-        self.players_score = self.my_model.get_players_score(self.get_selected_tournament())
+        self.selected_rounds_list, players_list, tournament = self.get_rounds_players_from_selected_tournament()
+        if tournament is None:
+            return [], [], None
+        self.players_score = self.my_model.get_players_score(tournament)
         logging.info(f'ChessMainControllers : players = {players_list}')
         logging.info(f'ChessMainControllers : players_score = {self.players_score}')
         # if players_list and self.players_score:
         if players_list:
-            if update_to_make:
-                for current in range(len(players_list)):
-                    players_list[current][4] = self.players_score[players_list[current][0]]
-                logging.info(f'ChessMainControllers : players_list before sort : len = {len(players_list)} players_list = {players_list}')
-                players_list = sorted(players_list, key=lambda x: float(x[4]), reverse=True)
-                logging.info(f'ChessMainControllers : players_list after sort : len = {len(players_list)} players_list = {players_list}')
-
-            nb_players_couple = int(len(players_list) / 2)
-            self.players_couple_list = []
-            for current in range(nb_players_couple):
-                opponent = current + nb_players_couple
+            if self.players_score:
                 if update_to_make:
-                    first_player = [players_list[current][0], players_list[current][5], players_list[current][4]]
-                    second_player = [players_list[opponent][0], players_list[opponent][5], players_list[opponent][4]]
-                else:
-                    first_player = [players_list[current][0], players_list[current][5], 0]
-                    second_player = [players_list[opponent][0], players_list[opponent][5], 0]
+                    for current in range(len(players_list)):
+                        players_list[current][4] = self.players_score[players_list[current][0]]
+                    logging.info(f'ChessMainControllers : players_list before sort : len = {len(players_list)} players_list = {players_list}')
+                    players_list = sorted(players_list, key=lambda x: float(x[4]), reverse=True)
+                    logging.info(f'ChessMainControllers : players_list after sort : len = {len(players_list)} players_list = {players_list}')
 
-                self.players_couple_list.append(first_player)
-                self.players_couple_list.append(second_player)
-                self.players_couple_list_in_all_round.append([first_player, second_player])
-            logging.info(f'ChessMainControllers : players couples in all rounds = {self.players_couple_list_in_all_round}')
-            logging.info(f'ChessMainControllers : players couples = {self.players_couple_list}')
-            return self.selected_rounds_list, self.players_couple_list
+                nb_players_couple = int(len(players_list) / 2)
+                self.players_couple_list = []
+                for current in range(nb_players_couple):
+                    opponent = current + nb_players_couple
+                    if update_to_make:
+                        first_player = [players_list[current][0], players_list[current][5], players_list[current][4]]
+                        second_player = [players_list[opponent][0], players_list[opponent][5], players_list[opponent][4]]
+                    else:
+                        first_player = [players_list[current][0], players_list[current][5], 0]
+                        second_player = [players_list[opponent][0], players_list[opponent][5], 0]
+
+                    self.players_couple_list.append(first_player)
+                    self.players_couple_list.append(second_player)
+                    self.players_couple_list_in_all_round.append([first_player, second_player])
+                logging.info(f'ChessMainControllers : players couples in all rounds = {self.players_couple_list_in_all_round}')
+                logging.info(f'ChessMainControllers : players couples = {self.players_couple_list}')
+                return self.selected_rounds_list, self.players_couple_list, tournament
+            else:
+                logging.info(f'ChessMainControllers : get_rounds_players_couple_list - self.selected_rounds_list \
+= {self.selected_rounds_list} self.players_couple_list = {self.players_couple_list}')
+                return [], [], None
         else:
-            logging.debug('ChessMainControllers : get_rounds_players_couple_list - Deadly case (1)')
-            return [], []
+            logging.debug('ChessMainControllers : get_rounds_players_couple_list - Deadly case (2)')
+            return [], [], None
 
     def set_player_id(self, player_id):
         self.player_id = player_id

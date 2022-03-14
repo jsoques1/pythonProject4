@@ -67,6 +67,8 @@ class ChessBasicView:
 """
     ChessTournamentsView
 """
+
+
 class ChessTournamentsView(ChessBasicView):
     def __init__(self, controller):
         super().__init__(controller)
@@ -204,11 +206,18 @@ class ChessTournamentsView(ChessBasicView):
         self.match_frame.pack()
         
     def add_players_list(self):
+        tournament = self.my_controller.get_selected_tournament()
+        if tournament is None:
+            messagebox.showerror('Error', 'No tournament selected')
+            return False
+
         retval = self.my_controller.assign_selected_players_to_selected_tournament()
         if retval:
             messagebox.showerror('Error', retval)
+            return retval
         else:
             messagebox.showinfo('Info', 'Players have been added')
+            return False
 
     def show_actions_frame(self):
         self.action_frame = LabelFrame(self.main_window, text='Actions')
@@ -295,8 +304,14 @@ class ChessTournamentsView(ChessBasicView):
         match_frame.grid(row=2, column=0)
 
     def start_tournament(self):
-        self.rounds_list, self.players_couple_list = self.my_controller.get_rounds_players_couple_list()
+        tournament = self.my_controller.get_selected_tournament()
+        if tournament is None:
+            messagebox.showerror('Error', 'No tournament selected')
+            return False
+
+        self.rounds_list, self.players_couple_list, tournament = self.my_controller.get_rounds_players_couple_list()
         round_id = len(self.rounds_list) + 1
+
         if round_id > self.my_controller.get_max_rounds_number():
             messagebox.showinfo('Info', 'This tournament has been completed')
             return False
@@ -324,13 +339,20 @@ class ChessTournamentsView(ChessBasicView):
 
     def continue_tournament(self):
         logging.debug(f'ChessMainViews : continue_tournament')
+        tournament = self.my_controller.get_selected_tournament()
+        if tournament is None:
+            messagebox.showerror('Error', 'No tournament selected')
+            return False
 
-        self.rounds_list, self.players_couple_list = self.my_controller.get_rounds_players_couple_list(update_to_make=True)
+        self.rounds_list, self.players_couple_list, tournament = self.my_controller.get_rounds_players_couple_list(update_to_make=True)
         logging.info(f'ChessMainViews : self.rounds_list = {self.rounds_list}')
         logging.info(f'ChessMainViews : self.players_couple_list = {self.players_couple_list}')
 
         round_id = len(self.rounds_list) + 1
         logging.info(f'ChessMainViews : round_id = {round_id}')
+        # if tournament is None:
+        #     messagebox.showerror('Error', 'Focus lost on selected tournament\nPlease reselect')
+        #     return False
         if round_id > self.my_controller.get_max_rounds_number():
             self.set_tournament_completed()
             self.my_controller.set_tournament_completed()
@@ -354,7 +376,6 @@ class ChessTournamentsView(ChessBasicView):
 
     def commit_match(self):
         logging.debug(f'ChessMainViews : commit_match')
-        status = False
         round_number = self.round_number_var.get()
         round_start_time = self.round_start_time_var.get()
         round_end_time = self.round_end_time_var.get()
