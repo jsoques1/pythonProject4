@@ -72,6 +72,8 @@ class ChessMainController(VirtualController):
             return 'No selected tournament'
         elif selected_players_list == []:
             return 'No selected players'
+        elif selected_tournament[3] > (len(selected_players_list) / 2):
+            return f'nb of rounds ({selected_tournament[3]}) exceeds number of players couples'
         else:
             sorted_selected_players_list = sorted(selected_players_list, key=itemgetter(4), reverse=True)
             logging.info(f'ChessMainControllers : sorted_selected_players_list = {sorted_selected_players_list}')
