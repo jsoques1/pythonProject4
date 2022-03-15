@@ -250,7 +250,7 @@ class ChessTournamentsView(ChessBasicView):
             self.add_a_tournament_frame.pack()
         self.set_visible()
 
-            # self.change_a_player_rank_frame.pack()
+
 
     def hide_all(self):
         if self.is_already_created is True:
@@ -391,7 +391,8 @@ class ChessTournamentsView(ChessBasicView):
                     ChessUtils.check_enumerate('FirstPlayerScore',
                                                match_first_player_score, ['0', '0.5', '1']) is False or \
                     ChessUtils.check_enumerate('SecondPlayerScore',
-                                               match_second_player_score, ['0', '0.5', '1']) is False:
+                                               match_second_player_score, ['0', '0.5', '1']) is False or \
+                    ChessUtils.check_score('PlayerScores', match_first_player_score, match_second_player_score) is False:
                 return False
 
             match_first_player_id = self.players_couple_list[0][1]
@@ -405,11 +406,11 @@ class ChessTournamentsView(ChessBasicView):
 
             self.match_results_list.append(a_match)
 
-            self.players_couple_list.pop(0)
-            self.players_couple_list.pop(0)
             logging.info(f'ChessMainViews : (1) couples_list={self.players_couple_list}')
             logging.info(f'ChessMainViews : (1) round={a_match}')
             logging.info(f'ChessMainViews : (1) len={len(self.match_results_list)} result={self.match_results_list}')
+
+            del self.players_couple_list[0:2]
 
             self.match_first_player_score_var.set('')
             self.match_second_player_score_var.set('')
@@ -861,26 +862,21 @@ class ChessMainView(VirtualView):
         self.main_window.geometry("1100x520")
         self.main_window.minsize(1100, 520)
 
-        # Creation d'une barre de menu
         menu_bar = Menu(self.main_window)
 
-        #creer un 1er menu
         file_menu = Menu(menu_bar, tearoff=0)
         file_menu.add_command(label="🗙 Exit", command=self.main_window.quit)
         menu_bar.add_cascade(label="📁 File", menu=file_menu)
 
-        #creer un 2nd menu
         player_menu = Menu(menu_bar, tearoff=0)
         # player_menu.add_command(label="🔎 Display", command=lambda: self.player_view.show_all())
-        player_menu.add_command(label="🔎 Display", command=lambda: self.toggle_view(self.player_view, self.tournament_view))
+        player_menu.add_command(label="🔎 Display", command=lambda: ChessMainView.toggle_view(self.player_view, self.tournament_view))
         player_menu.add_command(label="🗙 Exit", command=self.main_window.quit)
         menu_bar.add_cascade(label="📁 Players", menu=player_menu)
 
-
-        #creer un 3eme menu
         tournament_list_menu = Menu(menu_bar, tearoff=0)
         # tournament_list_menu.add_command(label="🔎 Display", command=lambda: self.tournament_view.show_all())
-        tournament_list_menu.add_command(label="🔎 Display", command=lambda: self.toggle_view(self.tournament_view, self.player_view))
+        tournament_list_menu.add_command(label="🔎 Display", command=lambda: ChessMainView.toggle_view(self.tournament_view, self.player_view))
         tournament_list_menu.add_command(label="🗙 Exit", command=self.main_window.quit)
 
         # tournament_menu.add_command(label="🔎 Create", command=lambda: print('Not implemented'))
@@ -891,7 +887,6 @@ class ChessMainView(VirtualView):
         # tournament_menu.add_command(label="🗙 Exit", command=lambda: print('Not implemented'))
         menu_bar.add_cascade(label="📁 Tournaments", menu=tournament_list_menu)
 
-        #Configurer notre fenetre pour ajouter le menu_bar
         self.main_window.config(menu=menu_bar)
 
     def set_my_controller(self, controller):
@@ -899,11 +894,12 @@ class ChessMainView(VirtualView):
         self.player_view = ChessPlayersView(controller)
         self.tournament_view = ChessTournamentsView(controller)
 
-    def toggle_view(self, first_view, second_view):
+    @staticmethod
+    def toggle_view(first_view, second_view):
         if second_view.is_visible():
             second_view.hide_all()
         first_view.show_all()
 
     def display_interface(self):
         self.main_window.mainloop()
-        #self.main_window.destroy()
+
