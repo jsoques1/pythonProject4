@@ -60,6 +60,9 @@ class ChessBasicView:
     def generate_report(self):
         pass
 
+    def display_report(self):
+        pass
+
     def activate_debug(self, is_debug):
         pass
 
@@ -181,9 +184,9 @@ class ChessTournamentsView(ChessBasicView):
         self.tree.configure(yscrollcommand=yscrollbar.set)
         yscrollbar.grid(row=0, column=1, sticky='ns')
 
-        xscrollbar = ttk.Scrollbar(frame, orient=HORIZONTAL, command=self.tree.xview)
-        self.tree.configure(xscrollcommand=xscrollbar.set)
-        xscrollbar.grid(row=1, column=0, sticky='ew')
+        # xscrollbar = ttk.Scrollbar(frame, orient=HORIZONTAL, command=self.tree.xview)
+        # self.tree.configure(xscrollcommand=xscrollbar.set)
+        # xscrollbar.grid(row=1, column=0, sticky='ew')
 
         self.activate_debug(self.is_debug)
 
@@ -219,13 +222,16 @@ class ChessTournamentsView(ChessBasicView):
             messagebox.showinfo('Info', 'Players have been added')
             return False
 
+    def display_report(self):
+        pass
+
     def show_actions_frame(self):
         self.action_frame = LabelFrame(self.main_window, text='Actions')
         self.action_frame.pack()
 
         load_btn = Button(self.action_frame, text='Load', command=lambda: self.load_tournaments_list_in_view())
         load_btn.grid(row=0, column=0, padx=10, pady=10)
-        save_btn = Button(self.action_frame, text='Report', command=lambda: self.generate_report())
+        save_btn = Button(self.action_frame, text='Report', command=lambda: self.display_report())
         save_btn.grid(row=0, column=1, padx=10, pady=10)
         add_players_btn = Button(self.action_frame, text='Add Players', command=lambda: self.add_players_list())
         add_players_btn.grid(row=0, column=2, padx=10, pady=10)
@@ -698,6 +704,7 @@ class ChessPlayersView(ChessBasicView):
             return None
 
     def generate_report(self):
+
         filetypes = (('text files', '*.csv'), ('All files', '*.*'))
         try:
             file = filedialog.asksaveasfile(
@@ -711,6 +718,28 @@ class ChessPlayersView(ChessBasicView):
             file.close()
         except Exception as error:
             print(f'Unexpected exception in generate_report(): {error}')
+
+    def display_report(self):
+        new_window = Tk()
+        new_window.title("Chess Players")
+        new_window.geometry("1100x520")
+        new_window.minsize(1100, 520)
+        new_frame = LabelFrame(new_window, text='Players list')
+        new_frame.pack(fill='both')
+        readOnlyText = Text(new_frame)
+        new_frame.pack(expand=True, fill='both')
+        readOnlyText.pack(expand=True, fill='both')
+        readOnlyText.insert(INSERT, '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format("last name", "First name", "Birthdate", "Gender", "Rank"))
+        # readOnlyText.insert(1.0, f'last name\tfirst name\tbirthdate\tgender\rank\n')
+
+        num_line = float(2.0)
+
+        for line in self.tree.get_children():
+            values = self.tree.item(line)['values']
+            num_line += float(1.0)
+            # readOnlyText.insert(num_line, f'{values[0]}\t{values[1]}\t{values[2]}\t{values[3]}\t{values[4]}\n')
+            readOnlyText.insert(INSERT, '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format(values[0], values[1], values[2], values[3], str(values[4])))
+        # new_window.mainloop()
 
     def activate_debug(self, is_debug):
         if is_debug == 'ON':
@@ -758,7 +787,7 @@ class ChessPlayersView(ChessBasicView):
 
         load_btn = Button(self.action_frame, text='Load', command=lambda: self.load_players_list_in_view())
         load_btn.grid(row=0, column=0, padx=10, pady=10)
-        save_btn = Button(self.action_frame, text='Report', command=lambda: self.generate_report())
+        save_btn = Button(self.action_frame, text='Report', command=lambda: self.display_report())
         save_btn.grid(row=0, column=1, padx=10, pady=10)
         close_btn = Button(self.action_frame, text='Close', command=lambda: self.hide_all())
         close_btn.grid(row=0, column=2, padx=10, pady=10)
@@ -877,6 +906,7 @@ class ChessMainView(VirtualView):
         tournament_list_menu = Menu(menu_bar, tearoff=0)
         # tournament_list_menu.add_command(label="🔎 Display", command=lambda: self.tournament_view.show_all())
         tournament_list_menu.add_command(label="🔎 Display", command=lambda: ChessMainView.toggle_view(self.tournament_view, self.player_view))
+
         tournament_list_menu.add_command(label="🗙 Exit", command=self.main_window.quit)
 
         # tournament_menu.add_command(label="🔎 Create", command=lambda: print('Not implemented'))
