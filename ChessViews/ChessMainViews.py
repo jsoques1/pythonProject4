@@ -102,6 +102,9 @@ class ChessTournamentsView(ChessBasicView):
         self.match_second_player_var = StringVar()
         self.match_first_player_score_var = StringVar()
         self.match_second_player_score_var = StringVar()
+
+        self.report_btn = None
+        self.name_dict = dict()
         
     def activate_debug(self, is_debug):
         if is_debug == 'ON':
@@ -222,8 +225,19 @@ class ChessTournamentsView(ChessBasicView):
             messagebox.showinfo('Info', 'Players have been added')
             return False
 
+    def show_name_details(self, name):
+        print(f'show_name_details: {name}, is {self.name_dict[name].get()}')
+        self.report_btn.selection_clear()
+        self.name_dict[name].set('')
+
     def display_report(self):
-        pass
+        self.report_btn.menu = Menu(self.report_btn, tearoff=0)
+        self.report_btn["menu"] = self.report_btn.menu
+
+        self.name_dict = {'Mayo': IntVar(), 'Ketchup': IntVar()}
+        for name, var in self.name_dict.items():
+            self.report_btn.menu.add_checkbutton(label=name, variable=self.name_dict[name],
+                                    command=lambda n=name: self.show_name_details(n))
 
     def show_actions_frame(self):
         self.action_frame = LabelFrame(self.main_window, text='Actions')
@@ -231,8 +245,16 @@ class ChessTournamentsView(ChessBasicView):
 
         load_btn = Button(self.action_frame, text='Load', command=lambda: self.load_tournaments_list_in_view())
         load_btn.grid(row=0, column=0, padx=10, pady=10)
-        save_btn = Button(self.action_frame, text='Report', command=lambda: self.display_report())
-        save_btn.grid(row=0, column=1, padx=10, pady=10)
+        self.report_btn = Menubutton(self.action_frame, text='Report', relief=RAISED, borderwidth=2)
+        self.report_btn.grid(row=0, column=1, padx=10, pady=10)
+        self.report_btn.menu = Menu(self.report_btn, tearoff=0)
+        self.report_btn["menu"] = self.report_btn.menu
+
+        self.name_dict = {'Players alphabetic order': IntVar(), 'Players rank order': IntVar(),
+                          'All tournaments': IntVar(), 'All rounds': IntVar(), 'All matches': IntVar()}
+        for name, var in self.name_dict.items():
+            self.report_btn.menu.add_checkbutton(label=name, variable=self.name_dict[name],
+                                    command=lambda n=name: self.show_name_details(n))
         add_players_btn = Button(self.action_frame, text='Add Players', command=lambda: self.add_players_list())
         add_players_btn.grid(row=0, column=2, padx=10, pady=10)
         start_tournament_btn = Button(self.action_frame, text='Start', command=lambda: self.start_tournament())
