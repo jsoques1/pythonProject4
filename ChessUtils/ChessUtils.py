@@ -43,3 +43,10 @@ def check_enumerate(name, value, enumarate):
     else:
         return False
 
+
+def check_score(name, first_score, second_score):
+    if float(first_score) + float(second_score) != 1.0:
+        showerror('Error', 'Invalid ' + name)
+        return False
+    else:
+        return True
