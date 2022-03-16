@@ -57,6 +57,17 @@ class ChessBasicView:
         is_debug = config['views']['is_debug']
         return is_debug
 
+    def generic_display_report(self):
+        new_window = Tk()
+        new_window.geometry("1100x520")
+        new_window.minsize(1100, 520)
+        new_frame = Frame(new_window)
+        new_frame.pack(fill='both')
+        read_only_text = Text(new_frame)
+        new_frame.pack(expand=True, fill='both')
+        read_only_text.pack(expand=True, fill='both')
+        return read_only_text
+
     def generate_report(self):
         pass
 
@@ -102,6 +113,9 @@ class ChessTournamentsView(ChessBasicView):
         self.match_second_player_var = StringVar()
         self.match_first_player_score_var = StringVar()
         self.match_second_player_score_var = StringVar()
+
+        self.report_btn = None
+        self.name_dict = dict()
         
     def activate_debug(self, is_debug):
         if is_debug == 'ON':
@@ -191,7 +205,7 @@ class ChessTournamentsView(ChessBasicView):
         self.activate_debug(self.is_debug)
 
     def load_tournaments_list_in_view(self):
-        logging.debug(f'ChessMainViews :  : load_tournaments_list_in_view')
+        logging.debug(f'ChessMainViews : load_tournaments_list_in_view')
         self.clear_tournaments_list()
         tournaments_list = self.my_controller.load_tournaments_list()
         logging.info(tournaments_list)
@@ -222,8 +236,91 @@ class ChessTournamentsView(ChessBasicView):
             messagebox.showinfo('Info', 'Players have been added')
             return False
 
-    def display_report(self):
-        pass
+    def display_report_players_ordered_by_name(self):
+        result_list = self.my_controller.get_players_ordered_by_name()
+        read_only_text = self.generic_display_report()
+        read_only_text.insert(INSERT,
+                            '{:25s} {:25s} {:25s} {:10s} {:10s}\n'.format("last Name", "First Nme", "Birthdate",
+                                                                         "Gender", "Rank"))
+        if result_list is not None:
+            for values in result_list:
+                read_only_text.insert(INSERT, '{:25s} {:25s} {:25s} {:10s} {:10s}\n'.format(values[0], values[1], values[2],
+                                                                                          values[3], str(values[4])))
+
+    def display_report_a_tournament_players_ordered_by_rank(self):
+        result_list = self.my_controller.get_players_ordered_by_rank()
+        read_only_text = self.generic_display_report()
+        read_only_text.insert(INSERT,
+                            '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format("last Name", "First Nme", "Birthdate",
+                                                                          "Gender", "Rank"))
+        if result_list is not None:
+            for values in result_list:
+                read_only_text.insert(INSERT, '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format(values[0], values[1], values[2],
+                                                                                            values[3], str(values[4])))
+
+    def display_report_all_tournaments(self):
+        result_list = self.my_controller.get_all_tournaments()
+        read_only_text = self.generic_display_report()
+        read_only_text.insert(INSERT,
+                            '{:25s} {:25s} {:10s} {:6s} {:10s} {:25s}\n'.format("Name", "Location", "Date", 'Rounds',
+                                                                               "Time Control", "Description"))
+        if result_list is not None:
+            for values in result_list:
+                read_only_text.insert(INSERT, '{:25s} {:25s} {:10s} {:6s} {:10s} {:25s}\n'.format(values[0], values[1],
+                                                                                                values[2], str(values[3]),
+                                                                                                str(values[4]), values[5]))
+
+    def display_report_a_tournament_rounds(self):
+        result_list = self.my_controller.get_a_tournament_rounds()
+        read_only_text = self.generic_display_report()
+        read_only_text.insert(INSERT,
+                            '{:2s} {:10} {:10s}\n'.format("Name", "Start Date", 'End Date'))
+        if result_list is not None:
+            for values in result_list:
+                read_only_text.insert(INSERT, '{:2s} {:10} {:10s}\n'.format('Round ' + values[0], values[1], values[2]))
+
+    def display_report_a_tournament_matches(self):
+        logging.debug(f'ChessMainViews : display_report_a_tournament_matches')
+        result_list = self.my_controller.get_a_tournament_matches()
+        logging.info(f'ChessMainViews : display_report_a_tournament_matches : matches = {result_list}')
+        read_only_text = self.generic_display_report()
+        read_only_text.insert(INSERT,
+                            '{:8} {:25s} {:5} {:25s}  {:5}\n'.format('Round', "Name", "Score", 'Name', 'Score'))
+        if result_list is not None:
+            for values in result_list:
+                read_only_text.insert(INSERT, '{:8} {:25s} {:5} {:25s} {:5}\n'.format('Round ' + values[0],
+                                                                                      values[1],
+                                                                                      values[2],
+                                                                                      values[3],
+                                                                                      values[4]))
+
+    def display_a_report(self, name):
+        logging.debug(f'ChessMainViews : display_a_report')
+
+        if name == 'Players alphabetic order':
+            self.display_report_players_ordered_by_name()
+        elif name == 'Players rank order':
+            self.display_report_a_tournament_players_ordered_by_rank()
+        elif name == 'All tournaments':
+            self.display_report_all_tournaments()
+        elif name == 'All rounds':
+            self.display_report_a_tournament_rounds()
+        elif name == 'All matches':
+            self.display_report_a_tournament_matches()
+        else:
+            messagebox.showerror('Error', 'Unknown selection')
+        self.report_btn.selection_clear()
+        self.name_dict[name].set('')
+
+    def add_sub_menus_for_report(self):
+        self.report_btn.menu = Menu(self.report_btn, tearoff=0)
+        self.report_btn["menu"] = self.report_btn.menu
+
+        self.name_dict = {'Players alphabetic order': IntVar(), 'Players rank order': IntVar(),
+                          'All tournaments': IntVar(), 'All rounds': IntVar(), 'All matches': IntVar()}
+        for name, var in self.name_dict.items():
+            self.report_btn.menu.add_checkbutton(label=name, variable=self.name_dict[name],
+                                    command=lambda n=name: self.display_a_report(n))
 
     def show_actions_frame(self):
         self.action_frame = LabelFrame(self.main_window, text='Actions')
@@ -231,8 +328,10 @@ class ChessTournamentsView(ChessBasicView):
 
         load_btn = Button(self.action_frame, text='Load', command=lambda: self.load_tournaments_list_in_view())
         load_btn.grid(row=0, column=0, padx=10, pady=10)
-        save_btn = Button(self.action_frame, text='Report', command=lambda: self.display_report())
-        save_btn.grid(row=0, column=1, padx=10, pady=10)
+        self.report_btn = Menubutton(self.action_frame, text='Report', relief=RAISED, borderwidth=2)
+        self.report_btn.grid(row=0, column=1, padx=10, pady=10)
+        self.add_sub_menus_for_report()
+
         add_players_btn = Button(self.action_frame, text='Add Players', command=lambda: self.add_players_list())
         add_players_btn.grid(row=0, column=2, padx=10, pady=10)
         start_tournament_btn = Button(self.action_frame, text='Start', command=lambda: self.start_tournament())
@@ -255,8 +354,6 @@ class ChessTournamentsView(ChessBasicView):
             self.match_frame.pack()
             self.add_a_tournament_frame.pack()
         self.set_visible()
-
-
 
     def hide_all(self):
         if self.is_already_created is True:
@@ -558,8 +655,8 @@ class ChessTournamentsView(ChessBasicView):
                 ChessUtils.check_str('Description', tournament_description) is False:
             return False
 
-        tournament = (tournament_name, tournament_location, tournament_date, tournament_round_number, tournament_time_control,
-                      tournament_description, self.my_controller.get_tournament_id())
+        tournament = (tournament_name, tournament_location, tournament_date, tournament_round_number,
+                      tournament_time_control, tournament_description, self.my_controller.get_tournament_id())
         logging.debug(f'ChessMainViews : add a tournament {tournament}')
         self.my_controller.save_a_tournament(tournament)
 
@@ -573,10 +670,6 @@ class ChessTournamentsView(ChessBasicView):
         return True
 
 
-
-"""
-    ChessPlayersView
-"""
 class ChessPlayersView(ChessBasicView):
     def __init__(self, controller):
         super().__init__(controller)
@@ -704,7 +797,6 @@ class ChessPlayersView(ChessBasicView):
             return None
 
     def generate_report(self):
-
         filetypes = (('text files', '*.csv'), ('All files', '*.*'))
         try:
             file = filedialog.asksaveasfile(
@@ -726,19 +818,15 @@ class ChessPlayersView(ChessBasicView):
         new_window.minsize(1100, 520)
         new_frame = LabelFrame(new_window, text='Players list')
         new_frame.pack(fill='both')
-        readOnlyText = Text(new_frame)
+        read_only_text = Text(new_frame)
         new_frame.pack(expand=True, fill='both')
-        readOnlyText.pack(expand=True, fill='both')
-        readOnlyText.insert(INSERT, '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format("last name", "First name", "Birthdate", "Gender", "Rank"))
-        # readOnlyText.insert(1.0, f'last name\tfirst name\tbirthdate\tgender\rank\n')
-
-        num_line = float(2.0)
+        read_only_text.pack(expand=True, fill='both')
+        read_only_text.insert(INSERT, '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format("last name", "First name", "Birthdate", "Gender", "Rank"))
 
         for line in self.tree.get_children():
             values = self.tree.item(line)['values']
-            num_line += float(1.0)
             # readOnlyText.insert(num_line, f'{values[0]}\t{values[1]}\t{values[2]}\t{values[3]}\t{values[4]}\n')
-            readOnlyText.insert(INSERT, '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format(values[0], values[1], values[2], values[3], str(values[4])))
+            read_only_text.insert(INSERT, '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format(values[0], values[1], values[2], values[3], str(values[4])))
         # new_window.mainloop()
 
     def activate_debug(self, is_debug):
@@ -869,6 +957,7 @@ class ChessPlayersView(ChessBasicView):
             self.add_a_player_frame.pack_forget()
             self.set_not_visible()
 
+
 class VirtualView:
     def __init__(self):
         pass
@@ -932,4 +1021,3 @@ class ChessMainView(VirtualView):
 
     def display_interface(self):
         self.main_window.mainloop()
-

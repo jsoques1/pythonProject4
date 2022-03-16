@@ -2,8 +2,6 @@ import configparser
 import logging
 import time
 from operator import itemgetter
-from ChessViews import ChessMainViews
-
 from ChessModels import ChessMainModels
 
 
@@ -39,7 +37,7 @@ class ChessMainController(VirtualController):
     def set_selected_tournament(self, tournament):
         logging.debug('ChessMainControllers : set_selected_tournament')
         logging.info(f'ChessMainControllers : {tournament}')
-        if self.current_tournament != None:
+        if self.current_tournament is not None:
             assert False
             # self.selected_tournament = tournament
         else:
@@ -48,13 +46,13 @@ class ChessMainController(VirtualController):
     def get_selected_tournament(self):
         return self.selected_tournament
 
-    def set_selected_players_list(self, selected_players_list=[]):
+    def set_selected_players_list(self, selected_players_list):
         logging.debug('ChessMainControllers : set_selected_players_list')
         logging.info(f'ChessMainControllers : selected_players_list = {selected_players_list}')
         self.selected_players_list = selected_players_list
 
     def get_selected_players_list(self):
-        return(self.selected_players_list)
+        return self.selected_players_list
 
     def set_tournament_completed(self):
         self.selected_players_list = []
@@ -93,6 +91,24 @@ class ChessMainController(VirtualController):
             logging.info(f'ChessMainControllers : rounds_list = {self.selected_rounds_list}')
             logging.info(f'ChessMainControllers : players_list = {self.selected_players_list}')
         return self.selected_rounds_list, self.selected_players_list, selected_tournament
+
+    def get_rounds_matches_from_selected_tournament(self):
+        logging.debug('ChessMainModels : get_rounds_players_from_selected_tournament')
+        selected_tournament = self.get_selected_tournament()
+        if selected_tournament is None:
+            return [], [], None
+        # elif self.players_couple_list_in_all_round:
+        #     pass
+        else:
+            self.selected_rounds_list, self.selected_players_list = self.my_model.get_tournament_rounds_players_list(selected_tournament)
+            logging.info(f'ChessMainControllers : rounds_list = {self.selected_rounds_list}')
+            logging.info(f'ChessMainControllers : players_list = {self.selected_players_list}')
+        matches_list = []
+        for a_round in self.selected_rounds_list:
+            for a_match in a_round[3]:
+                matches_list.append([a_round[0], a_match[0][0], a_match[0][2], a_match[1][0], a_match[1][2]])
+        return matches_list
+
 
     def get_current_time(self):
         return time.strftime(format("%H:%M:%S"))
@@ -191,6 +207,27 @@ class ChessMainController(VirtualController):
     def get_player_id(self):
         self.player_id += 1
         return self.player_id
+
+    def get_players_ordered_by_name(self):
+        rounds_list, players_list, _ = self.get_rounds_players_from_selected_tournament()
+        ordered_players_list = sorted(players_list, key=itemgetter(0))
+        return ordered_players_list
+
+    def get_players_ordered_by_rank(self):
+        rounds_list, players_list, _ = self.get_rounds_players_from_selected_tournament()
+        ordered_players_list = sorted(players_list, key=itemgetter(0))
+        return ordered_players_list
+
+    def get_all_tournaments(self):
+        tournaments_list = self.load_tournaments_list()
+        return tournaments_list
+
+    def get_a_tournament_rounds(self):
+        rounds_list, players_list, _ = self.get_rounds_players_from_selected_tournament()
+
+    def get_a_tournament_matches(self):
+        matches_list = self.get_rounds_matches_from_selected_tournament()
+        return matches_list
 
     @staticmethod
     def read_controllers_section_config_file():
