@@ -7,6 +7,7 @@ from tkinter import filedialog
 from tkinter import messagebox
 from tkcalendar import DateEntry
 from ChessUtils import ChessUtils
+from ChessControllers.ChessMainControllers import ChessMainController
 
 
 class ChessBasicView:
@@ -237,62 +238,81 @@ class ChessTournamentsView(ChessBasicView):
             return False
 
     def display_report_players_ordered_by_name(self):
-        result_list = self.my_controller.get_players_ordered_by_name()
-        read_only_text = self.generic_display_report()
-        read_only_text.insert(INSERT,
-                            '{:25s} {:25s} {:25s} {:10s} {:10s}\n'.format("last Name", "First Nme", "Birthdate",
-                                                                         "Gender", "Rank"))
-        if result_list is not None:
+        if self.my_controller.get_selected_tournament() is not None:
+            result_list = self.my_controller.get_players_ordered_by_name()
+            read_only_text = self.generic_display_report()
+            read_only_text.insert(INSERT,
+                                '{:25s} {:25s} {:25s} {:10s} {:10s}\n'.format("last Name", "First Nme", "Birthdate",
+                                                                             "Gender", "Rank"))
             for values in result_list:
                 read_only_text.insert(INSERT, '{:25s} {:25s} {:25s} {:10s} {:10s}\n'.format(values[0], values[1], values[2],
                                                                                           values[3], str(values[4])))
+        else:
+            messagebox.showerror("Error", 'Did you select a tournament?\nTry to reselect again i\nTry ro reselect again ')
 
     def display_report_a_tournament_players_ordered_by_rank(self):
-        result_list = self.my_controller.get_players_ordered_by_rank()
-        read_only_text = self.generic_display_report()
-        read_only_text.insert(INSERT,
-                            '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format("last Name", "First Nme", "Birthdate",
-                                                                          "Gender", "Rank"))
-        if result_list is not None:
+        if self.my_controller.get_selected_tournament() is not None:
+            result_list = self.my_controller.get_players_ordered_by_rank()
+            read_only_text = self.generic_display_report()
+            read_only_text.insert(INSERT,
+                                '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format("last Name", "First Nme", "Birthdate",
+                                                                              "Gender", "Rank"))
             for values in result_list:
                 read_only_text.insert(INSERT, '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format(values[0], values[1], values[2],
                                                                                             values[3], str(values[4])))
+        else:
+            messagebox.showerror("Error", 'Did you select a tournament?\nTry to reselect again i\nTry ro reselect again ')
 
     def display_report_all_tournaments(self):
         result_list = self.my_controller.get_all_tournaments()
+        logging.info(f'ChessMainViews : display_report_all_tournaments : result_list')
         read_only_text = self.generic_display_report()
         read_only_text.insert(INSERT,
-                            '{:25s} {:25s} {:10s} {:6s} {:10s} {:25s}\n'.format("Name", "Location", "Date", 'Rounds',
-                                                                               "Time Control", "Description"))
-        if result_list is not None:
-            for values in result_list:
-                read_only_text.insert(INSERT, '{:25s} {:25s} {:10s} {:6s} {:10s} {:25s}\n'.format(values[0], values[1],
-                                                                                                values[2], str(values[3]),
-                                                                                                str(values[4]), values[5]))
+                              '{:25s} {:25s} {:10s} {:6s} {:12s} {:25s}\n'.format("Name", "Location", "Date", 'Rounds',
+                                                                                  "Time Control", "Description"))
+
+        for values in result_list:
+            read_only_text.insert(INSERT, '{:25s} {:25s} {:10s} {:6s} {:12s} {:25s}\n'.format(values[0], values[1],
+                                                                                            values[2], str(values[3]),
+                                                                                            str(values[4]), values[5]))
 
     def display_report_a_tournament_rounds(self):
-        result_list = self.my_controller.get_a_tournament_rounds()
-        read_only_text = self.generic_display_report()
-        read_only_text.insert(INSERT,
-                            '{:2s} {:10} {:10s}\n'.format("Name", "Start Date", 'End Date'))
-        if result_list is not None:
+        logging.debug(f'ChessMainViews : display_report_a_tournament_rounds')
+        if self.my_controller.get_selected_tournament() is not None:
+            result_list = self.my_controller.get_a_tournament_rounds()
+            logging.info(f'ChessMainViews : display_report_a_tournament_rounds : result_list = {result_list}')
+            read_only_text = self.generic_display_report()
+            read_only_text.insert(INSERT,
+                                '{:10s} {:10} {:10s}\n'.format("Name", "Start Date", 'End Date'))
             for values in result_list:
-                read_only_text.insert(INSERT, '{:2s} {:10} {:10s}\n'.format('Round ' + values[0], values[1], values[2]))
+                read_only_text.insert(INSERT, '{:10s} {:10} {:10s}\n'.format('Round ' + values[0], values[1], values[2]))
+        else:
+            messagebox.showerror("Error", 'Did you select a tournament?\nTry to reselect again i\nTry ro reselect again ')
 
     def display_report_a_tournament_matches(self):
-        logging.debug(f'ChessMainViews : display_report_a_tournament_matches')
-        result_list = self.my_controller.get_a_tournament_matches()
-        logging.info(f'ChessMainViews : display_report_a_tournament_matches : matches = {result_list}')
-        read_only_text = self.generic_display_report()
-        read_only_text.insert(INSERT,
-                            '{:8} {:25s} {:5} {:25s}  {:5}\n'.format('Round', "Name", "Score", 'Name', 'Score'))
-        if result_list is not None:
+        if self.my_controller.get_selected_tournament() is not None:
+            logging.debug(f'ChessMainViews : display_report_a_tournament_matches')
+            result_list = self.my_controller.get_a_tournament_matches()
+            logging.info(f'ChessMainViews : display_report_a_tournament_matches : matches = {result_list}')
+            read_only_text = self.generic_display_report()
+            read_only_text.insert(INSERT,
+                                '{:10} {:25s} {:5} {:25s}  {:5}\n'.format('Round', "Name", "Score", 'Name', 'Score'))
+
             for values in result_list:
-                read_only_text.insert(INSERT, '{:8} {:25s} {:5} {:25s} {:5}\n'.format('Round ' + values[0],
+                read_only_text.insert(INSERT, '{:10} {:25s} {:5} {:25s} {:5}\n'.format('Round ' + values[0],
                                                                                       values[1],
                                                                                       values[2],
                                                                                       values[3],
                                                                                       values[4]))
+
+            read_only_text.insert(INSERT,
+                                  '\n\n{:25s} {:6s}\n'.format("Name", "Score"))
+            result_list = self.my_controller.get_participants_score()
+            for values in result_list:
+                read_only_text.insert(INSERT,
+                                      '{:25s} {:6s}\n'.format(values[0], str(values[1])))
+        else:
+            messagebox.showerror("Error", 'Did you select a tournament?\nTry to reselect again i\nTry ro reselect again ')
 
     def display_a_report(self, name):
         logging.debug(f'ChessMainViews : display_a_report')
@@ -403,8 +423,13 @@ class ChessTournamentsView(ChessBasicView):
                            self.match_first_player_score_var,
                            self.match_second_player_score_var]
         ChessTournamentsView.fill_a_match_form(self.match_frame, string_var_list)
-        match_frame = Button(self.match_frame, text='Commit', command=self.commit_match)
-        match_frame.grid(row=2, column=0)
+        next_match_frame = Button(self.match_frame, text='Next', command=self.next_match)
+        next_match_frame.grid(row=2, column=0)
+        save_current_state_frame = Button(self.match_frame, text='Save', command=self.save_current_state)
+        save_current_state_frame.grid(row=2, column=0)
+
+    def save_current_state(self):
+        pass
 
     def start_tournament(self):
         tournament = self.my_controller.get_selected_tournament()
@@ -425,7 +450,7 @@ class ChessTournamentsView(ChessBasicView):
             messagebox.showerror('Error', 'No players have been added')
             return False
         elif len(self.players_couple_list) != 0:
-            start_time = self.my_controller.get_current_time()
+            start_time = ChessMainController.get_current_time()
             self.round_number_var.set(str(round_id))
             self.round_start_time_var.set(start_time)
             self.match_first_player_var.set(self.players_couple_list[0][0])
@@ -468,7 +493,7 @@ class ChessTournamentsView(ChessBasicView):
         elif len(self.players_couple_list) != 0:
             logging.debug(f'ChessMainViews : continue_tournament - case len(self.players_couple_list) != 0:')
             self.round_number_var.set(str(round_id))
-            start_time = self.my_controller.get_current_time()
+            start_time = ChessMainController.get_current_time()
             self.round_start_time_var.set(start_time)
             self.match_first_player_var.set(self.players_couple_list[0][0])
             self.match_second_player_var.set(self.players_couple_list[1][0])
@@ -477,8 +502,8 @@ class ChessTournamentsView(ChessBasicView):
             messagebox.showerror('Error', 'Deadly case')
             return False
 
-    def commit_match(self):
-        logging.debug(f'ChessMainViews : commit_match')
+    def next_match(self):
+        logging.debug(f'ChessMainViews : next_match')
         round_number = self.round_number_var.get()
         round_start_time = self.round_start_time_var.get()
         round_end_time = self.round_end_time_var.get()
@@ -522,7 +547,7 @@ class ChessTournamentsView(ChessBasicView):
                 self.match_first_player_var.set(self.players_couple_list[0][0])
                 self.match_second_player_var.set(self.players_couple_list[1][0])
             else:
-                self.round_end_time_var.set(self.my_controller.get_current_time())
+                self.round_end_time_var.set(ChessMainController.get_current_time())
                 round_end_time = self.round_end_time_var.get()
                 round_number, status = self.my_controller.update_a_match_results_list_round(round_number,
                                                                                     round_start_time,
@@ -540,14 +565,7 @@ class ChessTournamentsView(ChessBasicView):
                 self.continue_tournament()
         else:
             messagebox.showerror('Info', f'ChessMainViews : commit_match (1) - Deadly case')
-            # self.round_end_time_var.set(self.my_controller.get_current_time())
-            # round_end_time = self.round_end_time_var.get()
-            # round_number, status = self.my_controller.update_a_match_results_list_round(round_number,
-            #                                                                     round_start_time,
-            #                                                                     round_end_time,
-            #                                                                     self.match_results_list)
-            # messagebox.showinfo('Info', f'Round {round_number} result has been inserted in DB')
-            # self.continue_tournament()
+
 
     @staticmethod
     def fill_a_match_form(frame, string_var_list):
