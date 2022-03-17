@@ -1,2 +1,0 @@
-class ChessViews:
-    pass
