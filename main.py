@@ -29,6 +29,7 @@ def clean_up_log(log_dir):
 
     except Exception as error:
         print(f'Unexpected exception in clean_up_previous_results(): {error}')
+        exit(-1)
 
 
 def start_logging(log_dir, log_file, log_level):
@@ -51,6 +52,7 @@ def start_logging(log_dir, log_file, log_level):
 
     except Exception as error:
         print(f'Unexpected exception in start_logging(): {error}')
+        exit(-1)
 
 
 def main():
