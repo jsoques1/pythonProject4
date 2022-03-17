@@ -1,5 +1,8 @@
 """
     Version 1.0 basic source with lots of print
+    Version 1.1 players management added
+    Version 1.2 tournaments management added
+    Version 1.3 reports management added
 """
 import os
 import configparser
