@@ -10,3 +10,4 @@ htmldir=flake-report
 ignore=
     F403
     F405
+    W605

@@ -13,7 +13,7 @@ class VirtualModel:
 
 class Tournament:
     def __init__(self, name=None, location=None, date=None, tournament_rounds_number=None, time_control=None,
-                 description=None, tournament_id=0, participants=[], rounds=[], participants_score=None):
+                 description=None, tournament_id=0, participants=None, rounds=None, participants_score=None):
         self.name = name
         self.location = location
         self.date = date
@@ -48,7 +48,7 @@ class Tournament:
         return f'{self.name} {self.location} {self.date} {self.rounds_number} {self.time_control} {self.description} \
 {self.tournament_id} {self.participants} {self.rounds} {self.participants_score}'
 
-    
+
 class Player:
     def __init__(self, last_name=None, first_name=None, birthdate=None, gender=None, rank=None, player_id=0):
         self.last_name = last_name
@@ -100,35 +100,23 @@ class ChessMainModel(VirtualModel):
     def set_my_controller(self, controller):
         self.my_controller = controller
 
-    def is_players_validate(self, players_list):
-        return True
-
-    def check_and_insert_players_in_db(self, players_list):
-        if self.is_players_validate(players_list):
-            self.participants_db.truncate()
-            for player in players_list:
-                player_entry = self.make_a_player_from_entry(player)
-                self.participants_db.insert(player_entry)
-            return True
-        else:
-            return False
-
-    def check_and_insert_a_player_in_db(self, player):
-        if self.is_players_validate([player]):
+    def insert_players_in_db(self, players_list):
+        self.participants_db.truncate()
+        for player in players_list:
             player_entry = self.make_a_player_from_entry(player)
             self.participants_db.insert(player_entry)
-            return True
-        else:
-            return False
+        return True
 
-    def check_and_udate_a_player_rank_in_db(self, player):
-        if self.is_players_validate([player]):
-            print(f'update Rank = {player.rank} where PlayerdId == {player.player_id}')
-            retval = self.participants_db.update({"Rank": int(player.rank)}, doc_ids=[int(player.player_id)])
-            print(retval)
-            return True
-        else:
-            return False
+    def insert_a_player_in_db(self, player):
+        player_entry = self.make_a_player_from_entry(player)
+        self.participants_db.insert(player_entry)
+        return True
+
+    def update_a_player_rank_in_db(self, player):
+        print(f'update Rank = {player.rank} where PlayerdId == {player.player_id}')
+        retval = self.participants_db.update({"Rank": int(player.rank)}, doc_ids=[int(player.player_id)])
+        print(retval)
+        return True
 
     def load_players_in_db(self):
         logging.debug('ChessMainModels : load_players_in_db')
@@ -137,12 +125,14 @@ class ChessMainModel(VirtualModel):
             players_list.append(self.make_a_player_from_entry(player_entry))
         return players_list
 
-    def make_a_player_entry(self, player):
+    @staticmethod
+    def make_a_player_entry(player):
         player_entry = player.serialize()
         logging.info(f'ChessMainModels : player_entry={player_entry}')
         return player_entry
 
-    def make_a_player_from_entry(self, player_entry):
+    @staticmethod
+    def make_a_player_from_entry(player_entry):
         player = Player(player_entry["LastName"],
                         player_entry["FirstName"],
                         player_entry["Birthdate"],
@@ -152,26 +142,17 @@ class ChessMainModel(VirtualModel):
         logging.info(f'ChessMainModels : player={str(player)}')
         return player
 
-    def is_tournaments_validate(self, tournaments_list):
-        return True
-
-    def check_and_insert_tournaments_in_db(self, tournaments_list):
-        if self.is_tournaments_validate(tournaments_list):
-            self.tournaments_db.truncate()
-            for tournament in tournaments_list:
-                tournament_entry = self.serialize_tournament(tournament)
-                self.tournaments_db.insert(tournament_entry)
-            return True
-        else:
-            return False
-
-    def check_and_insert_a_tournament_in_db(self, tournament):
-        if self.is_tournaments_validate([tournament]):
+    def insert_tournaments_in_db(self, tournaments_list):
+        self.tournaments_db.truncate()
+        for tournament in tournaments_list:
             tournament_entry = self.make_a_tournament_entry(tournament)
             self.tournaments_db.insert(tournament_entry)
-            return True
-        else:
-            return False
+        return True
+
+    def insert_a_tournament_in_db(self, tournament):
+        tournament_entry = self.make_a_tournament_entry(tournament)
+        self.tournaments_db.insert(tournament_entry)
+        return True
 
     def update_a_tournament_players_list(self, tournament, players_list):
         logging.debug('ChessMainModels : update_a_tournament_players_list')
@@ -187,7 +168,8 @@ class ChessMainModel(VirtualModel):
         logging.info(f'ChessMainModels : players = {tournament_entry["Participants"]}')
         return tournament_entry['Rounds'], tournament_entry['Participants']
 
-    def update_a_tournament_round(self, tournament, round_id, round_start_time, round_end_time, match_list, participants_score):
+    def update_a_tournament_round(self, tournament, round_id, round_start_time, round_end_time, match_list,
+                                  participants_score):
         logging.debug('ChessMainModels : update_a_tournament_rounds')
         logging.info(f'ChessMainModels : selected_tournament = {tournament}')
         tournament_entry = self.tournaments_db.get(doc_id=int(tournament[6]))
@@ -220,12 +202,14 @@ class ChessMainModel(VirtualModel):
             logging.info(f'ChessMainModels : Rounds = {tournament_entry["Rounds"]}')
         return tournaments_list
 
-    def make_a_tournament_entry(self, tournament):
+    @staticmethod
+    def make_a_tournament_entry(tournament):
         tournament_entry = tournament.serialize()
         logging.info(f'ChessMainModels : tournament_entry={tournament_entry}')
         return tournament_entry
 
-    def make_a_tournament_from_entry(self, tournament_entry):
+    @staticmethod
+    def make_a_tournament_from_entry(tournament_entry):
         logging.debug('make_a_tournament_from_entry')
         tournament = Tournament(tournament_entry["Name"],
                                 tournament_entry["Location"],
@@ -239,4 +223,3 @@ class ChessMainModel(VirtualModel):
                                 tournament_entry['ParticipantsScore'])
         logging.info(f'ChessMainModels : tournament={str(tournament)}')
         return tournament
-    
