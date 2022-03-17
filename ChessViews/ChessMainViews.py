@@ -252,7 +252,7 @@ class ChessTournamentsView(ChessBasicView):
                 read_only_text.insert(INSERT, '{:25s} {:25s} {:25s} {:10s} {:10s}\n'.format(values[0], values[1], values[2],
                                                                                           values[3], str(values[4])))
         else:
-            messagebox.showwarning("Error", 'Did you select a tournament?\nOr try to reselect again\n')
+            messagebox.showwarning("Warning", 'Did you select a tournament?\nOr try to reselect again\n')
 
     def display_report_a_tournament_players_ordered_by_rank(self):
         if self.my_controller.get_selected_tournament() is not None:
@@ -265,7 +265,7 @@ class ChessTournamentsView(ChessBasicView):
                 read_only_text.insert(INSERT, '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format(values[0], values[1], values[2],
                                                                                             values[3], str(values[4])))
         else:
-            messagebox.showwarning("Error", 'Did you select a tournament?\nOr try to reselect again\n')
+            messagebox.showwarning("Warning", 'Did you select a tournament?\nOr try to reselect again\n')
 
     def display_report_all_tournaments(self):
         result_list = self.my_controller.get_all_tournaments()
@@ -291,7 +291,7 @@ class ChessTournamentsView(ChessBasicView):
             for values in result_list:
                 read_only_text.insert(INSERT, '{:10s} {:10} {:10s}\n'.format('Round ' + values[0], values[1], values[2]))
         else:
-            messagebox.showwarning("Error", 'Did you select a tournament?\nOr try to reselect again\n')
+            messagebox.showwarning("Warning", 'Did you select a tournament?\nOr try to reselect again\n')
 
     def display_report_a_tournament_matches(self):
         if self.my_controller.get_selected_tournament() is not None:
@@ -316,7 +316,7 @@ class ChessTournamentsView(ChessBasicView):
                 read_only_text.insert(INSERT,
                                       '{:25s} {:6s}\n'.format(values[0], str(values[1])))
         else:
-            messagebox.showwarning("Error", 'Did you select a tournament?\nOr try to reselect again\n')
+            messagebox.showwarning("Warning", 'Did you select a tournament?\nOr try to reselect again\n')
 
     def display_a_report(self, name):
         logging.debug(f'ChessMainViews : display_a_report')
