@@ -39,7 +39,6 @@ class ChessMainController(VirtualController):
         logging.info(f'ChessMainControllers : {tournament}')
         if self.current_tournament is not None:
             assert False
-            # self.selected_tournament = tournament
         else:
             self.selected_tournament = tournament
 
@@ -84,8 +83,6 @@ class ChessMainController(VirtualController):
         selected_tournament = self.get_selected_tournament()
         if selected_tournament is None:
             return [], [], None
-        # elif self.players_couple_list_in_all_round:
-        #     pass
         else:
             self.selected_rounds_list, self.selected_players_list = \
                 self.my_model.get_tournament_rounds_players_list(selected_tournament)
@@ -98,8 +95,6 @@ class ChessMainController(VirtualController):
         selected_tournament = self.get_selected_tournament()
         if selected_tournament is None:
             return [], [], None
-        # elif self.players_couple_list_in_all_round:
-        #     pass
         else:
             self.selected_rounds_list, self.selected_players_list = \
                 self.my_model.get_tournament_rounds_players_list(selected_tournament)
@@ -130,7 +125,6 @@ class ChessMainController(VirtualController):
         self.players_score = self.my_model.get_participants_score(tournament)
         logging.info(f'ChessMainControllers : players = {players_list}')
         logging.info(f'ChessMainControllers : players_score = {self.players_score}')
-        # if players_list and self.players_score:
         if players_list:
             if update_to_make:
                 for current in range(len(players_list)):
@@ -303,8 +297,8 @@ class ChessMainController(VirtualController):
         model_tournaments_list = []
         for tournament in tournaments_list:
             model_tournament = ChessMainModels.Tournament(tournament[0], tournament[1], tournament[2], tournament[3],
-                                                          tournament[4], tournament[5], tournament[6],
-                                                          participants_score=dict())
+                                                          tournament[4], tournament[5], tournament[6], tournament[7],
+                                                          tournament[8], participants_score=dict())
             model_tournaments_list.append(model_tournament)
         status = self.my_model.insert_tournaments_in_db(model_tournaments_list)
         return status
@@ -312,14 +306,15 @@ class ChessMainController(VirtualController):
     def save_a_tournament(self, tournament):
         print(tournament)
         model_tournament = ChessMainModels.Tournament(tournament[0], tournament[1], tournament[2], tournament[3],
-                                                      tournament[4], tournament[5], tournament[6],
-                                                      participants_score=dict())
+                                                      tournament[4], tournament[5], tournament[6], tournament[7],
+                                                      tournament[8], participants_score=dict())
         status = self.my_model.insert_a_tournament_in_db(model_tournament)
         return status
 
     def update_a_tournament_players_list(self, tournament, players_list):
         model_tournament = ChessMainModels.Tournament(tournament[0], tournament[1], tournament[2], tournament[3],
-                                                      tournament[4], tournament[5], tournament[6])
+                                                      tournament[4], tournament[5], tournament[6], tournament[7],
+                                                      tournament[8], participants_score=dict())
         status = self.my_model.update_a_tournament_players_list(model_tournament, players_list)
         return status
 

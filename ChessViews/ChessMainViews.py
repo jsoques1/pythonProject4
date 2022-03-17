@@ -88,9 +88,6 @@ class ChessBasicView:
 class ChessTournamentsView(ChessBasicView):
     def __init__(self, controller):
         super().__init__(controller)
-        # self.my_controller = controller
-        # self.is_built = False
-        # self.is_debug = None
 
         self.action_frame = None
         self.add_a_tournament_frame = None
@@ -177,7 +174,6 @@ class ChessTournamentsView(ChessBasicView):
         self.tournament_time_control_var = StringVar()
         self.tournament_description_var = StringVar()
 
-        # define headings
         self.tree.heading('name', text='Name')
         self.tree.heading('location', text='Location')
         self.tree.heading('date', text='Date')
@@ -380,7 +376,6 @@ class ChessTournamentsView(ChessBasicView):
         if self.is_already_created is True:
             self.tree_frame.pack_forget()
             self.action_frame.pack_forget()
-            # self.change_a_player_rank_frame.pack_forget()
             self.match_frame.pack_forget()
             self.add_a_tournament_frame.pack_forget()
             self.set_not_visible()
@@ -444,9 +439,6 @@ class ChessTournamentsView(ChessBasicView):
         if round_id > self.my_controller.get_max_rounds_number():
             messagebox.showinfo('Info', 'This tournament has been completed')
             return False
-        # elif round_id == 1:
-        #     messagebox.showerror('Error', 'This tournament has been started')
-        #     return False
         elif len(self.players_couple_list) == 0:
             messagebox.showerror('Error', 'No players have been added')
             return False
@@ -480,9 +472,7 @@ class ChessTournamentsView(ChessBasicView):
 
         round_id = len(self.rounds_list) + 1
         logging.info(f'ChessMainViews : round_id = {round_id}')
-        # if tournament is None:
-        #     messagebox.showerror('Error', 'Focus lost on selected tournament\nPlease reselect')
-        #     return False
+
         if round_id > self.my_controller.get_max_rounds_number():
             self.set_tournament_completed()
             self.my_controller.set_tournament_completed()
@@ -555,8 +545,6 @@ class ChessTournamentsView(ChessBasicView):
                                                                                             round_start_time,
                                                                                             round_end_time,
                                                                                             self.match_results_list)
-
-                # self.match_results_list.append(a_match)
 
                 logging.info(f'ChessMainViews : (2) couples_list={self.players_couple_list}')
                 logging.info(f'ChessMainViews : (2) round={a_match}')
@@ -722,7 +710,6 @@ class ChessPlayersView(ChessBasicView):
             selected_item = self.tree.selection()[0]
             item = self.tree.item(selected_item)
             player = item['values']
-            # show a message
             self.last_name_var2.set(player[0])
             self.first_name_var2.set(player[1])
             self.birthdate_var2.set(player[2])
@@ -846,7 +833,6 @@ class ChessPlayersView(ChessBasicView):
 
         for line in self.tree.get_children():
             values = self.tree.item(line)['values']
-            # readOnlyText.insert(num_line, f'{values[0]}\t{values[1]}\t{values[2]}\t{values[3]}\t{values[4]}\n')
             read_only_text.insert(INSERT, '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format(values[0], values[1],
                                                                                         values[2], values[3],
                                                                                         str(values[4])))
@@ -869,7 +855,6 @@ class ChessPlayersView(ChessBasicView):
         self.tree = ttk.Treeview(frame, columns=columns, show='headings')
         self.tree.bind('<Button>', lambda event: self.sort_tree_column(event))
 
-        # define headings
         self.tree.heading('last name', text='Last Name')
         self.tree.heading('first name', text='First Name')
         self.tree.heading('birthdate', text='Birthdate')
@@ -879,7 +864,6 @@ class ChessPlayersView(ChessBasicView):
         self.tree.bind('<<TreeviewSelect>>', lambda event: self.item_selected(event, self.tree))
         self.tree.grid(row=0, column=0, sticky=NSEW)
 
-        # add a scrollbar
         scrollbar = ttk.Scrollbar(frame, orient=VERTICAL, command=self.tree.yview)
         self.tree.configure(yscrollcommand=scrollbar.set)
         scrollbar.grid(row=0, column=1, sticky='ns')
@@ -1017,14 +1001,12 @@ class ChessMainView(VirtualView):
         menu_bar.add_cascade(label="📁 File", menu=file_menu)
 
         player_menu = Menu(menu_bar, tearoff=0)
-        # player_menu.add_command(label="🔎 Display", command=lambda: self.player_view.show_all())
         player_menu.add_command(label="🔎 Display",
                                 command=lambda: ChessMainView.toggle_view(self.player_view, self.tournament_view))
         player_menu.add_command(label="🗙 Exit", command=self.main_window.quit)
         menu_bar.add_cascade(label="📁 Players", menu=player_menu)
 
         tournament_list_menu = Menu(menu_bar, tearoff=0)
-        # tournament_list_menu.add_command(label="🔎 Display", command=lambda: self.tournament_view.show_all())
         tournament_list_menu.add_command(label="🔎 Display",
                                          command=lambda: ChessMainView.toggle_view(self.tournament_view,
                                                                                    self.player_view))
