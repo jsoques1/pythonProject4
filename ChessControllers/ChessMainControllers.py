@@ -77,6 +77,7 @@ class ChessMainController(VirtualController):
             logging.info(f'ChessMainControllers : sorted_selected_players_list = {sorted_selected_players_list}')
             self.my_model.update_a_tournament_players_list(selected_tournament, sorted_selected_players_list)
             self.selected_players_list.clear()
+            self.my_view.clear_player_view_tree_players_list_selection()
             return ''
 
     def get_rounds_players_from_selected_tournament(self):
@@ -233,7 +234,6 @@ class ChessMainController(VirtualController):
     def get_participants_score(self):
         tournament = self.get_selected_tournament()
         players_score = self.my_model.get_participants_score(tournament)
-        print(players_score)
         final_scores = []
         for key, value in players_score.items():
             final_scores.append([key, value])
@@ -311,7 +311,6 @@ class ChessMainController(VirtualController):
         return status
 
     def save_a_tournament(self, tournament):
-        print(tournament)
         model_tournament = ChessMainModels.Tournament(tournament[0], tournament[1], tournament[2], tournament[3],
                                                       tournament[4], tournament[5], tournament[6],
                                                       participants_score=dict())

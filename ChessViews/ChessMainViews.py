@@ -147,6 +147,10 @@ class ChessTournamentsView(ChessBasicView):
             # self.tournament_description_var.set(tournament[5])
             return True
 
+    def clear_tree_selection(self):
+        for i in self.tree.selection():
+            self.tree.selection_remove(i)
+
     def sort_tree_column(self, event):
         values = []
         heading = self.tree.identify("region", event.x, event.y)
@@ -410,7 +414,7 @@ class ChessTournamentsView(ChessBasicView):
                 file.write(f'{values[0]},{values[1]},{values[2]},{values[3]},{values[4]},{values[5]},{values[6]}\n')
             file.close()
         except Exception as error:
-            print(f'Unexpected exception in generate_report(): {error}')
+            logging.error(f'Unexpected exception in generate_report(): {error}')
 
     def show_round_match_frame(self):
         self.match_frame = LabelFrame(self.main_window, text='Round/Match')
@@ -425,8 +429,8 @@ class ChessTournamentsView(ChessBasicView):
         ChessTournamentsView.fill_a_match_form(self.match_frame, string_var_list)
         next_match_frame = Button(self.match_frame, text='Next', command=self.next_match)
         next_match_frame.grid(row=2, column=0)
-        save_current_state_frame = Button(self.match_frame, text='Save', command=self.save_current_state)
-        save_current_state_frame.grid(row=2, column=0)
+        # save_current_state_frame = Button(self.match_frame, text='Save', command=self.save_current_state)
+        # save_current_state_frame.grid(row=2, column=0)
 
     def save_current_state(self):
         pass
@@ -565,7 +569,6 @@ class ChessTournamentsView(ChessBasicView):
                 self.continue_tournament()
         else:
             messagebox.showerror('Info', f'ChessMainViews : commit_match (1) - Deadly case')
-
 
     @staticmethod
     def fill_a_match_form(frame, string_var_list):
@@ -744,13 +747,13 @@ class ChessPlayersView(ChessBasicView):
 
             return True
 
-    def clear_players_list(self):
+    def clear_players_list_selection(self):
         for item in self.tree.get_children():
             self.tree.delete(item)
 
     def load_players_list_in_view(self):
         logging.debug(f'ChessMainViews :  : load_players_list_in_view')
-        self.clear_players_list()
+        self.clear_players_list_selection()
         players_list = self.my_controller.load_players_list()
         logging.info(players_list)
         for player in players_list:
@@ -827,7 +830,7 @@ class ChessPlayersView(ChessBasicView):
                 file.write(f'{values[0]},{values[1]},{values[2]},{values[3]},{values[4]},{values[5]}\n')
             file.close()
         except Exception as error:
-            print(f'Unexpected exception in generate_report(): {error}')
+            logging.error(f'Unexpected exception in generate_report(): {error}')
 
     def display_report(self):
         new_window = Tk()
@@ -845,7 +848,6 @@ class ChessPlayersView(ChessBasicView):
             values = self.tree.item(line)['values']
             # readOnlyText.insert(num_line, f'{values[0]}\t{values[1]}\t{values[2]}\t{values[3]}\t{values[4]}\n')
             read_only_text.insert(INSERT, '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format(values[0], values[1], values[2], values[3], str(values[4])))
-        # new_window.mainloop()
 
     def activate_debug(self, is_debug):
         if is_debug == 'ON':
@@ -1005,23 +1007,13 @@ class ChessMainView(VirtualView):
         menu_bar.add_cascade(label="📁 File", menu=file_menu)
 
         player_menu = Menu(menu_bar, tearoff=0)
-        # player_menu.add_command(label="🔎 Display", command=lambda: self.player_view.show_all())
         player_menu.add_command(label="🔎 Display", command=lambda: ChessMainView.toggle_view(self.player_view, self.tournament_view))
         player_menu.add_command(label="🗙 Exit", command=self.main_window.quit)
         menu_bar.add_cascade(label="📁 Players", menu=player_menu)
 
         tournament_list_menu = Menu(menu_bar, tearoff=0)
-        # tournament_list_menu.add_command(label="🔎 Display", command=lambda: self.tournament_view.show_all())
         tournament_list_menu.add_command(label="🔎 Display", command=lambda: ChessMainView.toggle_view(self.tournament_view, self.player_view))
-
         tournament_list_menu.add_command(label="🗙 Exit", command=self.main_window.quit)
-
-        # tournament_menu.add_command(label="🔎 Create", command=lambda: print('Not implemented'))
-        # tournament_menu.add_command(label="🔎 Start", command=lambda: print('Not implemented'))
-        # tournament_menu.add_command(label="🔎 Suspend", command=lambda: print('Not implemented'))
-        # tournament_menu.add_command(label="🔎 Resume", command=lambda: print('Not implemented'))
-        # tournament_menu.add_command(label="🔎 Cancel", command=lambda: print('Not implemented'))
-        # tournament_menu.add_command(label="🗙 Exit", command=lambda: print('Not implemented'))
         menu_bar.add_cascade(label="📁 Tournaments", menu=tournament_list_menu)
 
         self.main_window.config(menu=menu_bar)
@@ -1039,3 +1031,6 @@ class ChessMainView(VirtualView):
 
     def display_interface(self):
         self.main_window.mainloop()
+
+    def clear_player_view_tree_players_list_selection(self):
+        self.player_view.clear_players_list_selection()

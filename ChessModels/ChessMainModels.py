@@ -106,8 +106,9 @@ class ChessMainModel(VirtualModel):
     def check_and_insert_players_in_db(self, players_list):
         if self.is_players_validate(players_list):
             self.participants_db.truncate()
+            player_entry = None
             for player in players_list:
-                player_entry = self.make_a_player_from_entry(player)
+                player_entry = ChessMainModel.make_a_player_from_entry(player)
                 self.participants_db.insert(player_entry)
             return True
         else:
@@ -115,7 +116,7 @@ class ChessMainModel(VirtualModel):
 
     def check_and_insert_a_player_in_db(self, player):
         if self.is_players_validate([player]):
-            player_entry = self.make_a_player_from_entry(player)
+            player_entry = ChessMainModel.make_a_player_from_entry(player)
             self.participants_db.insert(player_entry)
             return True
         else:
@@ -123,9 +124,7 @@ class ChessMainModel(VirtualModel):
 
     def check_and_udate_a_player_rank_in_db(self, player):
         if self.is_players_validate([player]):
-            print(f'update Rank = {player.rank} where PlayerdId == {player.player_id}')
             retval = self.participants_db.update({"Rank": int(player.rank)}, doc_ids=[int(player.player_id)])
-            print(retval)
             return True
         else:
             return False
@@ -134,15 +133,16 @@ class ChessMainModel(VirtualModel):
         logging.debug('ChessMainModels : load_players_in_db')
         players_list = []
         for player_entry in self.participants_db.all():
-            players_list.append(self.make_a_player_from_entry(player_entry))
+            players_list.append(ChessMainModel.make_a_player_from_entry(player_entry))
         return players_list
 
-    def make_a_player_entry(self, player):
-        player_entry = player.serialize()
-        logging.info(f'ChessMainModels : player_entry={player_entry}')
-        return player_entry
-
-    def make_a_player_from_entry(self, player_entry):
+    # @staticmethod
+    # def make_a_player_entry(self, player):
+    #     player_entry = player.serialize()
+    #     logging.info(f'ChessMainModels : player_entry={player_entry}')
+    #     return player_entry
+    @staticmethod
+    def make_a_player_from_entry(player_entry):
         player = Player(player_entry["LastName"],
                         player_entry["FirstName"],
                         player_entry["Birthdate"],
@@ -159,7 +159,7 @@ class ChessMainModel(VirtualModel):
         if self.is_tournaments_validate(tournaments_list):
             self.tournaments_db.truncate()
             for tournament in tournaments_list:
-                tournament_entry = self.serialize_tournament(tournament)
+                tournament_entry = self.make_a_tournament_entry(tournament)
                 self.tournaments_db.insert(tournament_entry)
             return True
         else:
@@ -176,8 +176,8 @@ class ChessMainModel(VirtualModel):
     def update_a_tournament_players_list(self, tournament, players_list):
         logging.debug('ChessMainModels : update_a_tournament_players_list')
         logging.info(f'ChessMainModels : players_list = {players_list}')
-        retval = self.tournaments_db.update({"Participants": players_list}, doc_ids=[int(tournament[6])])
-        print(retval)
+        status = self.tournaments_db.update({"Participants": players_list}, doc_ids=[int(tournament[6])])
+        return status
 
     def get_tournament_rounds_players_list(self, tournament):
         logging.debug('ChessMainModels : get_tournament_rounds_players_list')
@@ -202,7 +202,6 @@ class ChessMainModel(VirtualModel):
         logging.info(f'ChessMainModels : selected_tournament = {tournament}')
         tournament_entry = self.tournaments_db.get(doc_id=int(tournament[6]))
         retval = tournament_entry['ParticipantsScore']
-        print(retval)
         return retval
 
     def get_tournament_rounds_list(self, tournament):
