@@ -120,7 +120,7 @@ class ChessMainModel(VirtualModel):
         logging.debug('ChessMainModels : load_players_in_db')
         players_list = []
         for player_entry in self.participants_db.all():
-            players_list.append(self.make_a_player_from_entry(player_entry))
+            players_list.append(ChessMainModel.make_a_player_from_entry(player_entry))
         return players_list
 
     @staticmethod

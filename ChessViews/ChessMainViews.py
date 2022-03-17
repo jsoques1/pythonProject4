@@ -295,7 +295,7 @@ class ChessTournamentsView(ChessBasicView):
             logging.info(f'ChessMainViews : display_report_a_tournament_matches : matches = {result_list}')
             read_only_text = self.generic_display_report('Tournament matches')
             read_only_text.insert(INSERT,
-                                  '{:25s} {:10s}\n'.format("Name", "Rank"))
+                                '{:25s} {:10s}\n'.format("Name", "Rank"))
             for values in players_list:
                 read_only_text.insert(INSERT,
                                       '{:25s} {:10s}\n'.format(values[0], str(values[4])))
@@ -303,15 +303,14 @@ class ChessTournamentsView(ChessBasicView):
             read_only_text.insert(INSERT, '\n\n')
 
             read_only_text.insert(INSERT,
-                                  '{:10s} {:25s} {:5s} {:25s} {:5s}\n'.format('Round', "Name", "Score", 'Name',
-                                                                              'Score'))
+                                '{:10s} {:25s} {:5s} {:25s} {:5s}\n'.format('Round', "Name", "Score", 'Name', 'Score'))
 
             for values in result_list:
                 read_only_text.insert(INSERT, '{:10s} {:25s} {:5s} {:25s} {:5s}\n'.format(values[0],
-                                                                                          values[1],
-                                                                                          values[2],
-                                                                                          values[3],
-                                                                                          values[4]))
+                                                                                      values[1],
+                                                                                      values[2],
+                                                                                      values[3],
+                                                                                      values[4]))
 
             read_only_text.insert(INSERT,
                                   '\n\n{:25s} {:6s}\n'.format("Name", "Score"))
@@ -345,10 +344,10 @@ class ChessTournamentsView(ChessBasicView):
         self.tournament_report_btn["menu"] = self.tournament_report_btn.menu
 
         self.tournament_name_dict = {'Players alphabetic order': IntVar(), 'Players rank order': IntVar(),
-                                     'All tournaments': IntVar(), 'All rounds': IntVar(), 'All matches': IntVar()}
+                          'All tournaments': IntVar(), 'All rounds': IntVar(), 'All matches': IntVar()}
         for name, var in self.tournament_name_dict.items():
             self.tournament_report_btn.menu.add_checkbutton(label=name, variable=self.tournament_name_dict[name],
-                                                            command=lambda n=name: self.display_a_tournament_report(n))
+                                    command=lambda n=name: self.display_a_tournament_report(n))
 
     def show_actions_frame(self):
         self.action_frame = LabelFrame(self.main_window, text='Actions')
@@ -868,18 +867,17 @@ class ChessPlayersView(ChessBasicView):
                                   '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format(values[0], values[1], values[2],
                                                                                 values[3], str(values[4])))
 
-    def add_sub_menus_for_players_report(self):
+            def add_sub_menus_for_players_report(self):
         self.players_report_btn.menu = Menu(self.players_report_btn, tearoff=0)
         self.players_report_btn["menu"] = self.players_report_btn.menu
 
         self.players_name_dict = {'Players alphabetic order': IntVar(), 'Players rank order': IntVar()}
         for name, var in self.players_name_dict.items():
             self.players_report_btn.menu.add_checkbutton(label=name, variable=self.players_name_dict[name],
-                                                         command=lambda n=name: self.display_a_players_report(n))
+                                    command=lambda n=name: self.display_a_players_report(n))
 
     def display_a_players_report(self, name):
         logging.debug(f'ChessMainViews : display_a_report')
-
         if name == 'Players alphabetic order':
             self.display_report_players_ordered_by_name()
         elif name == 'Players rank order':
@@ -1058,15 +1056,12 @@ class ChessMainView(VirtualView):
         menu_bar.add_cascade(label="📁 File", menu=file_menu)
 
         player_menu = Menu(menu_bar, tearoff=0)
-        player_menu.add_command(label="🔎 Display",
-                                command=lambda: ChessMainView.toggle_view(self.player_view, self.tournament_view))
+        player_menu.add_command(label="🔎 Display", command=lambda: ChessMainView.toggle_view(self.player_view, self.tournament_view))
         player_menu.add_command(label="🗙 Exit", command=self.main_window.quit)
         menu_bar.add_cascade(label="📁 Players", menu=player_menu)
 
         tournament_list_menu = Menu(menu_bar, tearoff=0)
-        tournament_list_menu.add_command(label="🔎 Display",
-                                         command=lambda: ChessMainView.toggle_view(self.tournament_view,
-                                                                                   self.player_view))
+        tournament_list_menu.add_command(label="🔎 Display", command=lambda: ChessMainView.toggle_view(self.tournament_view, self.player_view))
         tournament_list_menu.add_command(label="🗙 Exit", command=self.main_window.quit)
         menu_bar.add_cascade(label="📁 Tournaments", menu=tournament_list_menu)
 

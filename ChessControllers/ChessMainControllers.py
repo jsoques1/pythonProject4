@@ -76,6 +76,7 @@ class ChessMainController(VirtualController):
             logging.info(f'ChessMainControllers : sorted_selected_players_list = {sorted_selected_players_list}')
             self.my_model.update_a_tournament_players_list(selected_tournament, sorted_selected_players_list)
             self.selected_players_list.clear()
+            self.my_view.clear_player_view_tree_players_list_selection()
             return ''
 
     def get_rounds_players_from_selected_tournament(self):
@@ -104,7 +105,7 @@ class ChessMainController(VirtualController):
         for a_round in self.selected_rounds_list:
             for a_match in a_round[3]:
                 matches_list.append([a_round[0], a_match[0][0], a_match[0][2], a_match[1][0], a_match[1][2]])
-        return matches_list
+        return self.selected_players_list, matches_list
 
     @staticmethod
     def get_current_time():
@@ -202,12 +203,12 @@ class ChessMainController(VirtualController):
         self.player_id += 1
         return self.player_id
 
-    def get_players_ordered_by_name(self):
+    def get_tournament_players_ordered_by_name(self):
         rounds_list, players_list, _ = self.get_rounds_players_from_selected_tournament()
         ordered_players_list = sorted(players_list, key=itemgetter(0))
         return ordered_players_list
 
-    def get_players_ordered_by_rank(self):
+    def get_tournament_players_ordered_by_rank(self):
         rounds_list, players_list, _ = self.get_rounds_players_from_selected_tournament()
         ordered_players_list = sorted(players_list, key=itemgetter(0))
         return ordered_players_list
@@ -221,13 +222,12 @@ class ChessMainController(VirtualController):
         return rounds_list
 
     def get_a_tournament_matches(self):
-        matches_list = self.get_rounds_matches_from_selected_tournament()
-        return matches_list
+        players_list, matches_list = self.get_rounds_matches_from_selected_tournament()
+        return players_list, matches_list
 
     def get_participants_score(self):
         tournament = self.get_selected_tournament()
         players_score = self.my_model.get_participants_score(tournament)
-        print(players_score)
         final_scores = []
         for key, value in players_score.items():
             final_scores.append([key, value])
@@ -282,6 +282,16 @@ class ChessMainController(VirtualController):
             players_list.append(model_player.unserialize())
         return players_list
 
+    def get_players_ordered_by_name(self):
+        players_list = self.load_players_list()
+        ordered_players_list = sorted(players_list, key=itemgetter(0))
+        return ordered_players_list
+
+    def get_players_ordered_by_rank(self):
+        players_list = self.load_players_list()
+        ordered_players_list = sorted(players_list, key=itemgetter(4))
+        return ordered_players_list
+
     def get_dummy_tournaments_list(self):
         dummy_tournaments_list = [('Toronto tournament', 'Toronto', '07/03/1984', 4, 'Blitz', 'Bitz tournament',
                                    self.get_tournament_id()),
@@ -304,7 +314,6 @@ class ChessMainController(VirtualController):
         return status
 
     def save_a_tournament(self, tournament):
-        print(tournament)
         model_tournament = ChessMainModels.Tournament(tournament[0], tournament[1], tournament[2], tournament[3],
                                                       tournament[4], tournament[5], tournament[6], tournament[7],
                                                       tournament[8], participants_score=dict())
