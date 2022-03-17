@@ -52,7 +52,7 @@ class ChessBasicView:
 
     @staticmethod
     def read_views_section_config_file():
-        logging.debug(f'ChessMainViews :  : read_views_section_config_file')
+        logging.debug('ChessMainViews :  : read_views_section_config_file')
         config = configparser.ConfigParser()
         config.read('MyChessApp.ini')
         is_debug = config['views']['is_debug']
@@ -117,7 +117,7 @@ class ChessTournamentsView(ChessBasicView):
 
         self.report_btn = None
         self.name_dict = dict()
-        
+
     def activate_debug(self, is_debug):
         if is_debug == 'ON':
             dummy_tournaments_list = self.my_controller.get_dummy_tournaments_list()
@@ -127,7 +127,7 @@ class ChessTournamentsView(ChessBasicView):
             self.load_tournaments_list_in_view()
 
     def item_selected(self, event, tree):
-        logging.debug(f'ChessMainViews : tournaments nb item selected={len(self.tree.selection())}')
+        logging.debug('ChessMainViews : tournaments nb item selected={len(self.tree.selection())}')
         if len(self.tree.selection()) == 0:
             pass
         elif len(self.tree.selection()) != 1:
@@ -170,7 +170,7 @@ class ChessTournamentsView(ChessBasicView):
         style = ttk.Style()
         style.theme_use('clam')
         bg = style.lookup('TFrame', 'background')
-        style.configure('Treeview.Heading', background=bg,  font=('calibre', 10, 'bold'))
+        style.configure('Treeview.Heading', background=bg, font=('calibre', 10, 'bold'))
 
         columns = ('name', 'location', 'date', 'round', 'time control', 'description')
         self.tree = ttk.Treeview(frame, columns=columns, show='headings')
@@ -206,7 +206,7 @@ class ChessTournamentsView(ChessBasicView):
         self.activate_debug(self.is_debug)
 
     def load_tournaments_list_in_view(self):
-        logging.debug(f'ChessMainViews : load_tournaments_list_in_view')
+        logging.debug('ChessMainViews : load_tournaments_list_in_view')
         self.clear_tournaments_list()
         tournaments_list = self.my_controller.load_tournaments_list()
         logging.info(tournaments_list)
@@ -222,7 +222,7 @@ class ChessTournamentsView(ChessBasicView):
     def show_match_frame(self):
         self.tree_frame = LabelFrame(self.main_window, text='Round')
         self.match_frame.pack()
-        
+
     def add_players_list(self):
         tournament = self.my_controller.get_selected_tournament()
         if tournament is None:
@@ -242,42 +242,55 @@ class ChessTournamentsView(ChessBasicView):
             result_list = self.my_controller.get_players_ordered_by_name()
             read_only_text = self.generic_display_report()
             read_only_text.insert(INSERT,
-                                '{:25s} {:25s} {:25s} {:10s} {:10s}\n'.format("last Name", "First Nme", "Birthdate",
-                                                                             "Gender", "Rank"))
+                                  '{:25s} {:25s} {:25s} {:10s} {:10s}\n'.format("last Name", "First Nme", 
+                                                                                "Birthdate", "Gender", "Rank"))
             for values in result_list:
-                read_only_text.insert(INSERT, '{:25s} {:25s} {:25s} {:10s} {:10s}\n'.format(values[0], values[1], values[2],
-                                                                                          values[3], str(values[4])))
+                read_only_text.insert(INSERT, '{:25s} {:25s} {:25s} {:10s} {:10s}\n'.format(values[0], values[1], 
+                                                                                            values[2], values[3], 
+                                                                                            str(values[4])))
         else:
-            messagebox.showerror("Error", 'Did you select a tournament?\nTry to reselect again i\nTry ro reselect again ')
+            messagebox.showerror("Error", 'Did you select a tournament?\nTry to reselect again\n')
 
     def display_report_a_tournament_players_ordered_by_rank(self):
         if self.my_controller.get_selected_tournament() is not None:
             result_list = self.my_controller.get_players_ordered_by_rank()
             read_only_text = self.generic_display_report()
-            read_only_text.insert(INSERT,
-                                '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format("last Name", "First Nme", "Birthdate",
-                                                                              "Gender", "Rank"))
+            read_only_text.insert(INSERT, '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format("last Name",
+                                                                                        "First Nme",
+                                                                                        "Birthdate",
+                                                                                        "Gender",
+                                                                                        "Rank"))
             for values in result_list:
-                read_only_text.insert(INSERT, '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format(values[0], values[1], values[2],
-                                                                                            values[3], str(values[4])))
+                read_only_text.insert(INSERT, '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format(values[0],
+                                                                                            values[1],
+                                                                                            values[2],
+                                                                                            values[3],
+                                                                                            str(values[4])))
         else:
-            messagebox.showerror("Error", 'Did you select a tournament?\nTry to reselect again i\nTry ro reselect again ')
+            messagebox.showerror("Error", 'Did you select a tournament?\nTry to reselect again\n')
 
     def display_report_all_tournaments(self):
         result_list = self.my_controller.get_all_tournaments()
-        logging.info(f'ChessMainViews : display_report_all_tournaments : result_list')
+        logging.info(f'ChessMainViews: display_report_all_tournaments: result_list = {result_list}')
         read_only_text = self.generic_display_report()
         read_only_text.insert(INSERT,
-                              '{:25s} {:25s} {:10s} {:6s} {:12s} {:25s}\n'.format("Name", "Location", "Date", 'Rounds',
-                                                                                  "Time Control", "Description"))
+                              '{:25s} {:25s} {:10s} {:6s} {:12s} {:25s}\n'.format("Name",
+                                                                                  "Location",
+                                                                                  "Date",
+                                                                                  'Rounds',
+                                                                                  "Time Control",
+                                                                                  "Description"))
 
         for values in result_list:
-            read_only_text.insert(INSERT, '{:25s} {:25s} {:10s} {:6s} {:12s} {:25s}\n'.format(values[0], values[1],
-                                                                                            values[2], str(values[3]),
-                                                                                            str(values[4]), values[5]))
+            read_only_text.insert(INSERT, '{:25s} {:25s} {:10s} {:6s} {:12s} {:25s}\n'.format(values[0],
+                                                                                              values[1],
+                                                                                              values[2],
+                                                                                              str(values[3]),
+                                                                                              str(values[4]),
+                                                                                              values[5]))
 
     def display_report_a_tournament_rounds(self):
-        logging.debug(f'ChessMainViews : display_report_a_tournament_rounds')
+        logging.debug('ChessMainViews : display_report_a_tournament_rounds')
         if self.my_controller.get_selected_tournament() is not None:
             result_list = self.my_controller.get_a_tournament_rounds()
             logging.info(f'ChessMainViews : display_report_a_tournament_rounds : result_list = {result_list}')
@@ -285,13 +298,14 @@ class ChessTournamentsView(ChessBasicView):
             read_only_text.insert(INSERT,
                                 '{:10s} {:10} {:10s}\n'.format("Name", "Start Date", 'End Date'))
             for values in result_list:
-                read_only_text.insert(INSERT, '{:10s} {:10} {:10s}\n'.format('Round ' + values[0], values[1], values[2]))
+                read_only_text.insert(INSERT, '{:10s} {:10} {:10s}\n'.format('Round ' + values[0],
+                                                                             values[1], values[2]))
         else:
-            messagebox.showerror("Error", 'Did you select a tournament?\nTry to reselect again i\nTry ro reselect again ')
+            messagebox.showerror("Error", 'Did you select a tournament?\nTry to reselect again\n')
 
     def display_report_a_tournament_matches(self):
         if self.my_controller.get_selected_tournament() is not None:
-            logging.debug(f'ChessMainViews : display_report_a_tournament_matches')
+            logging.debug('ChessMainViews : display_report_a_tournament_matches')
             result_list = self.my_controller.get_a_tournament_matches()
             logging.info(f'ChessMainViews : display_report_a_tournament_matches : matches = {result_list}')
             read_only_text = self.generic_display_report()
@@ -300,10 +314,10 @@ class ChessTournamentsView(ChessBasicView):
 
             for values in result_list:
                 read_only_text.insert(INSERT, '{:10} {:25s} {:5} {:25s} {:5}\n'.format('Round ' + values[0],
-                                                                                      values[1],
-                                                                                      values[2],
-                                                                                      values[3],
-                                                                                      values[4]))
+                                                                                        values[1],
+                                                                                        values[2],
+                                                                                        values[3],
+                                                                                        values[4]))
 
             read_only_text.insert(INSERT,
                                   '\n\n{:25s} {:6s}\n'.format("Name", "Score"))
@@ -312,10 +326,10 @@ class ChessTournamentsView(ChessBasicView):
                 read_only_text.insert(INSERT,
                                       '{:25s} {:6s}\n'.format(values[0], str(values[1])))
         else:
-            messagebox.showerror("Error", 'Did you select a tournament?\nTry to reselect again i\nTry ro reselect again ')
+            messagebox.showerror("Error", 'Did you select a tournament?\nTry to reselect again\n')
 
     def display_a_report(self, name):
-        logging.debug(f'ChessMainViews : display_a_report')
+        logging.debug('ChessMainViews : display_a_report')
 
         if name == 'Players alphabetic order':
             self.display_report_players_ordered_by_name()
@@ -404,7 +418,7 @@ class ChessTournamentsView(ChessBasicView):
                 title='Open a file',
                 initialdir='/',
                 filetypes=filetypes)
-            file.write(f"'name','location','date','round','time control','description', 'tournament id'\n")
+            file.write("'name','location','date','round','time control','description', 'tournament id'\n")
             for line in self.tree.get_children():
                 values = self.tree.item(line)['values']
                 file.write(f'{values[0]},{values[1]},{values[2]},{values[3]},{values[4]},{values[5]},{values[6]}\n')
@@ -466,7 +480,7 @@ class ChessTournamentsView(ChessBasicView):
         self.match_results_list = []
 
     def continue_tournament(self):
-        logging.debug(f'ChessMainViews : continue_tournament')
+        logging.debug('ChessMainViews : continue_tournament')
         tournament = self.my_controller.get_selected_tournament()
         if tournament is None:
             messagebox.showerror('Error', 'No tournament selected')
@@ -491,7 +505,7 @@ class ChessTournamentsView(ChessBasicView):
             messagebox.showerror('Error', 'Tournament has not been started')
             return False
         elif len(self.players_couple_list) != 0:
-            logging.debug(f'ChessMainViews : continue_tournament - case len(self.players_couple_list) != 0:')
+            logging.debug('ChessMainViews : continue_tournament - case len(self.players_couple_list) != 0:')
             self.round_number_var.set(str(round_id))
             start_time = ChessMainController.get_current_time()
             self.round_start_time_var.set(start_time)
@@ -503,7 +517,7 @@ class ChessTournamentsView(ChessBasicView):
             return False
 
     def next_match(self):
-        logging.debug(f'ChessMainViews : next_match')
+        logging.debug('ChessMainViews : next_match')
         round_number = self.round_number_var.get()
         round_start_time = self.round_start_time_var.get()
         round_end_time = self.round_end_time_var.get()
@@ -520,17 +534,18 @@ class ChessTournamentsView(ChessBasicView):
                                                match_first_player_score, ['0', '0.5', '1']) is False or \
                     ChessUtils.check_enumerate('SecondPlayerScore',
                                                match_second_player_score, ['0', '0.5', '1']) is False or \
-                    ChessUtils.check_score('PlayerScores', match_first_player_score, match_second_player_score) is False:
+                    ChessUtils.check_score('PlayerScores', match_first_player_score,
+                                           match_second_player_score) is False:
                 return False
 
             match_first_player_id = self.players_couple_list[0][1]
             match_second_player_id = self.players_couple_list[1][1]
             a_match = [round_number,
-                        round_start_time,
-                        round_end_time,
-                        [match_first_player, match_first_player_id, match_first_player_score],
-                        [match_second_player, match_second_player_id, match_second_player_score]
-                       ]
+                       round_start_time,
+                       round_end_time,
+                       [match_first_player, match_first_player_id, match_first_player_score],
+                       [match_second_player, match_second_player_id, match_second_player_score]
+                      ]
 
             self.match_results_list.append(a_match)
 
@@ -550,21 +565,21 @@ class ChessTournamentsView(ChessBasicView):
                 self.round_end_time_var.set(ChessMainController.get_current_time())
                 round_end_time = self.round_end_time_var.get()
                 round_number, status = self.my_controller.update_a_match_results_list_round(round_number,
-                                                                                    round_start_time,
-                                                                                    round_end_time,
-                                                                                    self.match_results_list)
+                                                                                            round_start_time,
+                                                                                            round_end_time,
+                                                                                            self.match_results_list)
 
                 # self.match_results_list.append(a_match)
 
                 logging.info(f'ChessMainViews : (2) couples_list={self.players_couple_list}')
                 logging.info(f'ChessMainViews : (2) round={a_match}')
-                logging.info(f'ChessMainViews : (2) len={len(self.match_results_list)} result={self.match_results_list}')
+                logging.info(f'ChessMainViews : (2) result={self.match_results_list}')
 
                 messagebox.showinfo('Info', f'Round {round_number} result has been inserted in DB')
                 self.match_results_list = []
                 self.continue_tournament()
         else:
-            messagebox.showerror('Info', f'ChessMainViews : commit_match (1) - Deadly case')
+            messagebox.showerror('Info', 'ChessMainViews : commit_match (1) - Deadly case')
 
 
     @staticmethod
@@ -573,10 +588,12 @@ class ChessTournamentsView(ChessBasicView):
         round_entry = Entry(frame, textvariable=string_var_list[0], font=('calibre', 10, 'normal'), state=DISABLED)
 
         start_time_label = Label(frame, text='StartTime', font=('calibre', 10, 'bold'))
-        start_time_entry = Entry(frame, textvariable=string_var_list[1], font=('calibre', 10, 'normal'), state=DISABLED)
+        start_time_entry = Entry(frame, textvariable=string_var_list[1], font=('calibre', 10, 'normal'),
+                                 state=DISABLED)
 
         end_time_label = Label(frame, text='EndTime', font=('calibre', 10, 'bold'))
-        end_time_entry = Entry(frame, textvariable=string_var_list[2], font=('calibre', 10, 'normal'), state=DISABLED)
+        end_time_entry = Entry(frame, textvariable=string_var_list[2], font=('calibre', 10, 'normal'),
+                               state=DISABLED)
 
         first_player_label = Label(frame, text='FirstPlayer', font=('calibre', 10, 'bold'))
         first_player_entry = Entry(frame, textvariable=string_var_list[3], state=DISABLED)
@@ -590,7 +607,7 @@ class ChessTournamentsView(ChessBasicView):
 
         second_player_score_label = Label(frame, text='SecondPlayerScore', font=('calibre', 10, 'bold'))
         second_player_score_entry = Spinbox(frame, textvariable=string_var_list[6],
-                                          values=('', '0', '0.5', '1'), font=('calibre', 10, 'normal'))
+                                            values=('', '0', '0.5', '1'), font=('calibre', 10, 'normal'))
 
         round_label.grid(row=0, column=0)
         start_time_label.grid(row=0, column=1)
@@ -607,7 +624,7 @@ class ChessTournamentsView(ChessBasicView):
         second_player_entry.grid(row=1, column=4)
         first_player_score_entry.grid(row=1, column=5)
         second_player_score_entry.grid(row=1, column=6)
-        
+
     def show_add_a_tournament_frame(self):
         self.add_a_tournament_frame = LabelFrame(self.main_window, text='Add a tournament')
         self.add_a_tournament_frame.pack()
@@ -628,7 +645,8 @@ class ChessTournamentsView(ChessBasicView):
         name_entry = Entry(frame, textvariable=string_var_list[0], font=('calibre', 10, 'normal'), state=widget_state)
 
         location_label = Label(frame, text='location', font=('calibre', 10, 'bold'))
-        location_entry = Entry(frame, textvariable=string_var_list[1], font=('calibre', 10, 'normal'), state=widget_state)
+        location_entry = Entry(frame, textvariable=string_var_list[1], font=('calibre', 10, 'normal'),
+                               state=widget_state)
 
         date_label = Label(frame, text='Date', font=('calibre', 10, 'bold'))
         date_entry = DateEntry(frame, textvariable=string_var_list[2], date_pattern='dd/mm/yyyy', state=widget_state)
@@ -638,7 +656,8 @@ class ChessTournamentsView(ChessBasicView):
         round_entry = Entry(frame, textvariable=string_var_list[3], state=widget_state)
 
         time_control_label = Label(frame, text='Time Control', font=('calibre', 10, 'bold'))
-        time_control_entry = Spinbox(frame, values=('', 'Blitz', 'Bullet', 'Fast'), textvariable=string_var_list[4], state=widget_state)
+        time_control_entry = Spinbox(frame, values=('', 'Blitz', 'Bullet', 'Fast'), textvariable=string_var_list[4],
+                                     state=widget_state)
 
         description_label = Label(frame, text='Description', font=('calibre', 10, 'bold'))
         description_entry = Entry(frame, textvariable=string_var_list[5], font=('calibre', 10, 'normal'))
@@ -675,7 +694,7 @@ class ChessTournamentsView(ChessBasicView):
 
         tournament = (tournament_name, tournament_location, tournament_date, tournament_round_number,
                       tournament_time_control, tournament_description, self.my_controller.get_tournament_id())
-        logging.debug(f'ChessMainViews : add a tournament {tournament}')
+        logging.debug('ChessMainViews : add a tournament {tournament}')
         self.my_controller.save_a_tournament(tournament)
 
         self.tree.insert('', END, values=tournament)
@@ -692,10 +711,7 @@ class ChessPlayersView(ChessBasicView):
     def __init__(self, controller):
         super().__init__(controller)
         self.my_controller = controller
-        # self.is_built = False
-        # self.is_debug = None
 
-        # declaring string variable
         self.last_name_var = StringVar()
         self.first_name_var = StringVar()
         self.birthdate_var = StringVar()
@@ -713,7 +729,7 @@ class ChessPlayersView(ChessBasicView):
         self.change_a_player_rank_frame = None
 
     def item_selected(self, event, tree):
-        logging.debug(f'ChessMainViews : player nb item selected={len(self.tree.selection())}')
+        logging.debug('ChessMainViews : player nb item selected={len(self.tree.selection())}')
         nb_selected = len(self.tree.selection())
         selected_players_list = []
         if nb_selected == 1:
@@ -749,7 +765,7 @@ class ChessPlayersView(ChessBasicView):
             self.tree.delete(item)
 
     def load_players_list_in_view(self):
-        logging.debug(f'ChessMainViews :  : load_players_list_in_view')
+        logging.debug('ChessMainViews :  : load_players_list_in_view')
         self.clear_players_list()
         players_list = self.my_controller.load_players_list()
         logging.info(players_list)
@@ -758,7 +774,7 @@ class ChessPlayersView(ChessBasicView):
         self.my_controller.set_player_id(len(players_list))
 
     def modify_a_player_rank(self):
-        logging.debug(f'ChessMainViews :  : modify_a_player_rank')
+        logging.debug('ChessMainViews :  : modify_a_player_rank')
         selected = self.tree.focus()
         if ChessUtils.check_int('Rank', self.rank_var2.get()) is False:
             return False
@@ -781,14 +797,14 @@ class ChessPlayersView(ChessBasicView):
         gender = self.gender_var.get()
         rank = self.rank_var.get()
         if ChessUtils.check_str('Last Name', last_name) is False or \
-            ChessUtils.check_str('First Name', first_name) is False or \
-            ChessUtils.check_date('Birthdate', birthdate) is False or \
-            ChessUtils.check_enumerate('Gender', gender, ['Male', 'Female']) is False or \
-            ChessUtils.check_int('Rank', rank) is False:
+           ChessUtils.check_str('First Name', first_name) is False or \
+           ChessUtils.check_date('Birthdate', birthdate) is False or \
+           ChessUtils.check_enumerate('Gender', gender, ['Male', 'Female']) is False or \
+           ChessUtils.check_int('Rank', rank) is False:
             return False
 
         player = (last_name, first_name, birthdate, gender, rank, self.my_controller.get_player_id())
-        logging.debug(f'ChessMainViews : add a player {player}')
+        logging.debug('ChessMainViews : add a player {player}')
         self.my_controller.save_a_player(player)
 
         self.tree.insert('', END, values=player)
@@ -821,7 +837,7 @@ class ChessPlayersView(ChessBasicView):
                 title='Open a file',
                 initialdir='/',
                 filetypes=filetypes)
-            file.write(f"'last name','first name','birthdate','gender','rank','player id'\n")
+            file.write("'last name','first name','birthdate','gender','rank','player id'\n")
             for line in self.tree.get_children():
                 values = self.tree.item(line)['values']
                 file.write(f'{values[0]},{values[1]},{values[2]},{values[3]},{values[4]},{values[5]}\n')
@@ -839,13 +855,15 @@ class ChessPlayersView(ChessBasicView):
         read_only_text = Text(new_frame)
         new_frame.pack(expand=True, fill='both')
         read_only_text.pack(expand=True, fill='both')
-        read_only_text.insert(INSERT, '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format("last name", "First name", "Birthdate", "Gender", "Rank"))
+        read_only_text.insert(INSERT, '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format("last name", "First name",
+                                                                                    "Birthdate", "Gender", "Rank"))
 
         for line in self.tree.get_children():
             values = self.tree.item(line)['values']
             # readOnlyText.insert(num_line, f'{values[0]}\t{values[1]}\t{values[2]}\t{values[3]}\t{values[4]}\n')
-            read_only_text.insert(INSERT, '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format(values[0], values[1], values[2], values[3], str(values[4])))
-        # new_window.mainloop()
+            read_only_text.insert(INSERT, '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format(values[0], values[1],
+                                                                                        values[2], values[3],
+                                                                                        str(values[4])))
 
     def activate_debug(self, is_debug):
         if is_debug == 'ON':
@@ -859,7 +877,7 @@ class ChessPlayersView(ChessBasicView):
         style = ttk.Style()
         style.theme_use('clam')
         bg = style.lookup('TFrame', 'background')
-        style.configure('Treeview.Heading', background=bg,  font=('calibre', 10, 'bold'))
+        style.configure('Treeview.Heading', background=bg, font=('calibre', 10, 'bold'))
 
         columns = ('last name', 'first name', 'birthdate', 'gender', 'rank')
         self.tree = ttk.Treeview(frame, columns=columns, show='headings')
@@ -901,24 +919,30 @@ class ChessPlayersView(ChessBasicView):
     @staticmethod
     def fill_a_player_form(frame, string_var_list, widget_state=NORMAL):
         last_name_label = Label(frame, text='Last Name', font=('calibre', 10, 'bold'))
-        last_name_entry = Entry(frame, textvariable=string_var_list[0], font=('calibre', 10, 'normal'), state=widget_state)
+        last_name_entry = Entry(frame, textvariable=string_var_list[0], font=('calibre', 10, 'normal'),
+                                state=widget_state)
 
         first_name_label = Label(frame, text='First Name', font=('calibre', 10, 'bold'))
-        first_name_entry = Entry(frame, textvariable=string_var_list[1], font=('calibre', 10, 'normal'), state=widget_state)
+        first_name_entry = Entry(frame, textvariable=string_var_list[1], font=('calibre', 10, 'normal'),
+                                 state=widget_state)
 
         birthdate_label = Label(frame, text='Birthdate', font=('calibre', 10, 'bold'))
         if widget_state == 'normal':
-            birthdate_entry = DateEntry(frame, textvariable=string_var_list[2], date_pattern='dd/mm/yyyy', state=widget_state)
+            birthdate_entry = DateEntry(frame, textvariable=string_var_list[2], date_pattern='dd/mm/yyyy',
+                                        state=widget_state)
             birthdate_entry.delete(0, END)
 
             gender_label = Label(frame, text='Gender', font=('calibre', 10, 'bold'))
-            gender_entry = Spinbox(frame, values=('', 'Male', 'Female'), textvariable=string_var_list[3], state=widget_state)
+            gender_entry = Spinbox(frame, values=('', 'Male', 'Female'), textvariable=string_var_list[3],
+                                   state=widget_state)
         else:
-            birthdate_entry = Entry(frame, textvariable=string_var_list[2], font=('calibre', 10, 'normal'), state=widget_state)
+            birthdate_entry = Entry(frame, textvariable=string_var_list[2], font=('calibre', 10, 'normal'),
+                                    state=widget_state)
             birthdate_entry.delete(0, END)
 
             gender_label = Label(frame, text='Gender', font=('calibre', 10, 'bold'))
-            gender_entry = Entry(frame, textvariable=string_var_list[3], font=('calibre', 10, 'normal'), state=widget_state)
+            gender_entry = Entry(frame, textvariable=string_var_list[3], font=('calibre', 10, 'normal'),
+                                 state=widget_state)
 
         rank_label = Label(frame, text='Rank', font=('calibre', 10, 'bold'))
         rank_entry = Entry(frame, textvariable=string_var_list[4], font=('calibre', 10, 'normal'))
@@ -948,9 +972,11 @@ class ChessPlayersView(ChessBasicView):
         self.change_a_player_rank_frame = LabelFrame(self.main_window, text='Modify Rank')
         self.change_a_player_rank_frame.pack()
 
-        string_var_list = [self.last_name_var2, self.first_name_var2, self.birthdate_var2, self.gender_var2, self.rank_var2]
-        ChessPlayersView.fill_a_player_form(self.change_a_player_rank_frame, string_var_list, widget_state=DISABLED)
-        change_a_player_rank_button = Button(self.change_a_player_rank_frame, text='Modify', command=self.modify_a_player_rank)
+        string_var_list = [self.last_name_var2, self.first_name_var2, self.birthdate_var2, self.gender_var2,
+                           self.rank_var2]
+        ChessPlayersView.fill_a_player_form(self.change_a_player_rank_frame, string_var_list, DISABLED)
+        change_a_player_rank_button = Button(self.change_a_player_rank_frame, text='Modify',
+                                             command=self.modify_a_player_rank)
         change_a_player_rank_button.grid(row=2, column=0)
 
     def show_all(self):
@@ -1006,22 +1032,18 @@ class ChessMainView(VirtualView):
 
         player_menu = Menu(menu_bar, tearoff=0)
         # player_menu.add_command(label="🔎 Display", command=lambda: self.player_view.show_all())
-        player_menu.add_command(label="🔎 Display", command=lambda: ChessMainView.toggle_view(self.player_view, self.tournament_view))
+        player_menu.add_command(label="🔎 Display", command=lambda: ChessMainView.toggle_view(self.player_view,
+                                                                                              self.tournament_view))
         player_menu.add_command(label="🗙 Exit", command=self.main_window.quit)
         menu_bar.add_cascade(label="📁 Players", menu=player_menu)
 
         tournament_list_menu = Menu(menu_bar, tearoff=0)
         # tournament_list_menu.add_command(label="🔎 Display", command=lambda: self.tournament_view.show_all())
-        tournament_list_menu.add_command(label="🔎 Display", command=lambda: ChessMainView.toggle_view(self.tournament_view, self.player_view))
+        tournament_list_menu.add_command(label="🔎 Display",
+                                         command=lambda: ChessMainView.toggle_view(self.tournament_view,
+                                                                                   self.player_view))
 
         tournament_list_menu.add_command(label="🗙 Exit", command=self.main_window.quit)
-
-        # tournament_menu.add_command(label="🔎 Create", command=lambda: print('Not implemented'))
-        # tournament_menu.add_command(label="🔎 Start", command=lambda: print('Not implemented'))
-        # tournament_menu.add_command(label="🔎 Suspend", command=lambda: print('Not implemented'))
-        # tournament_menu.add_command(label="🔎 Resume", command=lambda: print('Not implemented'))
-        # tournament_menu.add_command(label="🔎 Cancel", command=lambda: print('Not implemented'))
-        # tournament_menu.add_command(label="🗙 Exit", command=lambda: print('Not implemented'))
         menu_bar.add_cascade(label="📁 Tournaments", menu=tournament_list_menu)
 
         self.main_window.config(menu=menu_bar)

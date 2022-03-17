@@ -159,7 +159,7 @@ class ChessMainController(VirtualController):
         return self.selected_rounds_list, self.players_couple_list, tournament
 
     def make_simplified_players_couples_list(self):
-        logging.debug(f'ChessMainControllers : make_simplified_players_couples_list')
+        logging.debug('ChessMainControllers : make_simplified_players_couples_list')
         players_couple_list = self.players_couple_list_in_all_round.copy()
         simplified_players_couple_list = []
         logging.info(f'ChessMainControllers : make_simplified_players_couples_list : players_couple_list={players_couple_list}')
@@ -171,7 +171,7 @@ class ChessMainController(VirtualController):
         return simplified_players_couple_list
 
     def get_result_algorithm_swiss(self, players_list):
-        logging.debug(f'ChessMainControllers : get_result_algorithm_swiss')
+        logging.debug('ChessMainControllers : get_result_algorithm_swiss')
         logging.info(f'ChessMainControllers : get_result_algorithm_swiss: players_list={players_list}')
         simplified_players_couple_list = self.make_simplified_players_couples_list()
         logging.info(f'ChessMainControllers : get_result_algorithm_swiss: simplified_players_couple_list = {simplified_players_couple_list}')
