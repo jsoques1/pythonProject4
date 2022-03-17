@@ -31,9 +31,9 @@ def check_date(name, value):
 
 def check_time(name, value):
     if not name and not value:
-        return True
-    else:
         return False
+    else:
+        return True
 
 
 def check_enumerate(name, value, enumarate):
