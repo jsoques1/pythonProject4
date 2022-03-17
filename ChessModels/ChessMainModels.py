@@ -113,9 +113,7 @@ class ChessMainModel(VirtualModel):
         return True
 
     def update_a_player_rank_in_db(self, player):
-        print(f'update Rank = {player.rank} where PlayerdId == {player.player_id}')
-        retval = self.participants_db.update({"Rank": int(player.rank)}, doc_ids=[int(player.player_id)])
-        print(retval)
+        self.participants_db.update({"Rank": int(player.rank)}, doc_ids=[int(player.player_id)])
         return True
 
     def load_players_in_db(self):
@@ -158,7 +156,7 @@ class ChessMainModel(VirtualModel):
         logging.debug('ChessMainModels : update_a_tournament_players_list')
         logging.info(f'ChessMainModels : players_list = {players_list}')
         retval = self.tournaments_db.update({"Participants": players_list}, doc_ids=[int(tournament[6])])
-        print(retval)
+        return retval
 
     def get_tournament_rounds_players_list(self, tournament):
         logging.debug('ChessMainModels : get_tournament_rounds_players_list')
@@ -183,9 +181,9 @@ class ChessMainModel(VirtualModel):
         logging.debug('ChessMainModels : get_participants_score')
         logging.info(f'ChessMainModels : selected_tournament = {tournament}')
         tournament_entry = self.tournaments_db.get(doc_id=int(tournament[6]))
-        retval = tournament_entry['ParticipantsScore']
-        print(retval)
-        return retval
+        tournament_entry['ParticipantsScore']
+        logging.info(f"ChessMainModels : score = {tournament_entry['ParticipantsScore']}")
+        return tournament_entry['ParticipantsScore']
 
     def get_tournament_rounds_list(self, tournament):
         logging.debug('ChessMainModels : get_tournament_rounds_list')
