@@ -89,9 +89,6 @@ class ChessBasicView:
 class ChessTournamentsView(ChessBasicView):
     def __init__(self, controller):
         super().__init__(controller)
-        # self.my_controller = controller
-        # self.is_built = False
-        # self.is_debug = None
 
         self.action_frame = None
         self.add_a_tournament_frame = None
