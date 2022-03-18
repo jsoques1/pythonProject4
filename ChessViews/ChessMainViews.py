@@ -486,6 +486,14 @@ class ChessTournamentsView(ChessBasicView):
             messagebox.showerror('Error', 'No tournament selected')
             return False
 
+        pcl_in_all_round = self.my_controller.get_players_couple_list_in_all_round()
+        if not pcl_in_all_round:
+            logging.info('ChessMainViews : continue_tournament: players_couple_list_in_all_round is Null ')
+            pcl_in_all_round = self.my_controller.rebuild_players_couple_list_in_all_round()
+            logging.info(f'ChessMainViews : continue_tournament (1): pcl_in_all_round={pcl_in_all_round}')
+        else:
+            logging.info(f'ChessMainViews : continue_tournament (2): pcl_in_all_round={pcl_in_all_round}')
+
         self.rounds_list, self.players_couple_list, tournament = self.my_controller.get_rounds_players_couple_list(
             update_to_make=True)
         logging.info(f'ChessMainViews : self.rounds_list = {self.rounds_list}')
