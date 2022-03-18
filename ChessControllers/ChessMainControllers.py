@@ -181,7 +181,7 @@ class ChessMainController(VirtualController):
         nb_found = 0
         i = 0
         for current in range(nb_players_couple):
-             while nb_found != nb_players_couple:
+            while nb_found != nb_players_couple:
                 opponent = opponents_list[i]
                 logging.info(f'ChessMainControllers: algorithm_swiss: current={current} opponent={opponent}')
                 if ([players_list[current][5], players_list[opponent][5]] in simplified_players_couple_list) or \
