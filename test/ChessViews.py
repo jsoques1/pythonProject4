@@ -37,20 +37,20 @@ def modify_rank():
     award = Label(Input_frame, text="Rank")
     award.grid(row=0, column=2)
 
-    id_entry = Entry(Input_frame)
+    id_entry = tk.Entry(Input_frame)
     id_entry.grid(row=1, column=0)
 
-    fullname_entry = Entry(Input_frame)
+    fullname_entry = tk.Entry(Input_frame)
     fullname_entry.grid(row=1, column=1)
 
-    award_entry = Entry(Input_frame)
+    award_entry = tk.Entry(Input_frame)
     award_entry.grid(row=1, column=2)
 
-    buttonApply = Button(Input_frame, text="Apply", fg="red", command=lambda: print('Not implemented'))
-    buttonApply.grid(row=2, column=0)
+    tk.ButtonApply = tk.Button(Input_frame, text="Apply", fg="red", command=lambda: print('Not implemented'))
+    tk.ButtonApply.grid(row=2, column=0)
 
-    buttonClose = Button(Input_frame, text="close", fg="red", command=Input_frame.destroy)
-    buttonClose.grid(row=2, column=1)
+    tk.ButtonClose = tk.Button(Input_frame, text="close", fg="red", command=Input_frame.destroy)
+    tk.ButtonClose.grid(row=2, column=1)
 
 class IHM(Frame):
 
@@ -81,7 +81,7 @@ class IHM(Frame):
             line = list()
             for j in range(self.numberColumns):
                 if (j % 3) or (j == 0):
-                    cell = Entry(self)
+                    cell = tk.Entry(self)
                     cell.insert(0, '')
                     line.append(cell)
                     cell.grid(row=self.ROW_START+i+2, column=j)
@@ -93,13 +93,13 @@ class IHM(Frame):
 
             self.data.append(line)
 
-        self.buttonInsert = Button(self, text="Insert", fg="red", command=self.insert)
+        self.buttonInsert = tk.Button(self, text="Insert", fg="red", command=self.insert)
         self.buttonInsert.grid(row=self.numberLines+self.ROW_START+2, column=0)
 
-        self.buttonDisplay = Button(self, text="Display", fg="red", command=self.display)
+        self.buttonDisplay = tk.Button(self, text="Display", fg="red", command=self.display)
         self.buttonDisplay.grid(row=self.numberLines+self.ROW_START+2, column=1)
 
-        self.buttonClose = Button(self, text="close", fg="red", command=self.destroy)
+        self.buttonClose = tk.Button(self, text="close", fg="red", command=self.destroy)
         self.buttonClose.grid(row=self.numberLines+self.ROW_START+2, column=2)
 
         #canv = Canvas(self, width=600, height=400)
@@ -129,7 +129,7 @@ class IHM(Frame):
         self.numberLines += 1
         line = list()
         for j in range(self.numberColumns):
-            cell = Entry(self)
+            cell = tk.Entry(self)
             cell.insert(0, 0)
             line.append(cell)
             cell.grid(row=self.numberLines + self.ROW_START+ 2, column=j)
