@@ -121,6 +121,7 @@ class ChessMainController(VirtualController):
     def get_rounds_players_couple_list(self, update_to_make=False):
         logging.debug('ChessMainControllers : get_rounds_players_couple_list')
         self.selected_rounds_list, players_list, tournament = self.get_rounds_players_from_selected_tournament()
+        logging.info(f'ChessMainControllers: get_rounds_players_couple_list: {players_list}')
         if tournament is None:
             return [], [], None
         elif len(self.selected_rounds_list) == self.get_max_rounds_number():
@@ -157,6 +158,28 @@ class ChessMainController(VirtualController):
         logging.info(f'ChessMainControllers : self.selected_rounds_list = {self.selected_rounds_list}')
 
         return self.selected_rounds_list, self.players_couple_list, tournament
+
+    def get_players_couple_list_in_all_round(self):
+        return self.players_couple_list_in_all_round
+
+    def rebuild_players_couple_list_in_all_round(self):
+        logging.debug('rebuild_players_couple_list_in_all_round')
+        rounds_list, players_list, _ = self.get_rounds_players_from_selected_tournament()
+        logging.info(f'rebuild_players_couple_list_in_all_round (1): rounds_list={rounds_list}')
+        for a_round in rounds_list:
+            couples_list = a_round[3]
+            new_couples_list = []
+            for a_couple in couples_list:
+                first_player = a_couple[0]
+                second_player = a_couple[1]
+                first_player[2] = float(first_player[2])
+                second_player[2] = float(second_player[2])
+                new_couples_list.append(a_couple)
+            self.players_couple_list_in_all_round = new_couples_list
+        logging.info(f'rebuild_players_couple_list_in_all_round (2): rounds_list={rounds_list}')
+        logging.info(f'rebuild_players_couple_list_in_all_round: players_list={players_list}')
+        logging.info(f'rebuild_players_couple_list_in_all_round: result={self.players_couple_list_in_all_round}')
+        return self.players_couple_list_in_all_round
 
     def make_simplified_players_couples_list(self):
         logging.debug('ChessMainControllers : make_simplified_players_couples_list')
@@ -329,9 +352,10 @@ class ChessMainController(VirtualController):
         return status
 
     def save_a_tournament(self, tournament):
+        print(tournament)
         model_tournament = ChessMainModels.Tournament(tournament[0], tournament[1], tournament[2], tournament[3],
-                                                      tournament[4], tournament[5], tournament[6], tournament[7],
-                                                      tournament[8], participants_score=dict())
+                                                      tournament[4], tournament[5], tournament[6], [],
+                                                      [], participants_score=dict())
         status = self.my_model.insert_a_tournament_in_db(model_tournament)
         return status
 

@@ -1,7 +1,7 @@
 import configparser
 import logging
+import tkinter as tk
 from operator import itemgetter
-from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
@@ -60,13 +60,13 @@ class ChessBasicView:
 
     @staticmethod
     def generic_display_report(a_title):
-        new_window = Tk()
+        new_window = tk.Tk()
         new_window.title(a_title)
         new_window.geometry("1100x520")
         new_window.minsize(1100, 520)
-        new_frame = Frame(new_window)
+        new_frame = tk.Frame(new_window)
         new_frame.pack(fill='both')
-        read_only_text = Text(new_frame)
+        read_only_text = tk.Text(new_frame)
         new_frame.pack(expand=True, fill='both')
         read_only_text.pack(expand=True, fill='both')
         return read_only_text
@@ -99,20 +99,20 @@ class ChessTournamentsView(ChessBasicView):
         self.match_results_list = []
 
         self._current_tournament = 0
-        self.tournament_name_var = StringVar()
-        self.tournament_location_var = StringVar()
-        self.tournament_date_var = StringVar()
-        self.tournament_round_number_var = StringVar()
-        self.tournament_time_control_var = StringVar()
-        self.tournament_description_var = StringVar()
+        self.tournament_name_var = tk.StringVar()
+        self.tournament_location_var = tk.StringVar()
+        self.tournament_date_var = tk.StringVar()
+        self.tournament_round_number_var = tk.StringVar()
+        self.tournament_time_control_var = tk.StringVar()
+        self.tournament_description_var = tk.StringVar()
 
-        self.round_number_var = StringVar()
-        self.round_start_time_var = StringVar()
-        self.round_end_time_var = StringVar()
-        self.match_first_player_var = StringVar()
-        self.match_second_player_var = StringVar()
-        self.match_first_player_score_var = StringVar()
-        self.match_second_player_score_var = StringVar()
+        self.round_number_var = tk.StringVar()
+        self.round_start_time_var = tk.StringVar()
+        self.round_end_time_var = tk.StringVar()
+        self.match_first_player_var = tk.StringVar()
+        self.match_second_player_var = tk.StringVar()
+        self.match_first_player_score_var = tk.StringVar()
+        self.match_second_player_score_var = tk.StringVar()
 
         self.tournament_report_btn = None
         self.tournament_name_dict = None
@@ -121,7 +121,7 @@ class ChessTournamentsView(ChessBasicView):
         if is_debug == 'ON':
             dummy_tournaments_list = self.my_controller.get_dummy_tournaments_list()
             for dummy_tournament in dummy_tournaments_list:
-                self.tree.insert('', END, values=dummy_tournament)
+                self.tree.insert('', tk.END, values=dummy_tournament)
         else:
             self.load_tournaments_list_in_view()
 
@@ -130,7 +130,7 @@ class ChessTournamentsView(ChessBasicView):
         if len(self.tree.selection()) == 0:
             pass
         elif len(self.tree.selection()) != 1:
-            messagebox.showerror('Error', 'Select only one entry')
+            messagebox.showerror('Error', 'Select only one tk.Entry')
             return False
         else:
             selected_item = self.tree.selection()[0]
@@ -154,7 +154,7 @@ class ChessTournamentsView(ChessBasicView):
             self.tree.delete(*self.tree.get_children())
             for value in sorted_values:
                 tournament = (value[0], value[1], value[2], value[3], value[4], value[5], value[6])
-                self.tree.insert('', END, values=tournament)
+                self.tree.insert('', tk.END, values=tournament)
         else:
             return None
 
@@ -172,12 +172,12 @@ class ChessTournamentsView(ChessBasicView):
         self.tree = ttk.Treeview(frame, columns=columns, show='headings')
         self.tree.bind('<Button>', lambda event: self.sort_tree_column(event))
 
-        self.tournament_name_var = StringVar()
-        self.tournament_location_var = StringVar()
-        self.tournament_date_var = StringVar()
-        self.tournament_round_number_var = StringVar()
-        self.tournament_time_control_var = StringVar()
-        self.tournament_description_var = StringVar()
+        self.tournament_name_var = tk.StringVar()
+        self.tournament_location_var = tk.StringVar()
+        self.tournament_date_var = tk.StringVar()
+        self.tournament_round_number_var = tk.StringVar()
+        self.tournament_time_control_var = tk.StringVar()
+        self.tournament_description_var = tk.StringVar()
 
         self.tree.heading('name', text='Name')
         self.tree.heading('location', text='Location')
@@ -187,9 +187,9 @@ class ChessTournamentsView(ChessBasicView):
         self.tree.heading('description', text='Description')
 
         self.tree.bind('<<TreeviewSelect>>', lambda event: self.item_selected(event, self.tree))
-        self.tree.grid(row=0, column=0, sticky=NSEW)
+        self.tree.grid(row=0, column=0, sticky=tk.NSEW)
 
-        yscrollbar = ttk.Scrollbar(frame, orient=VERTICAL, command=self.tree.yview)
+        yscrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=self.tree.yview)
         self.tree.configure(yscrollcommand=yscrollbar.set)
         yscrollbar.grid(row=0, column=1, sticky='ns')
 
@@ -201,16 +201,16 @@ class ChessTournamentsView(ChessBasicView):
         tournaments_list = self.my_controller.load_tournaments_list()
         logging.info(tournaments_list)
         for tournament in tournaments_list:
-            self.tree.insert('', END, values=tournament)
+            self.tree.insert('', tk.END, values=tournament)
         self.clear_all_selection()
 
     def show_tournaments_list_frame(self):
-        self.tree_frame = LabelFrame(self.main_window, text='Tournaments list')
+        self.tree_frame = tk.LabelFrame(self.main_window, text='Tournaments list')
         self.tree_frame.pack()
         self.create_tree_widget(self.tree_frame)
 
     def show_match_frame(self):
-        self.tree_frame = LabelFrame(self.main_window, text='Round')
+        self.tree_frame = tk.LabelFrame(self.main_window, text='Round')
         self.match_frame.pack()
 
     def add_players_list(self):
@@ -245,11 +245,11 @@ class ChessTournamentsView(ChessBasicView):
         if self.my_controller.get_selected_tournament() is not None:
             result_list = self.my_controller.get_tournament_players_ordered_by_name()
             read_only_text = ChessBasicView.generic_display_report('Tournament players ordered by name')
-            read_only_text.insert(INSERT,
+            read_only_text.insert(tk.INSERT,
                                   '{:25s} {:25s} {:25s} {:10s} {:10s}\n'.format("last Name", "First Nme", "Birthdate",
                                                                                 "Gender", "Rank"))
             for values in result_list:
-                read_only_text.insert(INSERT,
+                read_only_text.insert(tk.INSERT,
                                       '{:25s} {:25s} {:25s} {:10s} {:10s}\n'.format(values[0], values[1], values[2],
                                                                                     values[3], str(values[4])))
         else:
@@ -259,11 +259,11 @@ class ChessTournamentsView(ChessBasicView):
         if self.my_controller.get_selected_tournament() is not None:
             result_list = self.my_controller.get_tournament_players_ordered_by_rank('Players ordered by rank')
             read_only_text = ChessBasicView.generic_display_report('Tournament players ordered by rank')
-            read_only_text.insert(INSERT,
+            read_only_text.insert(tk.INSERT,
                                   '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format("last Name", "First Nme", "Birthdate",
                                                                                 "Gender", "Rank"))
             for values in result_list:
-                read_only_text.insert(INSERT,
+                read_only_text.insert(tk.INSERT,
                                       '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format(values[0], values[1], values[2],
                                                                                     values[3], str(values[4])))
         else:
@@ -273,16 +273,16 @@ class ChessTournamentsView(ChessBasicView):
         result_list = self.my_controller.get_all_tournaments()
         logging.info('ChessMainViews : display_report_all_tournaments : result_list')
         read_only_text = ChessBasicView.generic_display_report('All tournaments')
-        read_only_text.insert(INSERT,
+        read_only_text.insert(tk.INSERT,
                               '{:25s} {:25s} {:10s} {:6s} {:12s} {:25s}\n'.format("Name", "Location", "Date", 'Rounds',
                                                                                   "Time Control", "Description"))
 
         for values in result_list:
-            read_only_text.insert(INSERT, '{:25s} {:25s} {:10s} {:6s} {:12s} {:25s}\n'.format(values[0], values[1],
-                                                                                              values[2],
-                                                                                              str(values[3]),
-                                                                                              str(values[4]),
-                                                                                              values[5]))
+            read_only_text.insert(tk.INSERT, '{:25s} {:25s} {:10s} {:6s} {:12s} {:25s}\n'.format(values[0], values[1],
+                                                                                                 values[2],
+                                                                                                 str(values[3]),
+                                                                                                 str(values[4]),
+                                                                                                 values[5]))
 
     def display_report_a_tournament_rounds(self):
         logging.debug('ChessMainViews : display_report_a_tournament_rounds')
@@ -290,10 +290,10 @@ class ChessTournamentsView(ChessBasicView):
             result_list = self.my_controller.get_a_tournament_rounds()
             logging.info(f'ChessMainViews : display_report_a_tournament_rounds : result_list = {result_list}')
             read_only_text = ChessBasicView.generic_display_report('Tournament rounds')
-            read_only_text.insert(INSERT,
+            read_only_text.insert(tk.INSERT,
                                   '{:10s} {:10} {:10s}\n'.format("Name", "Start Date", 'End Date'))
             for values in result_list:
-                read_only_text.insert(INSERT,
+                read_only_text.insert(tk.INSERT,
                                       '{:10s} {:10} {:10s}\n'.format('Round ' + values[0], values[1], values[2]))
         else:
             messagebox.showwarning("Warning", 'Did you select a tournament?\nOr try to reselect again\n')
@@ -304,30 +304,30 @@ class ChessTournamentsView(ChessBasicView):
             players_list, result_list = self.my_controller.get_a_tournament_matches()
             logging.info(f'ChessMainViews : display_report_a_tournament_matches : matches = {result_list}')
             read_only_text = ChessBasicView.generic_display_report('Tournament matches')
-            read_only_text.insert(INSERT,
+            read_only_text.insert(tk.INSERT,
                                   '{:25s} {:10s}\n'.format("Name", "Rank"))
             for values in players_list:
-                read_only_text.insert(INSERT,
+                read_only_text.insert(tk.INSERT,
                                       '{:25s} {:10s}\n'.format(values[0], str(values[4])))
 
-            read_only_text.insert(INSERT, '\n\n')
+            read_only_text.insert(tk.INSERT, '\n\n')
 
-            read_only_text.insert(INSERT,
+            read_only_text.insert(tk.INSERT,
                                   '{:10s} {:25s} {:5s} {:25s} {:5s}\n'.format('Round', "Name", "Score",
                                                                               'Name', 'Score'))
 
             for values in result_list:
-                read_only_text.insert(INSERT, '{:10s} {:25s} {:5s} {:25s} {:5s}\n'.format(values[0],
-                                                                                          values[1],
-                                                                                          values[2],
-                                                                                          values[3],
-                                                                                          values[4]))
+                read_only_text.insert(tk.INSERT, '{:10s} {:25s} {:5s} {:25s} {:5s}\n'.format(values[0],
+                                                                                             values[1],
+                                                                                             values[2],
+                                                                                             values[3],
+                                                                                             values[4]))
 
-            read_only_text.insert(INSERT,
+            read_only_text.insert(tk.INSERT,
                                   '\n\n{:25s} {:6s}\n'.format("Name", "Score"))
             result_list = self.my_controller.get_participants_score()
             for values in result_list:
-                read_only_text.insert(INSERT,
+                read_only_text.insert(tk.INSERT,
                                       '{:25s} {:6s}\n'.format(values[0], str(values[1])))
         else:
             messagebox.showwarning("Warning", 'Did you select a tournament?\nOr try to reselect again\n')
@@ -351,33 +351,34 @@ class ChessTournamentsView(ChessBasicView):
         self.tournament_name_dict[name].set('')
 
     def add_sub_menus_for_tournament_report(self):
-        self.tournament_report_btn.menu = Menu(self.tournament_report_btn, tearoff=0)
+        self.tournament_report_btn.menu = tk.Menu(self.tournament_report_btn, tearoff=0)
         self.tournament_report_btn["menu"] = self.tournament_report_btn.menu
 
-        self.tournament_name_dict = {'Players alphabetic order': IntVar(), 'Players rank order': IntVar(),
-                                     'All tournaments': IntVar(), 'All rounds': IntVar(), 'All matches': IntVar()}
+        self.tournament_name_dict = {'Players alphabetic order': tk.IntVar(), 'Players rank order': tk.IntVar(),
+                                     'All tournaments': tk.IntVar(), 'All rounds': tk.IntVar(),
+                                     'All matches': tk.IntVar()}
         for name, var in self.tournament_name_dict.items():
             self.tournament_report_btn.menu.add_checkbutton(label=name, variable=self.tournament_name_dict[name],
                                                             command=lambda n=name: self.display_a_tournament_report(n))
 
     def show_actions_frame(self):
-        self.action_frame = LabelFrame(self.main_window, text='Actions')
+        self.action_frame = tk.LabelFrame(self.main_window, text='Actions')
         self.action_frame.pack()
 
-        load_btn = Button(self.action_frame, text='Load', command=lambda: self.load_tournaments_list_in_view())
+        load_btn = tk.Button(self.action_frame, text='Load', command=lambda: self.load_tournaments_list_in_view())
         load_btn.grid(row=0, column=0, padx=10, pady=10)
 
-        self.tournament_report_btn = Menubutton(self.action_frame, text='Report', relief=RAISED, borderwidth=2)
+        self.tournament_report_btn = tk.Menubutton(self.action_frame, text='Report', relief=tk.RAISED, borderwidth=2)
         self.tournament_report_btn.grid(row=0, column=1, padx=10, pady=10)
         self.add_sub_menus_for_tournament_report()
 
-        add_players_btn = Button(self.action_frame, text='Add Players', command=lambda: self.add_players_list())
+        add_players_btn = tk.Button(self.action_frame, text='Add Players', command=lambda: self.add_players_list())
         add_players_btn.grid(row=0, column=2, padx=10, pady=10)
-        start_tournament_btn = Button(self.action_frame, text='Start', command=lambda: self.start_tournament())
+        start_tournament_btn = tk.Button(self.action_frame, text='Start', command=lambda: self.start_tournament())
         start_tournament_btn.grid(row=0, column=3, padx=10, pady=10)
-        continue_tournament = Button(self.action_frame, text='Continue', command=lambda: self.continue_tournament())
+        continue_tournament = tk.Button(self.action_frame, text='Continue', command=lambda: self.continue_tournament())
         continue_tournament.grid(row=0, column=4, padx=10, pady=10)
-        close_btn = Button(self.action_frame, text='Close', command=lambda: self.hide_all())
+        close_btn = tk.Button(self.action_frame, text='Close', command=lambda: self.hide_all())
         close_btn.grid(row=0, column=5, padx=10, pady=10)
 
     def show_all(self):
@@ -431,7 +432,7 @@ class ChessTournamentsView(ChessBasicView):
             logging.error(f'Unexpected exception in generate_report(): {error}')
 
     def show_round_match_frame(self):
-        self.match_frame = LabelFrame(self.main_window, text='Round/Match')
+        self.match_frame = tk.LabelFrame(self.main_window, text='Round/Match')
         self.match_frame.pack()
         string_var_list = [self.round_number_var,
                            self.round_start_time_var,
@@ -441,7 +442,7 @@ class ChessTournamentsView(ChessBasicView):
                            self.match_first_player_score_var,
                            self.match_second_player_score_var]
         ChessTournamentsView.fill_a_match_form(self.match_frame, string_var_list)
-        next_match_frame = Button(self.match_frame, text='Next', command=self.next_match)
+        next_match_frame = tk.Button(self.match_frame, text='Next', command=self.next_match)
         next_match_frame.grid(row=2, column=0)
 
     def save_current_state(self):
@@ -484,6 +485,14 @@ class ChessTournamentsView(ChessBasicView):
         if tournament is None:
             messagebox.showerror('Error', 'No tournament selected')
             return False
+
+        pcl_in_all_round = self.my_controller.get_players_couple_list_in_all_round()
+        if not pcl_in_all_round:
+            logging.info('ChessMainViews : continue_tournament: players_couple_list_in_all_round is Null ')
+            pcl_in_all_round = self.my_controller.rebuild_players_couple_list_in_all_round()
+            logging.info(f'ChessMainViews : continue_tournament (1): pcl_in_all_round={pcl_in_all_round}')
+        else:
+            logging.info(f'ChessMainViews : continue_tournament (2): pcl_in_all_round={pcl_in_all_round}')
 
         self.rounds_list, self.players_couple_list, tournament = self.my_controller.get_rounds_players_couple_list(
             update_to_make=True)
@@ -581,29 +590,31 @@ class ChessTournamentsView(ChessBasicView):
 
     @staticmethod
     def fill_a_match_form(frame, string_var_list):
-        round_label = Label(frame, text='Round', font=('calibre', 10, 'bold'))
-        round_entry = Entry(frame, textvariable=string_var_list[0], font=('calibre', 10, 'normal'), state=DISABLED)
+        round_label = tk.Label(frame, text='Round', font=('calibre', 10, 'bold'))
+        round_entry = tk.Entry(frame, textvariable=string_var_list[0], font=('calibre', 10, 'normal'),
+                               state=tk.DISABLED)
 
-        start_time_label = Label(frame, text='StartTime', font=('calibre', 10, 'bold'))
-        start_time_entry = Entry(frame, textvariable=string_var_list[1], font=('calibre', 10, 'normal'),
-                                 state=DISABLED)
+        start_time_label = tk.Label(frame, text='StartTime', font=('calibre', 10, 'bold'))
+        start_time_entry = tk.Entry(frame, textvariable=string_var_list[1], font=('calibre', 10, 'normal'),
+                                    state=tk.DISABLED)
 
-        end_time_label = Label(frame, text='EndTime', font=('calibre', 10, 'bold'))
-        end_time_entry = Entry(frame, textvariable=string_var_list[2], font=('calibre', 10, 'normal'), state=DISABLED)
+        end_time_label = tk.Label(frame, text='EndTime', font=('calibre', 10, 'bold'))
+        end_time_entry = tk.Entry(frame, textvariable=string_var_list[2], font=('calibre', 10, 'normal'),
+                                  state=tk.DISABLED)
 
-        first_player_label = Label(frame, text='FirstPlayer', font=('calibre', 10, 'bold'))
-        first_player_entry = Entry(frame, textvariable=string_var_list[3], state=DISABLED)
+        first_player_label = tk.Label(frame, text='FirstPlayer', font=('calibre', 10, 'bold'))
+        first_player_entry = tk.Entry(frame, textvariable=string_var_list[3], state=tk.DISABLED)
 
-        second_player_label = Label(frame, text='SecondPlayer', font=('calibre', 10, 'bold'))
-        second_player_entry = Entry(frame, textvariable=string_var_list[4], state=DISABLED)
+        second_player_label = tk.Label(frame, text='SecondPlayer', font=('calibre', 10, 'bold'))
+        second_player_entry = tk.Entry(frame, textvariable=string_var_list[4], state=tk.DISABLED)
 
-        first_player_score_label = Label(frame, text='FirstPlayerScore', font=('calibre', 10, 'bold'))
-        first_player_score_entry = Spinbox(frame, textvariable=string_var_list[5],
-                                           values=('', '0', '0.5', '1'), font=('calibre', 10, 'normal'))
+        first_player_score_label = tk.Label(frame, text='FirstPlayerScore', font=('calibre', 10, 'bold'))
+        first_player_score_entry = tk.Spinbox(frame, textvariable=string_var_list[5],
+                                              values=('', '0', '0.5', '1'), font=('calibre', 10, 'normal'))
 
-        second_player_score_label = Label(frame, text='SecondPlayerScore', font=('calibre', 10, 'bold'))
-        second_player_score_entry = Spinbox(frame, textvariable=string_var_list[6],
-                                            values=('', '0', '0.5', '1'), font=('calibre', 10, 'normal'))
+        second_player_score_label = tk.Label(frame, text='SecondPlayerScore', font=('calibre', 10, 'bold'))
+        second_player_score_entry = tk.Spinbox(frame, textvariable=string_var_list[6],
+                                               values=('', '0', '0.5', '1'), font=('calibre', 10, 'normal'))
 
         round_label.grid(row=0, column=0)
         start_time_label.grid(row=0, column=1)
@@ -622,7 +633,7 @@ class ChessTournamentsView(ChessBasicView):
         second_player_score_entry.grid(row=1, column=6)
 
     def show_add_a_tournament_frame(self):
-        self.add_a_tournament_frame = LabelFrame(self.main_window, text='Add a tournament')
+        self.add_a_tournament_frame = tk.LabelFrame(self.main_window, text='Add a tournament')
         self.add_a_tournament_frame.pack()
         string_var_list = [self.tournament_name_var,
                            self.tournament_location_var,
@@ -632,31 +643,32 @@ class ChessTournamentsView(ChessBasicView):
                            self.tournament_description_var]
 
         ChessTournamentsView.fill_a_tournament_form(self.add_a_tournament_frame, string_var_list)
-        add_tournament_button = Button(self.add_a_tournament_frame, text='Add', command=self.add_a_tournament)
+        add_tournament_button = tk.Button(self.add_a_tournament_frame, text='Add', command=self.add_a_tournament)
         add_tournament_button.grid(row=2, column=0)
 
     @staticmethod
-    def fill_a_tournament_form(frame, string_var_list, widget_state=NORMAL):
-        name_label = Label(frame, text='Name', font=('calibre', 10, 'bold'))
-        name_entry = Entry(frame, textvariable=string_var_list[0], font=('calibre', 10, 'normal'), state=widget_state)
+    def fill_a_tournament_form(frame, string_var_list, widget_state=tk.NORMAL):
+        name_label = tk.Label(frame, text='Name', font=('calibre', 10, 'bold'))
+        name_entry = tk.Entry(frame, textvariable=string_var_list[0], font=('calibre', 10, 'normal'),
+                              state=widget_state)
 
-        location_label = Label(frame, text='location', font=('calibre', 10, 'bold'))
-        location_entry = Entry(frame, textvariable=string_var_list[1], font=('calibre', 10, 'normal'),
-                               state=widget_state)
+        location_label = tk.Label(frame, text='location', font=('calibre', 10, 'bold'))
+        location_entry = tk.Entry(frame, textvariable=string_var_list[1], font=('calibre', 10, 'normal'),
+                                  state=widget_state)
 
-        date_label = Label(frame, text='Date', font=('calibre', 10, 'bold'))
+        date_label = tk.Label(frame, text='Date', font=('calibre', 10, 'bold'))
         date_entry = DateEntry(frame, textvariable=string_var_list[2], date_pattern='dd/mm/yyyy', state=widget_state)
-        date_entry.delete(0, END)
+        date_entry.delete(0, tk.END)
 
-        round_label = Label(frame, text='Round', font=('calibre', 10, 'bold'))
-        round_entry = Entry(frame, textvariable=string_var_list[3], state=widget_state)
+        round_label = tk.Label(frame, text='Round', font=('calibre', 10, 'bold'))
+        round_entry = tk.Entry(frame, textvariable=string_var_list[3], state=widget_state)
 
-        time_control_label = Label(frame, text='Time Control', font=('calibre', 10, 'bold'))
-        time_control_entry = Spinbox(frame, values=('', 'Blitz', 'Bullet', 'Fast'), textvariable=string_var_list[4],
-                                     state=widget_state)
+        time_control_label = tk.Label(frame, text='Time Control', font=('calibre', 10, 'bold'))
+        time_control_entry = tk.Spinbox(frame, values=('', 'Blitz', 'Bullet', 'Fast'), textvariable=string_var_list[4],
+                                        state=widget_state)
 
-        description_label = Label(frame, text='Description', font=('calibre', 10, 'bold'))
-        description_entry = Entry(frame, textvariable=string_var_list[5], font=('calibre', 10, 'normal'))
+        description_label = tk.Label(frame, text='Description', font=('calibre', 10, 'bold'))
+        description_entry = tk.Entry(frame, textvariable=string_var_list[5], font=('calibre', 10, 'normal'))
 
         name_label.grid(row=0, column=0)
         location_label.grid(row=0, column=1)
@@ -693,7 +705,7 @@ class ChessTournamentsView(ChessBasicView):
         logging.debug('ChessMainViews : add a tournament {tournament}')
         self.my_controller.save_a_tournament(tournament)
 
-        self.tree.insert('', END, values=tournament)
+        self.tree.insert('', tk.END, values=tournament)
         self.tournament_name_var.set("")
         self.tournament_location_var.set("")
         self.tournament_date_var.set("")
@@ -708,17 +720,17 @@ class ChessPlayersView(ChessBasicView):
         super().__init__(controller)
         self.my_controller = controller
 
-        self.last_name_var = StringVar()
-        self.first_name_var = StringVar()
-        self.birthdate_var = StringVar()
-        self.gender_var = StringVar()
-        self.rank_var = StringVar()
+        self.last_name_var = tk.StringVar()
+        self.first_name_var = tk.StringVar()
+        self.birthdate_var = tk.StringVar()
+        self.gender_var = tk.StringVar()
+        self.rank_var = tk.StringVar()
 
-        self.last_name_var2 = StringVar()
-        self.first_name_var2 = StringVar()
-        self.birthdate_var2 = StringVar()
-        self.gender_var2 = StringVar()
-        self.rank_var2 = StringVar()
+        self.last_name_var2 = tk.StringVar()
+        self.first_name_var2 = tk.StringVar()
+        self.birthdate_var2 = tk.StringVar()
+        self.gender_var2 = tk.StringVar()
+        self.rank_var2 = tk.StringVar()
 
         self.action_frame = None
         self.add_a_player_frame = None
@@ -769,7 +781,7 @@ class ChessPlayersView(ChessBasicView):
         players_list = self.my_controller.load_players_list()
         logging.info(players_list)
         for player in players_list:
-            self.tree.insert('', END, values=player)
+            self.tree.insert('', tk.END, values=player)
         self.my_controller.set_player_id(len(players_list))
 
     def modify_a_player_rank(self):
@@ -806,7 +818,7 @@ class ChessPlayersView(ChessBasicView):
         logging.debug('ChessMainViews : add a player {player}')
         self.my_controller.save_a_player(player)
 
-        self.tree.insert('', END, values=player)
+        self.tree.insert('', tk.END, values=player)
         self.last_name_var.set("")
         self.first_name_var.set("")
         self.birthdate_var.set("")
@@ -825,7 +837,7 @@ class ChessPlayersView(ChessBasicView):
             self.tree.delete(*self.tree.get_children())
             for value in sorted_values:
                 player = (value[0], value[1], value[2], value[3], value[4], value[5])
-                self.tree.insert('', END, values=player)
+                self.tree.insert('', tk.END, values=player)
         else:
             return None
 
@@ -847,30 +859,30 @@ class ChessPlayersView(ChessBasicView):
     def display_report_players_ordered_by_name(self):
         result_list = self.my_controller.get_players_ordered_by_name()
         read_only_text = ChessBasicView.generic_display_report('Players ordered by name')
-        read_only_text.insert(INSERT,
+        read_only_text.insert(tk.INSERT,
                               '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format("last Name", "First Nme", "Birthdate",
                                                                             "Gender", "Rank"))
         for values in result_list:
-            read_only_text.insert(INSERT,
+            read_only_text.insert(tk.INSERT,
                                   '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format(values[0], values[1], values[2],
                                                                                 values[3], str(values[4])))
 
     def display_report_a_tournament_players_ordered_by_rank(self):
         result_list = self.my_controller.get_players_ordered_by_rank()
         read_only_text = ChessBasicView.generic_display_report('Players ordered by rank')
-        read_only_text.insert(INSERT,
+        read_only_text.insert(tk.INSERT,
                               '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format("last Name", "First Nme", "Birthdate",
                                                                             "Gender", "Rank"))
         for values in result_list:
-            read_only_text.insert(INSERT,
+            read_only_text.insert(tk.INSERT,
                                   '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format(values[0], values[1], values[2],
                                                                                 values[3], str(values[4])))
 
     def add_sub_menus_for_players_report(self):
-        self.players_report_btn.menu = Menu(self.players_report_btn, tearoff=0)
+        self.players_report_btn.menu = tk.Menu(self.players_report_btn, tearoff=0)
         self.players_report_btn["menu"] = self.players_report_btn.menu
 
-        self.players_name_dict = {'Players alphabetic order': IntVar(), 'Players rank order': IntVar()}
+        self.players_name_dict = {'Players alphabetic order': tk.IntVar(), 'Players rank order': tk.IntVar()}
         for name, var in self.players_name_dict.items():
             self.players_report_btn.menu.add_checkbutton(label=name, variable=self.players_name_dict[name],
                                                          command=lambda n=name: self.display_a_players_report(n))
@@ -890,7 +902,7 @@ class ChessPlayersView(ChessBasicView):
         if is_debug == 'ON':
             dummy_players_list = self.my_controller.get_dummy_players_list()
             for dummy_player in dummy_players_list:
-                self.tree.insert('', END, values=dummy_player)
+                self.tree.insert('', tk.END, values=dummy_player)
         else:
             self.load_players_list_in_view()
 
@@ -911,63 +923,63 @@ class ChessPlayersView(ChessBasicView):
         self.tree.heading('rank', text='Rank')
 
         self.tree.bind('<<TreeviewSelect>>', lambda event: self.item_selected(event, self.tree))
-        self.tree.grid(row=0, column=0, sticky=NSEW)
+        self.tree.grid(row=0, column=0, sticky=tk.NSEW)
 
-        scrollbar = ttk.Scrollbar(frame, orient=VERTICAL, command=self.tree.yview)
+        scrollbar = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=self.tree.yview)
         self.tree.configure(yscrollcommand=scrollbar.set)
         scrollbar.grid(row=0, column=1, sticky='ns')
 
         self.activate_debug(self.is_debug)
 
     def show_players_list_frame(self):
-        self.tree_frame = LabelFrame(self.main_window, text='Players list')
+        self.tree_frame = tk.LabelFrame(self.main_window, text='Players list')
         self.tree_frame.pack()
         self.create_tree_widget(self.tree_frame)
 
     def show_actions_frame(self):
-        self.action_frame = LabelFrame(self.main_window, text='Actions')
+        self.action_frame = tk.LabelFrame(self.main_window, text='Actions')
         self.action_frame.pack()
 
-        load_btn = Button(self.action_frame, text='Load', command=lambda: self.load_players_list_in_view())
+        load_btn = tk.Button(self.action_frame, text='Load', command=lambda: self.load_players_list_in_view())
         load_btn.grid(row=0, column=0, padx=10, pady=10)
 
-        self.players_report_btn = Menubutton(self.action_frame, text='Report', relief=RAISED, borderwidth=2)
+        self.players_report_btn = tk.Menubutton(self.action_frame, text='Report', relief=tk.RAISED, borderwidth=2)
         self.players_report_btn.grid(row=0, column=1, padx=10, pady=10)
         self.add_sub_menus_for_players_report()
 
-        close_btn = Button(self.action_frame, text='Close', command=lambda: self.hide_all())
+        close_btn = tk.Button(self.action_frame, text='Close', command=lambda: self.hide_all())
         close_btn.grid(row=0, column=2, padx=10, pady=10)
 
     @staticmethod
-    def fill_a_player_form(frame, string_var_list, widget_state=NORMAL):
-        last_name_label = Label(frame, text='Last Name', font=('calibre', 10, 'bold'))
-        last_name_entry = Entry(frame, textvariable=string_var_list[0], font=('calibre', 10, 'normal'),
-                                state=widget_state)
+    def fill_a_player_form(frame, string_var_list, widget_state=tk.NORMAL):
+        last_name_label = tk.Label(frame, text='Last Name', font=('calibre', 10, 'bold'))
+        last_name_entry = tk.Entry(frame, textvariable=string_var_list[0], font=('calibre', 10, 'normal'),
+                                   state=widget_state)
 
-        first_name_label = Label(frame, text='First Name', font=('calibre', 10, 'bold'))
-        first_name_entry = Entry(frame, textvariable=string_var_list[1], font=('calibre', 10, 'normal'),
-                                 state=widget_state)
+        first_name_label = tk.Label(frame, text='First Name', font=('calibre', 10, 'bold'))
+        first_name_entry = tk.Entry(frame, textvariable=string_var_list[1], font=('calibre', 10, 'normal'),
+                                    state=widget_state)
 
-        birthdate_label = Label(frame, text='Birthdate', font=('calibre', 10, 'bold'))
+        birthdate_label = tk.Label(frame, text='Birthdate', font=('calibre', 10, 'bold'))
         if widget_state == 'normal':
             birthdate_entry = DateEntry(frame, textvariable=string_var_list[2], date_pattern='dd/mm/yyyy',
                                         state=widget_state)
-            birthdate_entry.delete(0, END)
+            birthdate_entry.delete(0, tk.END)
 
-            gender_label = Label(frame, text='Gender', font=('calibre', 10, 'bold'))
-            gender_entry = Spinbox(frame, values=('', 'Male', 'Female'), textvariable=string_var_list[3],
-                                   state=widget_state)
+            gender_label = tk.Label(frame, text='Gender', font=('calibre', 10, 'bold'))
+            gender_entry = tk.Spinbox(frame, values=('', 'Male', 'Female'), textvariable=string_var_list[3],
+                                      state=widget_state)
         else:
-            birthdate_entry = Entry(frame, textvariable=string_var_list[2], font=('calibre', 10, 'normal'),
+            birthdate_entry = tk.Entry(frame, textvariable=string_var_list[2], font=('calibre', 10, 'normal'),
+                                       state=widget_state)
+            birthdate_entry.delete(0, tk.END)
+
+            gender_label = tk.Label(frame, text='Gender', font=('calibre', 10, 'bold'))
+            gender_entry = tk.Entry(frame, textvariable=string_var_list[3], font=('calibre', 10, 'normal'),
                                     state=widget_state)
-            birthdate_entry.delete(0, END)
 
-            gender_label = Label(frame, text='Gender', font=('calibre', 10, 'bold'))
-            gender_entry = Entry(frame, textvariable=string_var_list[3], font=('calibre', 10, 'normal'),
-                                 state=widget_state)
-
-        rank_label = Label(frame, text='Rank', font=('calibre', 10, 'bold'))
-        rank_entry = Entry(frame, textvariable=string_var_list[4], font=('calibre', 10, 'normal'))
+        rank_label = tk.Label(frame, text='Rank', font=('calibre', 10, 'bold'))
+        rank_entry = tk.Entry(frame, textvariable=string_var_list[4], font=('calibre', 10, 'normal'))
 
         last_name_label.grid(row=0, column=0)
         first_name_label.grid(row=0, column=1)
@@ -982,23 +994,23 @@ class ChessPlayersView(ChessBasicView):
         rank_entry.grid(row=1, column=4)
 
     def show_add_a_player_frame(self):
-        self.add_a_player_frame = LabelFrame(self.main_window, text='Add a player')
+        self.add_a_player_frame = tk.LabelFrame(self.main_window, text='Add a player')
         self.add_a_player_frame.pack()
         string_var_list = [self.last_name_var, self.first_name_var, self.birthdate_var, self.gender_var, self.rank_var]
 
         ChessPlayersView.fill_a_player_form(self.add_a_player_frame, string_var_list)
-        add_player_button = Button(self.add_a_player_frame, text='Add', command=self.add_a_player)
+        add_player_button = tk.Button(self.add_a_player_frame, text='Add', command=self.add_a_player)
         add_player_button.grid(row=2, column=0)
 
     def show_change_a_player_rank_frame(self):
-        self.change_a_player_rank_frame = LabelFrame(self.main_window, text='Modify Rank')
+        self.change_a_player_rank_frame = tk.LabelFrame(self.main_window, text='Modify Rank')
         self.change_a_player_rank_frame.pack()
 
         string_var_list = [self.last_name_var2, self.first_name_var2, self.birthdate_var2, self.gender_var2,
                            self.rank_var2]
-        ChessPlayersView.fill_a_player_form(self.change_a_player_rank_frame, string_var_list, widget_state=DISABLED)
-        change_a_player_rank_button = Button(self.change_a_player_rank_frame, text='Modify',
-                                             command=self.modify_a_player_rank)
+        ChessPlayersView.fill_a_player_form(self.change_a_player_rank_frame, string_var_list, widget_state=tk.DISABLED)
+        change_a_player_rank_button = tk.Button(self.change_a_player_rank_frame, text='Modify',
+                                                command=self.modify_a_player_rank)
         change_a_player_rank_button.grid(row=2, column=0)
 
     def show_all(self):
@@ -1040,25 +1052,25 @@ class ChessMainView(VirtualView):
         self.player_view = None
         self.tournament_view = None
 
-        self.main_window = Tk()
+        self.main_window = tk.Tk()
 
         self.main_window.title("Chess Tournaments")
         self.main_window.geometry("1100x520")
         self.main_window.minsize(1100, 520)
 
-        menu_bar = Menu(self.main_window)
+        menu_bar = tk.Menu(self.main_window)
 
-        file_menu = Menu(menu_bar, tearoff=0)
+        file_menu = tk.Menu(menu_bar, tearoff=0)
         file_menu.add_command(label="🗙 Exit", command=self.main_window.quit)
         menu_bar.add_cascade(label="📁 File", menu=file_menu)
 
-        player_menu = Menu(menu_bar, tearoff=0)
+        player_menu = tk.Menu(menu_bar, tearoff=0)
         player_menu.add_command(label="🔎 Display",
                                 command=lambda: ChessMainView.toggle_view(self.player_view, self.tournament_view))
         player_menu.add_command(label="🗙 Exit", command=self.main_window.quit)
         menu_bar.add_cascade(label="📁 Players", menu=player_menu)
 
-        tournament_list_menu = Menu(menu_bar, tearoff=0)
+        tournament_list_menu = tk.Menu(menu_bar, tearoff=0)
         tournament_list_menu.add_command(label="🔎 Display",
                                          command=lambda: ChessMainView.toggle_view(self.tournament_view,
                                                                                    self.player_view))

@@ -3,7 +3,7 @@ from tkinter.messagebox import showerror
 
 
 def check_int(name, value):
-    if not value.isdigit() or int(value) <= 0 or re.match("^0+\d+$", value) is not None:
+    if not value.isdigit() or int(value) <= 0 or re.match(r"^0+\d+$", value) is not None:
         showerror('Error', 'Invalid ' + name)
         return False
     else:
@@ -20,7 +20,7 @@ def check_str(name, value):
 
 def check_date(name, value):
     if check_str(name, value) is True:
-        if re.match("^\d\d/\d\d/\d\d\d\d$", value) is None:
+        if re.match(r"^\d\d/\d\d/\d\d\d\d$", value) is None:
             showerror('Error', 'Invalid ' + name)
             return False
         else:

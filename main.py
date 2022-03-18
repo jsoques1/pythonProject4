@@ -3,6 +3,7 @@
     Version 1.1 players management added
     Version 1.2 tournaments management added
     Version 1.3 reports management added
+    Version 1.4 flake8 cleaning
 """
 import os
 import configparser

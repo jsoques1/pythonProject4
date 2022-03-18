@@ -233,20 +233,20 @@ def show_actions_frame():
     action_frame = LabelFrame(main_window, text='Actions')
     action_frame.pack()
 
-    load_btn = Button(action_frame, text='Load', command=lambda: print('Not implemented'))
+    load_btn = tk.Button(action_frame, text='Load', command=lambda: print('Not implemented'))
     load_btn.grid(row=0, column=0, padx=10, pady=10)
-    save_btn = Button(action_frame, text='Save', command=lambda: print('Not implemented'))
+    save_btn = tk.Button(action_frame, text='Save', command=lambda: print('Not implemented'))
     save_btn.grid(row=0, column=1, padx=10, pady=10)
-    close_btn = Button(action_frame, text='Close', command=hide_all)
+    close_btn = tk.Button(action_frame, text='Close', command=hide_all)
     close_btn.grid(row=0, column=2, padx=10, pady=10)
 
 
 def fill_a_player_form(frame, string_var_list, widget_state=NORMAL):
     last_name_label = Label(frame, text='Last Name', font=('calibre', 10, 'bold'))
-    last_name_entry = Entry(frame, textvariable=string_var_list[0], font=('calibre', 10, 'normal'), state=widget_state)
+    last_name_entry = tk.Entry(frame, textvariable=string_var_list[0], font=('calibre', 10, 'normal'), state=widget_state)
 
     first_name_label = Label(frame, text='First Name', font=('calibre', 10, 'bold'))
-    first_name_entry = Entry(frame, textvariable=string_var_list[1], font=('calibre', 10, 'normal'), state=widget_state)
+    first_name_entry = tk.Entry(frame, textvariable=string_var_list[1], font=('calibre', 10, 'normal'), state=widget_state)
 
     birthdate_label = Label(frame, text='Birthdate', font=('calibre', 10, 'bold'))
     if widget_state == 'normal':
@@ -256,14 +256,14 @@ def fill_a_player_form(frame, string_var_list, widget_state=NORMAL):
         gender_label = Label(frame, text='Gender', font=('calibre', 10, 'bold'))
         gender_entry = Spinbox(frame, values=('', 'Male', 'Female'), textvariable=gender_var, state=widget_state)
     else:
-        birthdate_entry = Entry(frame, textvariable=string_var_list[2], font=('calibre', 10, 'normal'), state=widget_state)
+        birthdate_entry = tk.Entry(frame, textvariable=string_var_list[2], font=('calibre', 10, 'normal'), state=widget_state)
         birthdate_entry.delete(0, END)
 
         gender_label = Label(frame, text='Gender', font=('calibre', 10, 'bold'))
-        gender_entry = Entry(frame, textvariable=string_var_list[3], font=('calibre', 10, 'normal'), state=widget_state)
+        gender_entry = tk.Entry(frame, textvariable=string_var_list[3], font=('calibre', 10, 'normal'), state=widget_state)
 
     rank_label = Label(frame, text='Rank', font=('calibre', 10, 'bold'))
-    rank_entry = Entry(frame, textvariable=string_var_list[4], font=('calibre', 10, 'normal'))
+    rank_entry = tk.Entry(frame, textvariable=string_var_list[4], font=('calibre', 10, 'normal'))
 
     last_name_label.grid(row=0, column=0)
     first_name_label.grid(row=0, column=1)
@@ -285,7 +285,7 @@ def show_add_a_player_frame():
     string_var_list = [last_name_var, first_name_var, birthdate_var, gender_var, rank_var]
 
     fill_a_player_form(add_a_player_frame, string_var_list)
-    add_player_button = Button(add_a_player_frame, text='Add', command=add_a_player)
+    add_player_button = tk.Button(add_a_player_frame, text='Add', command=add_a_player)
     add_player_button.grid(row=2, column=0)
 
 
@@ -295,7 +295,7 @@ def show_change_a_player_rank_frame():
     change_a_player_rank_frame.pack()
     string_var_list = [last_name_var2, first_name_var2, birthdate_var2, gender_var2, rank_var2]
     fill_a_player_form(change_a_player_rank_frame, string_var_list, widget_state=DISABLED)
-    change_a_player_rank_button = Button(change_a_player_rank_frame, text='Modify', command=modify_a_player_rank)
+    change_a_player_rank_button = tk.Button(change_a_player_rank_frame, text='Modify', command=modify_a_player_rank)
     change_a_player_rank_button.grid(row=2, column=0)
 
 
