@@ -123,6 +123,9 @@ class ChessMainController(VirtualController):
         self.selected_rounds_list, players_list, tournament = self.get_rounds_players_from_selected_tournament()
         if tournament is None:
             return [], [], None
+        elif len(self.selected_rounds_list) == self.get_max_rounds_number():
+            return self.selected_rounds_list, self.players_couple_list, tournament
+
         self.players_score = self.my_model.get_participants_score(tournament)
         logging.info(f'ChessMainControllers : players = {players_list}')
         logging.info(f'ChessMainControllers : players_score = {self.players_score}')
@@ -170,28 +173,40 @@ class ChessMainController(VirtualController):
         logging.debug('ChessMainControllers : get_result_algorithm_swiss')
         logging.info(f'ChessMainControllers : get_result_algorithm_swiss: players_list={players_list}')
         simplified_players_couple_list = self.make_simplified_players_couples_list()
+        logging.info(f'ChessMainControllers: algorithm_swiss: simplified={simplified_players_couple_list}')
         nb_players_couple = int(len(players_list) / 2)
         new_players_list = []
         opponents_list = [i + nb_players_couple for i in range(nb_players_couple)]
         logging.info(f'ChessMainControllers : opponents_list={opponents_list}')
+        nb_found = 0
+        i = 0
         for current in range(nb_players_couple):
-            for opponent in opponents_list:
+            while nb_found != nb_players_couple:
+                opponent = opponents_list[i]
                 logging.info(f'ChessMainControllers: algorithm_swiss: current={current} opponent={opponent}')
                 if ([players_list[current][5], players_list[opponent][5]] in simplified_players_couple_list) or \
                    ([players_list[opponent][5], players_list[current][5]] in simplified_players_couple_list):
+                    logging.info('ChessMainControllers: algorithm_swiss: ======================')
+                    logging.info(f'ChessMainControllers: algorithm_swiss: {players_list[current][5]}')
+                    logging.info(f'ChessMainControllers: algorithm_swiss: {players_list[opponent][5]}')
+                    logging.info('ChessMainControllers: algorithm_swiss: ====== DISCARDED ======')
+                    i = (i + 1) % nb_players_couple
                     continue
                 else:
-                    logging.info(f'ChessMainControllers : algorithm_swiss: couple found {players_list[current]}\
-{players_list[opponent]}')
+                    logging.info('ChessMainControllers: algorithm_swiss: ====================')
+                    logging.info(f'ChessMainControllers : algorithm_swiss: {players_list[current][5]}')
+                    logging.info(f'ChessMainControllers : algorithm_swiss: {players_list[opponent][5]}')
+                    logging.info('ChessMainControllers: algorithm_swiss: ====== FOUND  ======')
 
-                    new_players_list.append(players_list[current])
-                    new_players_list.append(players_list[opponent])
                     first_player = [players_list[current][0], players_list[current][5], players_list[current][4]]
                     second_player = [players_list[opponent][0], players_list[opponent][5], players_list[opponent][4]]
+                    new_players_list.append(first_player)
+                    new_players_list.append(second_player)
                     self.players_couple_list_in_all_round.append([first_player, second_player])
                     logging.info(f'ChessMainControllers : algorithm_swiss: current={players_list[current]}')
                     logging.info(f'ChessMainControllers : algorithm_swiss: opponent={players_list[opponent]}')
-                    opponents_list.remove(opponent)
+                    nb_found += 1
+                    # opponents_list.remove(opponent)
                     break
         return new_players_list
 
@@ -343,7 +358,7 @@ class ChessMainController(VirtualController):
                 logging.info(
                     f'ChessMainControllers: update_a_match_results_list_round: players_score={self.players_score}')
                 logging.info(
-                    f'ChessMainControllers: update_a_match_results_list_round: a_match_result)={a_match_result}')
+                    f'ChessMainControllers: update_a_match_results_list_round: a_match_result={a_match_result}')
                 self.players_score[player_key] = float(a_match_result[3][2])
 
             player_key = a_match_result[4][0]
