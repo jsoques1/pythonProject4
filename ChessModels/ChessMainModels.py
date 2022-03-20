@@ -40,13 +40,15 @@ class Tournament:
         return tournament_entry
 
     def unserialize(self):
+        # retval = (self.name, self.location, self.date, self.rounds_number, self.time_control, self.description,
+        #           self.tournament_id, self.participants, self.rounds, self.participants_score)
         retval = (self.name, self.location, self.date, self.rounds_number, self.time_control, self.description,
-                  self.tournament_id, self.participants, self.rounds, self.participants_score)
+                  self.tournament_id)
         return retval
 
     def __str__(self):
         return f'{self.name} {self.location} {self.date} {self.rounds_number} {self.time_control} {self.description} \
-{self.tournament_id} {self.participants} {self.rounds} {self.participants_score}'
+{self.tournament_id}'
 
 
 class Player:
@@ -164,17 +166,25 @@ class ChessMainModel(VirtualModel):
         tournament_entry = self.tournaments_db.get(doc_id=int(tournament[6]))
         logging.info(f'ChessMainModels : rounds = {tournament_entry["Rounds"]}')
         logging.info(f'ChessMainModels : players = {tournament_entry["Participants"]}')
+        # return tournament_entry['Rounds'], tournament_entry['Participants'], tournament_entry['ParticipantsScore']
         return tournament_entry['Rounds'], tournament_entry['Participants']
 
-    def update_a_tournament_round(self, tournament, round_id, round_start_time, round_end_time, match_list,
-                                  participants_score):
+    # def update_a_tournament_round(self, tournament, round_id, round_start_time, round_end_time, match_list,
+    #                               participants_score):
+    #     logging.debug('ChessMainModels : update_a_tournament_rounds')
+    #     logging.info(f'ChessMainModels : selected_tournament = {tournament}')
+    #     tournament_entry = self.tournaments_db.get(doc_id=int(tournament[6]))
+    #     rounds_list = tournament_entry['Rounds']
+    #     rounds_list.append([round_id, round_start_time, round_end_time, match_list])
+    #     retval1 = self.tournaments_db.update({"Rounds": rounds_list}, doc_ids=[int(tournament[6])])
+    #     retval2 = self.tournaments_db.update({"ParticipantsScore": participants_score}, doc_ids=[int(tournament[6])])
+    #     return retval1 and retval2
+
+    def update_a_tournament_round(self, tournament_id, all_rounds, participants_score):
         logging.debug('ChessMainModels : update_a_tournament_rounds')
-        logging.info(f'ChessMainModels : selected_tournament = {tournament}')
-        tournament_entry = self.tournaments_db.get(doc_id=int(tournament[6]))
-        rounds_list = tournament_entry['Rounds']
-        rounds_list.append([round_id, round_start_time, round_end_time, match_list])
-        retval1 = self.tournaments_db.update({"Rounds": rounds_list}, doc_ids=[int(tournament[6])])
-        retval2 = self.tournaments_db.update({"ParticipantsScore": participants_score}, doc_ids=[int(tournament[6])])
+        logging.info(f'ChessMainModels : selected_tournament = {tournament_id}')
+        retval1 = self.tournaments_db.update({"Rounds": all_rounds}, doc_ids=[int(tournament_id)])
+        retval2 = self.tournaments_db.update({"ParticipantsScore": participants_score}, doc_ids=[int(tournament_id)])
         return retval1 and retval2
 
     def get_participants_score(self, tournament):

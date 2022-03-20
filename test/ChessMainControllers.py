@@ -1,5 +1,4 @@
 import configparser
-import copy
 import logging
 import time
 from operator import itemgetter
@@ -14,115 +13,16 @@ class VirtualController:
         pass
 
 
-class ChessPlayers:
+class ChessRounds:
     def __init__(self):
-        self.players = dict()
+        self.rounds = dict()
 
-    def add_players(self, tournament_id, players):
-        logging.debug('ChessPlayers : add_players')
-        logging.info(f'ChessPlayers : add_players: players={players}')
-        self.players[tournament_id] = players
-        logging.info(f'ChessPlayers : add_matches: matches={self.players}')
-
-    def get_players(self, tournament_id):
-        logging.debug('ChessPlayers : get')
-        logging.info(f'ChessPlayersChessPlayers: get: players={self.players.get(tournament_id)}')
-        return self.players.get(tournament_id)
-
-
-class ChessMatches:
-    def __init__(self):
-        self.matches = dict()
-
-    def add_matches(self, tournament_id, round_number, match_results_list):
-        # logging.debug('ChessMatches : add_matches')
-        # logging.info(f'ChessMatches : add_matches: tournament_id={tournament_id}')
-        # logging.info(f'ChessMatches : add_matches: round_number={round_number}')
-        logging.info(f'ChessMatches : add_matches: match_results_list={match_results_list}')
-        if not self.matches.get(tournament_id):
-            self.matches[tournament_id] = []
-
-        new_match_results_list = copy.deepcopy(self.matches[tournament_id])
-        new_match_results_list += match_results_list
-        self.matches[tournament_id] = new_match_results_list
-        logging.info(f'ChessMatches : add_matches: self.matches[tournament_id]={self.matches[tournament_id]}')
-
-    def remove_matches_of_a_round(self, tournament_id, round_number):
-        matches = self.matches.get(tournament_id)
-        if matches:
-            for a_match in matches:
-                if a_match[0] == round_number:
-                    matches.remove(a_match)
-
-    def compact_a_round(self, backup_round):
-        logging.debug('ChessMatches: get_all_rounds')
-        logging.info(f'ChessMatches: get_all_rounds: backup_round={backup_round}')
-        retval = []
-        if backup_round:
-            match_couples = []
-            for a_match in backup_round:
-                match_couples.append([a_match[3], a_match[4]])
-            first_match = backup_round[0]
-            round_number = first_match[0]
-            start_time = first_match[1]
-            end_time = first_match[2]
-            retval = [round_number, start_time, end_time, match_couples]
-        logging.info(f'ChessMatches: get_all_rounds: retval={retval}')
-        return retval
-
-    def get_all_rounds(self, tournament_id):
-        logging.debug('ChessMatches : get_all_rounds')
-        matches = copy.deepcopy(self.matches.get(tournament_id))
-        logging.info(f'ChessMatches : get_all_rounds: matches={matches}')
-        backup_round = []
-        all_rounds = []
-        for a_match in matches:
-            if not backup_round or a_match[0] == backup_round[0][0]:
-                backup_round.append(a_match)
-            else:
-                a_round = self.compact_a_round(backup_round)
-                all_rounds.append(a_round)
-                backup_round.clear()
-                backup_round.append(a_match)
-
-        if backup_round:
-            a_round = self.compact_a_round(backup_round)
-            all_rounds.append(a_round)
-
-        logging.info(f'ChessMatches : get_all_rounds: all_rounds={all_rounds}')
-        return all_rounds
-
-    def __str__(self):
-        return str(self.matches)
-
-
-class ChessPlayersScore:
-    def __init__(self):
-        self.players_score = dict()
-
-    def update_a_score(self, player, score):
-        logging.debug('ChessPlayersScore: update_a_score')
-        logging.info(f'ChessPlayersScore: update_a_score: player={player} score={score}')
-        if not self.players_score.get(player):
-            self.players_score[player] = float(score)
+    def add_a_round(self, tournament_id, a_round):
+        rounds = self.rounds.get(tournament_id)
+        if not rounds:
+            self.rounds[tournament_id] = [a_round]
         else:
-            self.players_score[player] += float(score)
-
-    def get(self, player):
-        logging.debug('ChessPlayersScore : get')
-        logging.info(f'ChessPlayersScore: get: player={player} score={self.players_score.get(player)}')
-        return self.players_score.get(player)
-
-    def set(self, players_score):
-        logging.debug('ChessPlayersScore : set')
-        logging.info(f'ChessPlayersScore: set: players_score={players_score}')
-        self.players_score = players_score
-
-    def get_score(self):
-        return self.players_score
-
-    def __str__(self):
-        return str(self.players_score)
+            self.rounds[tournament_id].append(a_round)
 
 
 class ChessMainController(VirtualController):
@@ -135,12 +35,12 @@ class ChessMainController(VirtualController):
         self.tournament_id = 0
         self.selected_players_list = []
         self.selected_rounds_list = []
+        self.players_score = dict()
         self.players_couple_list = []
         self.players_couple_list_in_all_round = []
         self.selected_tournament = None
-        # self.current_tournament = None
-        self.players_score = ChessPlayersScore()
-        self.matches = ChessMatches()
+        self.current_tournament = None
+        self.rounds = ChessRounds()
 
     def run(self):
         self.my_view.set_my_controller(self)
@@ -150,7 +50,10 @@ class ChessMainController(VirtualController):
     def set_selected_tournament(self, tournament):
         logging.debug('ChessMainControllers : set_selected_tournament')
         logging.info(f'ChessMainControllers : {tournament}')
-        self.selected_tournament = tournament
+        if self.current_tournament is not None:
+            assert False
+        else:
+            self.selected_tournament = tournament
 
     def get_selected_tournament(self):
         return self.selected_tournament
@@ -166,54 +69,10 @@ class ChessMainController(VirtualController):
     def set_tournament_completed(self):
         self.selected_players_list = []
         self.selected_rounds_list = []
+        self.players_score = dict()
         self.players_couple_list = []
         self.players_couple_list_in_all_round = []
-
-    def update_score(self,  a_match):
-        logging.debug('ChessMainControllers : update_a_match_results_list_round')
-        # selected_tournament = self.get_selected_tournament()
-        logging.info(f'ChessMainControllers: a_match ={a_match}')
-        player_key = a_match[3][0]
-        self.players_score.update_a_score(player_key, a_match[3][2])
-        player_key = a_match[4][0]
-        self.players_score.update_a_score(player_key, a_match[4][2])
-
-    def backup_a_round(self, round_number, round_end_time, match_results_list):
-        logging.debug('ChessMainControllers : backup_a_round')
-        logging.info(f'ChessMainControllers : backup_a_round: round_number={round_number}')
-        logging.info(f'ChessMainControllers : backup_a_round: round_end_time: [{round_end_time}]')
-        logging.info(f'ChessMainControllers : backup_a_round: match_results_list: {match_results_list}')
-        selected_tournament = self.get_selected_tournament()
-        tournament_id = selected_tournament[6]
-
-        new_match_results_list = copy.deepcopy(match_results_list)
-
-        if round_end_time:
-            self.matches.remove_matches_of_a_round(tournament_id, round_number)
-
-        for match in new_match_results_list:
-            match[2] = round_end_time
-            logging.info(f'ChessMainControllers : backup_a_round: match={match}')
-
-        logging.info(f'ChessMainControllers : backup_a_round: new_match_results_list: {new_match_results_list}')
-        # logging.info(f'ChessMainControllers : backup_a_round: tournament_id: {tournament_id}')
-        # logging.info(f'ChessMainControllers : backup_a_round: selected_tournament: {selected_tournament}')
-        self.matches.add_matches(tournament_id, round_number, new_match_results_list)
-
-    def save_current_state(self):
-        logging.debug('ChessMainControllers : save_current_state')
-        logging.info(f'ChessMainControllers : save_current_state: players_score={self.players_score}')
-        logging.info(f'ChessMainControllers : save_current_state: matches={self.matches}')
-        selected_tournament = self.get_selected_tournament()
-        logging.info(f'ChessMainControllers : save_current_state: selected_tournament={selected_tournament}')
-        tournament_id = selected_tournament[6]
-        logging.info(f'ChessMainControllers : save_current_state (2): selected_tournament={selected_tournament}')
-        all_rounds = self.matches.get_all_rounds(tournament_id)
-        self.my_model.update_a_tournament_round(tournament_id, all_rounds, self.players_score.get_score())
-
-    def save_rounds(self, rounds):
-        logging.debug('ChessMainControllers : backup_a_round')
-        logging.debug(f'ChessMainControllers : backup_a_round: {rounds}')
+        self.selected_tournament = None
 
     def assign_selected_players_to_selected_tournament(self):
         logging.debug('ChessMainControllers : assign_selected_players_to_selected_tournament')
@@ -239,14 +98,10 @@ class ChessMainController(VirtualController):
         if selected_tournament is None:
             return [], [], None
         else:
-            # self.selected_rounds_list, self.selected_players_list, players_score = \
-            #     self.my_model.get_tournament_rounds_players_list(selected_tournament)
             self.selected_rounds_list, self.selected_players_list = \
                 self.my_model.get_tournament_rounds_players_list(selected_tournament)
             logging.info(f'ChessMainControllers : rounds_list = {self.selected_rounds_list}')
             logging.info(f'ChessMainControllers : players_list = {self.selected_players_list}')
-            # logging.info(f'ChessMainControllers : players_score = {players_score}')
-            # self.players_score = players_score
         return self.selected_rounds_list, self.selected_players_list, selected_tournament
 
     def get_rounds_matches_from_selected_tournament(self):
@@ -255,14 +110,10 @@ class ChessMainController(VirtualController):
         if selected_tournament is None:
             return [], [], None
         else:
-            # self.selected_rounds_list, self.selected_players_list, players_score = \
-            #     self.my_model.get_tournament_rounds_players_list(selected_tournament)
             self.selected_rounds_list, self.selected_players_list = \
                 self.my_model.get_tournament_rounds_players_list(selected_tournament)
             logging.info(f'ChessMainControllers : rounds_list = {self.selected_rounds_list}')
             logging.info(f'ChessMainControllers : players_list = {self.selected_players_list}')
-            # logging.info(f'ChessMainControllers : players_score = {players_score}')
-            # self.players_score = players_score
         matches_list = []
         for a_round in self.selected_rounds_list:
             for a_match in a_round[3]:
@@ -289,16 +140,13 @@ class ChessMainController(VirtualController):
         elif len(self.selected_rounds_list) == self.get_max_rounds_number():
             return self.selected_rounds_list, self.players_couple_list, tournament
 
-        # self.players_score.set(self.my_model.get_participants_score(tournament))
+        self.players_score = self.my_model.get_participants_score(tournament)
         logging.info(f'ChessMainControllers : players = {players_list}')
-        logging.info(f'ChessMainControllers : players_score = {str(self.players_score)}')
+        logging.info(f'ChessMainControllers : players_score = {self.players_score}')
         if players_list:
             if update_to_make:
                 for current in range(len(players_list)):
-                    players_list[current][4] = self.players_score.get(players_list[current][0])
-                    # if not players_list[current][4]:
-                    #     players_list[current][4] = 0.0
-                        # self.players_score.update_a_score(players_list[current][0], 0.0)
+                    players_list[current][4] = self.players_score[players_list[current][0]]
                 logging.info(f'ChessMainControllers: players_list before sort: players_list = {players_list}')
                 players_list = sorted(players_list, key=lambda x: float(x[4]), reverse=True)
                 logging.info(f'ChessMainControllers: players_list after sort:  players_list = {players_list}')
@@ -360,48 +208,42 @@ class ChessMainController(VirtualController):
     def get_result_algorithm_swiss(self, players_list):
         logging.debug('ChessMainControllers : get_result_algorithm_swiss')
         logging.info(f'ChessMainControllers : get_result_algorithm_swiss: players_list={players_list}')
-        simplified_index_couple_list = self.make_simplified_players_couples_list()
-        logging.info(f'ChessMainControllers: algorithm_swiss: simplified={simplified_index_couple_list}')
+        simplified_players_couple_list = self.make_simplified_players_couples_list()
+        logging.info(f'ChessMainControllers: algorithm_swiss: simplified={simplified_players_couple_list}')
         nb_players_couple = int(len(players_list) / 2)
         new_players_list = []
-        opponents_index_list = [i + nb_players_couple for i in range(nb_players_couple)]
-        logging.info(f'ChessMainControllers : algorithm_swiss: opponents_list={opponents_index_list}')
+        opponents_list = [i + nb_players_couple for i in range(nb_players_couple)]
+        logging.info(f'ChessMainControllers : opponents_list={opponents_list}')
+        nb_found = 0
         i = 0
-        for current_index in range(nb_players_couple):
-            nb_search_failure = 0
-            while nb_search_failure != nb_players_couple:
-                opponent_index = opponents_index_list[i]
-                logging.info(f'ChessMainControllers: algorithm_swiss: current_idx={current_index}')
-                logging.info(f'ChessMainControllers: algorithm_swiss: opponent_idx={opponent_index}')
-                if ([players_list[current_index][5], players_list[opponent_index][5]] in
-                   simplified_index_couple_list) or \
-                   ([players_list[current_index][5], players_list[opponent_index][5]] in
-                   simplified_index_couple_list):
+        for current in range(nb_players_couple):
+            while nb_found != nb_players_couple:
+                opponent = opponents_list[i]
+                logging.info(f'ChessMainControllers: algorithm_swiss: current={current} opponent={opponent}')
+                if ([players_list[current][5], players_list[opponent][5]] in simplified_players_couple_list) or \
+                   ([players_list[opponent][5], players_list[current][5]] in simplified_players_couple_list):
                     logging.info('ChessMainControllers: algorithm_swiss: ======================')
-                    logging.info(f'ChessMainControllers: algorithm_swiss: {players_list[current_index][5]}')
-                    logging.info(f'ChessMainControllers: algorithm_swiss: {players_list[opponent_index][5]}')
+                    logging.info(f'ChessMainControllers: algorithm_swiss: {players_list[current][5]}')
+                    logging.info(f'ChessMainControllers: algorithm_swiss: {players_list[opponent][5]}')
                     logging.info('ChessMainControllers: algorithm_swiss: ====== DISCARDED ======')
                     i = (i + 1) % nb_players_couple
-                    nb_search_failure += 1
                     continue
                 else:
                     logging.info('ChessMainControllers: algorithm_swiss: ====================')
-                    logging.info(f'ChessMainControllers : algorithm_swiss: {current_index}')
-                    logging.info(f'ChessMainControllers : algorithm_swiss: {opponent_index}')
+                    logging.info(f'ChessMainControllers : algorithm_swiss: {players_list[current][5]}')
+                    logging.info(f'ChessMainControllers : algorithm_swiss: {players_list[opponent][5]}')
                     logging.info('ChessMainControllers: algorithm_swiss: ====== FOUND  ======')
 
-                    first_player = [players_list[current_index][0], players_list[current_index][5],
-                                    players_list[current_index][4]]
-                    second_player = [players_list[opponent_index][0], players_list[opponent_index][5],
-                                     players_list[opponent_index][4]]
+                    first_player = [players_list[current][0], players_list[current][5], players_list[current][4]]
+                    second_player = [players_list[opponent][0], players_list[opponent][5], players_list[opponent][4]]
                     new_players_list.append(first_player)
                     new_players_list.append(second_player)
                     self.players_couple_list_in_all_round.append([first_player, second_player])
-                    logging.info(f'ChessMainControllers : swiss: current_player={players_list[current_index]}')
-                    logging.info(f'ChessMainControllers : swiss: opponent_player={players_list[opponent_index]}')
+                    logging.info(f'ChessMainControllers : algorithm_swiss: current={players_list[current]}')
+                    logging.info(f'ChessMainControllers : algorithm_swiss: opponent={players_list[opponent]}')
+                    nb_found += 1
+                    # opponents_list.remove(opponent)
                     break
-            if nb_search_failure == nb_players_couple:
-                break
         return new_players_list
 
     def set_player_id(self, player_id):
@@ -428,7 +270,6 @@ class ChessMainController(VirtualController):
 
     def get_a_tournament_rounds(self):
         rounds_list, players_list, _ = self.get_rounds_players_from_selected_tournament()
-        self.players_score = self.get_participants_score()
         return rounds_list
 
     def get_a_tournament_matches(self):
@@ -524,26 +365,49 @@ class ChessMainController(VirtualController):
         return status
 
     def save_a_tournament(self, tournament):
+        print(tournament)
         model_tournament = ChessMainModels.Tournament(tournament[0], tournament[1], tournament[2], tournament[3],
                                                       tournament[4], tournament[5], tournament[6], [],
                                                       [], participants_score=dict())
         status = self.my_model.insert_a_tournament_in_db(model_tournament)
         return status
 
-    # def update_a_tournament(self, round_number, round_start_time, round_end_time, match_results_list):
-    #     logging.debug('ChessMainControllers : update_a_tournament')
-    #     match_list = []
-    #     selected_tournament = self.get_selected_tournament()
-    #     logging.info(f'ChessMainControllers: match_results_list ={match_results_list}')
-    #     for a_match_result in match_results_list:
-    #         match_list.append([a_match_result[3], a_match_result[4]])
-    #         player_key = a_match_result[3][0]
+    def backup_a_round(self, round_number, round_start_time, round_end_time, match_results_list):
+        logging.debug('ChessMainControllers : update_a_match_results_list_round')
+        selected_tournament = self.get_selected_tournament()
+        tournament_id = selected_tournament[7]
 
-    # def update_a_tournament_round(self, tournament, round_id, round_start_time, round_end_time, match_list,
-    #                                   participants_score):
-    #     status = self.my_model.update_a_tournament_round(selected_tournament, round_number, round_start_time,
-    #                                                      round_end_time, match_list, self.PlayersScore.get())
-    #     return round_number, status
+        a_round = [round_number, round_start_time, round_end_time, match_results_list]
+        self.rounds.add_a_round(tournament_id, a_round)
+
+    def update_a_match_results_list_round(self, round_number, round_start_time, round_end_time, match_results_list):
+        logging.debug('ChessMainControllers : update_a_match_results_list_round')
+        match_list = []
+        selected_tournament = self.get_selected_tournament()
+        logging.info(f'ChessMainControllers: match_results_list ={match_results_list}')
+        for a_match_result in match_results_list:
+            match_list.append([a_match_result[3], a_match_result[4]])
+            player_key = a_match_result[3][0]
+            if player_key in self.players_score:
+                self.players_score[player_key] = float(self.players_score[player_key]) + float(a_match_result[3][2])
+            else:
+                logging.info(f'ChessMainControllers: update_a_match_results_list_round: player_key = {player_key}')
+                logging.info(f'ChessMainControllers: update_a_match_results_list_round: {a_match_result[3][2]}')
+                logging.info(
+                    f'ChessMainControllers: update_a_match_results_list_round: players_score={self.players_score}')
+                logging.info(
+                    f'ChessMainControllers: update_a_match_results_list_round: a_match_result={a_match_result}')
+                self.players_score[player_key] = float(a_match_result[3][2])
+
+            player_key = a_match_result[4][0]
+            if player_key in self.players_score:
+                self.players_score[player_key] = float(self.players_score[player_key]) + float(a_match_result[4][2])
+            else:
+                self.players_score[player_key] = float(a_match_result[4][2])
+
+        status = self.my_model.update_a_tournament_round(selected_tournament, round_number, round_start_time,
+                                                         round_end_time, match_list, self.players_score)
+        return round_number, status
 
     def load_tournaments_list(self):
         logging.debug('ChessMainControllers : load_tournaments_list')
