@@ -40,16 +40,17 @@ class Tournament:
         return tournament_entry
 
     def unserialize(self):
-        # retval = (self.name, self.location, self.date, self.rounds_number, self.time_control, self.description,
-        #           self.tournament_id, self.participants, self.rounds, self.participants_score)
         retval = (self.name, self.location, self.date, self.rounds_number, self.time_control, self.description,
-                  self.tournament_id)
+                  self.tournament_id, self.participants, self.rounds, self.participants_score)
+        # retval = (self.name, self.location, self.date, self.rounds_number, self.time_control, self.description,
+        #           self.tournament_id)
         return retval
 
     def __str__(self):
+        # return f'{self.name} {self.location} {self.date} {self.rounds_number} {self.time_control} {self.description} \
+#{self.tournament_id}'
         return f'{self.name} {self.location} {self.date} {self.rounds_number} {self.time_control} {self.description} \
-{self.tournament_id}'
-
+{self.tournament_id} {self.participants} {self.rounds} {self.participants_score}'
 
 class Player:
     def __init__(self, last_name=None, first_name=None, birthdate=None, gender=None, rank=None, player_id=0):
@@ -164,10 +165,11 @@ class ChessMainModel(VirtualModel):
         logging.debug('ChessMainModels : get_tournament_rounds_players_list')
         logging.info(f'ChessMainModels : selected_tournament = {tournament}')
         tournament_entry = self.tournaments_db.get(doc_id=int(tournament[6]))
-        logging.info(f'ChessMainModels : rounds = {tournament_entry["Rounds"]}')
-        logging.info(f'ChessMainModels : players = {tournament_entry["Participants"]}')
-        # return tournament_entry['Rounds'], tournament_entry['Participants'], tournament_entry['ParticipantsScore']
-        return tournament_entry['Rounds'], tournament_entry['Participants']
+        logging.info(f'ChessMainModels: get_tournament_rounds_players_list:  rounds={tournament_entry["Rounds"]}')
+        logging.info(f'ChessMainModels: get_tournament_rounds_players_list: {tournament_entry["Participants"]}')
+        logging.info(f'ChessMainModels: get_tournament_rounds_players_list: {tournament_entry["ParticipantsScore"]}')
+        return tournament_entry['Rounds'], tournament_entry['Participants'], tournament_entry['ParticipantsScore']
+        # return tournament_entry['Rounds'], tournament_entry['Participants']
 
     # def update_a_tournament_round(self, tournament, round_id, round_start_time, round_end_time, match_list,
     #                               participants_score):
@@ -219,6 +221,7 @@ class ChessMainModel(VirtualModel):
     @staticmethod
     def make_a_tournament_from_entry(tournament_entry):
         logging.debug('make_a_tournament_from_entry')
+        logging.debug(f'make_a_tournament_from_entry: {tournament_entry}')
         tournament = Tournament(tournament_entry["Name"],
                                 tournament_entry["Location"],
                                 tournament_entry["Date"],
