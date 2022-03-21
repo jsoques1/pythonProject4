@@ -1,5 +1,6 @@
 import configparser
 import logging
+import re
 import tkinter as tk
 from operator import itemgetter
 from tkinter import ttk
@@ -498,7 +499,7 @@ class ChessTournamentsView(ChessBasicView):
 
         # if (not self.rounds_list) and (not self.players_couple_list) and (not self.match_results_list):
         #     score_to_update = False
-
+        round_id = 1
         all_matches = self.my_controller.get_all_matches()
         if not all_matches:
             logging.info('ChessMainViews: continue_tournament: all_matches is Null ')
@@ -509,15 +510,31 @@ class ChessTournamentsView(ChessBasicView):
 
         self.rounds_list, self.players_couple_list = \
             self.my_controller.get_rounds_and_players_couple_list(score_to_update)
-        logging.info(f'ChessMainViews: self.rounds_list = {self.rounds_list}')
+
         logging.info(f'ChessMainViews: self.players_couple_list = {self.players_couple_list}')
 
-        nb_matches_per_round = self.my_controller.get_nb_matches_per_round(len(self.players_couple_list))
-        logging.info(f'ChessMainViews: continue_tournament: nb_matches_per_round = {nb_matches_per_round}')
-        if nb_matches_per_round != 0:
-            round_id = int(float(len(all_matches)) / float(nb_matches_per_round))
-        else:
-            round_id = 1
+        # nb_matches_per_round = self.my_controller.get_nb_matches_per_round(len(self.rounds_list))
+        # logging.info(f'ChessMainViews: continue_tournament: nb_matches_per_round = {nb_matches_per_round}')
+        # if nb_matches_per_round != 0:
+        #     round_id = int(float(len(all_matches)) / float(nb_matches_per_round))
+        # else:
+        #     round_id = 1
+        if self.rounds_list and self.rounds_list[-1]:
+            logging.info(f'ChessMainViews: self.rounds_list = {self.rounds_list}')
+            logging.info(f'ChessMainViews: self.rounds_list[-1] = {self.rounds_list[-1]}')
+
+            round_number = self.rounds_list[-1][0]
+            print(re.findall("\d+", round_number)[0])
+            round_id = int(re.findall("\d+", round_number)[0])
+            nb_matches_per_round = self.my_controller.get_nb_matches_per_round()
+            logging.info(f'ChessMainViews: continue_tournament: nb_matches_per_round = {nb_matches_per_round}')
+            if nb_matches_per_round == len(self.rounds_list[-1][3]):
+                round_id += 1
+                self.players_couple_list = self.my_controller.algorithm_swiss(self.my_controller.selected_players_list)
+            else:
+                round_id = 1
+        elif score_to_update:
+            round_id += 1
 
         logging.info(f'ChessMainViews: continue_tournament: round_id = {round_id}')
         if round_id == 1:
@@ -531,19 +548,20 @@ class ChessTournamentsView(ChessBasicView):
             logging.info('ChessMainViews: continue_tournament: This tournament has been completed')
             messagebox.showinfo('Info', 'This tournament has been completed')
             return False
-        elif self.players_couple_list and round_id == 1:
-            logging.info('ChessMainViews: continue_tournament - case len(self.players_couple_list) != 0:')
-            self.round_number_var.set('Round ' + str(round_id))
-            round_number = self.round_number_var.get()
-            logging.info(f'ChessMainViews: continue_tournament: {round_number}')
-            start_time = self.rounds_list[0][1]
-            self.round_start_time_var.set(start_time)
-            self.round_end_time_var.set('')
-            logging.info(f'ChessMainViews: continue_tournament: self.players_couple_list{self.players_couple_list}')
-            self.match_first_player_var.set(self.players_couple_list[0][0])
-            self.match_second_player_var.set(self.players_couple_list[1][0])
+        elif self.players_couple_list and self.rounds_list and (round_id == 1):
+            logging.info('ChessMainViews: continue_tournament - case(1)')
+            if self.players_couple_list:
+                self.round_number_var.set('Round ' + str(round_id))
+                round_number = self.round_number_var.get()
+                logging.info(f'ChessMainViews: continue_tournament: {round_number}')
+                start_time = self.rounds_list[0][1]
+                self.round_start_time_var.set(start_time)
+                self.round_end_time_var.set('')
+                logging.info(f'ChessMainViews: continue_tournament: self.players_couple_list{self.players_couple_list}')
+                self.match_first_player_var.set(self.players_couple_list[0][0])
+                self.match_second_player_var.set(self.players_couple_list[1][0])
         elif len(self.players_couple_list) != 0:
-            logging.info('ChessMainViews: continue_tournament - case len(self.players_couple_list) != 0:')
+            logging.info('ChessMainViews: continue_tournament - case(2)')
             self.round_number_var.set('Round ' + str(round_id))
             round_number = self.round_number_var.get()
             logging.info(f'ChessMainViews: continue_tournament: {round_number}')
