@@ -1,6 +1,6 @@
 # pythonProject4
 
-P4 : Développez un programme logiciel en Python
+P4: Développez un programme logiciel en Python
 
 * These steps are for Win32 on which the code was built.
 

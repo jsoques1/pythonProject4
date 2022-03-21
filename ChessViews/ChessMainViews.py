@@ -52,7 +52,7 @@ class ChessBasicView:
 
     @staticmethod
     def read_views_section_config_file():
-        logging.debug('ChessMainViews :  : read_views_section_config_file')
+        logging.debug('ChessMainViews: : read_views_section_config_file')
         config = configparser.ConfigParser()
         config.read('MyChessApp.ini')
         is_debug = config['views']['is_debug']
@@ -126,7 +126,7 @@ class ChessTournamentsView(ChessBasicView):
             self.load_tournaments_list_in_view()
 
     def item_selected(self, event, tree):
-        logging.debug('ChessMainViews : tournaments nb item selected={len(self.tree.selection())}')
+        logging.debug('ChessMainViews: tournaments nb item selected={len(self.tree.selection())}')
         if len(self.tree.selection()) == 0:
             pass
         elif len(self.tree.selection()) != 1:
@@ -197,10 +197,10 @@ class ChessTournamentsView(ChessBasicView):
         self.activate_debug(self.is_debug)
 
     def load_tournaments_list_in_view(self):
-        logging.debug('ChessMainViews : load_tournaments_list_in_view')
+        logging.debug('ChessMainViews: load_tournaments_list_in_view')
         self.clear_tournaments_list()
         tournaments_list = self.my_controller.load_tournaments_list()
-        logging.info(tournaments_list)
+        logging.info(f'ChessMainViews: load_tournaments_list_in_view: tournaments_list={tournaments_list}')
         for tournament in tournaments_list:
             self.tree.insert('', tk.END, values=tournament)
         self.clear_all_selection()
@@ -223,7 +223,7 @@ class ChessTournamentsView(ChessBasicView):
             return False
         else:
             # self.rounds_list, self.players_couple_list, tournament = \
-            #     self.my_controller.get_rounds_players_couple_list()
+            #     self.my_controller.get_rounds_and_players_couple_list()
             # round_id = len(self.rounds_list) + 1
             #
             # if round_id > self.my_controller.get_max_rounds_number():
@@ -274,7 +274,7 @@ class ChessTournamentsView(ChessBasicView):
 
     def display_report_all_tournaments(self):
         result_list = self.my_controller.get_all_tournaments()
-        logging.info('ChessMainViews : display_report_all_tournaments : result_list')
+        logging.info('ChessMainViews: display_report_all_tournaments: result_list')
         read_only_text = ChessBasicView.generic_display_report('All tournaments')
         read_only_text.insert(tk.INSERT,
                               '{:25s} {:25s} {:10s} {:6s} {:12s} {:25s}\n'.format("Name", "Location", "Date", 'Rounds',
@@ -288,10 +288,10 @@ class ChessTournamentsView(ChessBasicView):
                                                                                                  values[5]))
 
     def display_report_a_tournament_rounds(self):
-        logging.debug('ChessMainViews : display_report_a_tournament_rounds')
+        logging.debug('ChessMainViews: display_report_a_tournament_rounds')
         if self.my_controller.get_selected_tournament() is not None:
             result_list = self.my_controller.get_a_tournament_rounds()
-            logging.info(f'ChessMainViews : display_report_a_tournament_rounds : result_list = {result_list}')
+            logging.info(f'ChessMainViews: display_report_a_tournament_rounds: result_list = {result_list}')
             read_only_text = ChessBasicView.generic_display_report('Tournament rounds')
             read_only_text.insert(tk.INSERT,
                                   '{:10s} {:10} {:10s}\n'.format("Name", "Start Date", 'End Date'))
@@ -303,9 +303,9 @@ class ChessTournamentsView(ChessBasicView):
 
     def display_report_a_tournament_matches(self):
         if self.my_controller.get_selected_tournament() is not None:
-            logging.debug('ChessMainViews : display_report_a_tournament_matches')
+            logging.debug('ChessMainViews: display_report_a_tournament_matches')
             players_list, result_list = self.my_controller.get_a_tournament_matches()
-            logging.info(f'ChessMainViews : display_report_a_tournament_matches : matches = {result_list}')
+            logging.info(f'ChessMainViews: display_report_a_tournament_matches: matches = {result_list}')
             read_only_text = ChessBasicView.generic_display_report('Tournament matches')
             read_only_text.insert(tk.INSERT,
                                   '{:25s} {:10s}\n'.format("Name", "Rank"))
@@ -336,7 +336,7 @@ class ChessTournamentsView(ChessBasicView):
             messagebox.showwarning("Warning", 'Did you select a tournament?\nOr try to reselect again\n')
 
     def display_a_tournament_report(self, name):
-        logging.debug('ChessMainViews : display_a_report')
+        logging.debug('ChessMainViews: display_a_report')
 
         if name == 'Players alphabetic order':
             self.display_report_players_ordered_by_name()
@@ -450,6 +450,11 @@ class ChessTournamentsView(ChessBasicView):
         save_match_btn = tk.Button(self.match_frame, text='Save', command=self.save_current_state)
         save_match_btn.grid(row=2, column=1)
 
+    def set_tournament_completed(self):
+        self.rounds_list = []
+        self.players_couple_list = []
+        self.match_results_list = []
+
     def save_current_state(self):
         logging.debug("ChessMainViews: save_current_state")
         self.my_controller.save_current_state()
@@ -462,7 +467,7 @@ class ChessTournamentsView(ChessBasicView):
             return False
 
         round_id = 1
-        self.rounds_list, self.players_couple_list, tournament = self.my_controller.get_rounds_players_couple_list()
+        self.rounds_list, self.players_couple_list = self.my_controller.get_rounds_and_players_couple_list()
 
         if len(self.players_couple_list) == 0:
             messagebox.showerror('Error', 'No players have been added')
@@ -478,51 +483,56 @@ class ChessTournamentsView(ChessBasicView):
             messagebox.showerror('Error', 'Deadly case')
             return False
 
-    def set_tournament_completed(self):
-        self.rounds_list = []
-        self.players_couple_list = []
-        self.match_results_list = []
-
-    def continue_tournament(self):
-        update_to_make = True
-        logging.debug('ChessMainViews : continue_tournament')
+    def continue_tournament(self, score_to_update=False):
+        logging.debug('ChessMainViews: continue_tournament')
         tournament = self.my_controller.get_selected_tournament()
         if tournament is None:
             messagebox.showerror('Error', 'No tournament selected')
             return False
 
-        logging.info(f'ChessMainViews : continue_tournament: tournament={tournament}')
-        logging.info(f'ChessMainViews : continue_tournament: self.rounds_list={self.rounds_list}')
-        logging.info(f'ChessMainViews : continue_tournament: self.players_couple_list={self.players_couple_list}')
-        logging.info(f'ChessMainViews : continue_tournament: self.match_results_list={self.match_results_list}')
+        logging.info(f'ChessMainViews: continue_tournament: tournament={tournament}')
+        logging.info(f'ChessMainViews: continue_tournament: self.rounds_list={self.rounds_list}')
+        logging.info(f'ChessMainViews: continue_tournament: self.players_couple_list={self.players_couple_list}')
+        logging.info(f'ChessMainViews: continue_tournament: self.match_results_list={self.match_results_list}')
+        #logging.info(f'ChessMainViews: continue_tournament: self.players_score={self.players_score}')
 
-        if (not self.rounds_list) and (not self.players_couple_list) and (not self.match_results_list):
-            update_to_make = False
+        # if (not self.rounds_list) and (not self.players_couple_list) and (not self.match_results_list):
+        #     score_to_update = False
 
-        pcl_in_all_round = self.my_controller.get_players_couple_list_in_all_round()
-        if not pcl_in_all_round:
-            logging.info('ChessMainViews : continue_tournament: players_couple_list_in_all_round is Null ')
-            pcl_in_all_round = self.my_controller.rebuild_players_couple_list_in_all_round()
-            logging.info(f'ChessMainViews : continue_tournament (1): pcl_in_all_round={pcl_in_all_round}')
+        all_matches = self.my_controller.get_all_matches()
+        if not all_matches:
+            logging.info('ChessMainViews: continue_tournament: all_matches is Null ')
+            all_matches = self.my_controller.rebuild_all_matches()
+            logging.info(f'ChessMainViews: continue_tournament (1): all_matches={all_matches}')
         else:
-            logging.info(f'ChessMainViews : continue_tournament (2): pcl_in_all_round={pcl_in_all_round}')
+            logging.info(f'ChessMainViews: continue_tournament (2): all_matches={all_matches}')
 
-        self.rounds_list, self.players_couple_list, tournament = \
-            self.my_controller.get_rounds_players_couple_list(update_to_make)
-        logging.info(f'ChessMainViews : self.rounds_list = {self.rounds_list}')
-        logging.info(f'ChessMainViews : self.players_couple_list = {self.players_couple_list}')
+        self.rounds_list, self.players_couple_list = \
+            self.my_controller.get_rounds_and_players_couple_list(score_to_update)
+        logging.info(f'ChessMainViews: self.rounds_list = {self.rounds_list}')
+        logging.info(f'ChessMainViews: self.players_couple_list = {self.players_couple_list}')
 
-        round_id = int((len(pcl_in_all_round) / 2))
-        logging.info(f'ChessMainViews : round_id = {round_id}')
+        nb_matches_per_round = self.my_controller.get_nb_matches_per_round(len(self.players_couple_list))
+        logging.info(f'ChessMainViews: continue_tournament: nb_matches_per_round = {nb_matches_per_round}')
+        if nb_matches_per_round != 0:
+            round_id = int(float(len(all_matches)) / float(nb_matches_per_round))
+        else:
+            round_id = 1
+
+        logging.info(f'ChessMainViews: continue_tournament: round_id = {round_id}')
+        if round_id == 1:
+            score_to_update = False
+
         # if round_id > self.my_controller.get_max_rounds_number():
         if not self.players_couple_list:
             self.set_tournament_completed()
             self.my_controller.set_tournament_completed()
             self.clear_round_match_form()
+            logging.info('ChessMainViews: continue_tournament: This tournament has been completed')
             messagebox.showinfo('Info', 'This tournament has been completed')
             return False
         elif self.players_couple_list and round_id == 1:
-            logging.info('ChessMainViews : continue_tournament - case len(self.players_couple_list) != 0:')
+            logging.info('ChessMainViews: continue_tournament - case len(self.players_couple_list) != 0:')
             self.round_number_var.set('Round ' + str(round_id))
             round_number = self.round_number_var.get()
             logging.info(f'ChessMainViews: continue_tournament: {round_number}')
@@ -533,10 +543,10 @@ class ChessTournamentsView(ChessBasicView):
             self.match_first_player_var.set(self.players_couple_list[0][0])
             self.match_second_player_var.set(self.players_couple_list[1][0])
         elif len(self.players_couple_list) != 0:
-            logging.info('ChessMainViews : continue_tournament - case len(self.players_couple_list) != 0:')
+            logging.info('ChessMainViews: continue_tournament - case len(self.players_couple_list) != 0:')
             self.round_number_var.set('Round ' + str(round_id))
             round_number = self.round_number_var.get()
-            logging.info(f'ChessMainViews: continue_tournament : {round_number}')
+            logging.info(f'ChessMainViews: continue_tournament: {round_number}')
             start_time = ChessMainController.get_current_time()
             self.round_start_time_var.set(start_time)
             self.round_end_time_var.set('')
@@ -548,7 +558,7 @@ class ChessTournamentsView(ChessBasicView):
             return False
 
     def next_match(self):
-        logging.debug('ChessMainViews : next_match')
+        logging.debug('ChessMainViews: next_match')
         round_number = self.round_number_var.get()
         round_start_time = self.round_start_time_var.get()
         round_end_time = self.round_end_time_var.get()
@@ -568,7 +578,7 @@ class ChessTournamentsView(ChessBasicView):
                                           match_second_player_score, ['0', '0.5', '1']) is False or \
                ChessUtils.check_score('PlayerScores', match_first_player_score,
                                       match_second_player_score) is False:
-                logging.debug('ChessMainViews : Check exit')
+                logging.debug('ChessMainViews: Check exit')
                 return False
 
             match_first_player_id = self.players_couple_list[0][1]
@@ -579,9 +589,9 @@ class ChessTournamentsView(ChessBasicView):
                        [match_first_player, match_first_player_id, match_first_player_score],
                        [match_second_player, match_second_player_id, match_second_player_score]]
 
-            logging.info(f'ChessMainViews : (1) couples_list={self.players_couple_list}')
-            logging.info(f'ChessMainViews : (1) round={a_match}')
-            logging.info(f'ChessMainViews : (1) len={len(self.match_results_list)} result={self.match_results_list}')
+            logging.info(f'ChessMainViews: (1) couples_list={self.players_couple_list}')
+            logging.info(f'ChessMainViews: (1) round={a_match}')
+            logging.info(f'ChessMainViews: (1) len={len(self.match_results_list)} result={self.match_results_list}')
 
             del self.players_couple_list[0:2]
 
@@ -602,16 +612,16 @@ class ChessTournamentsView(ChessBasicView):
                 self.match_results_list.append(a_match)
                 round_end_time = self.round_end_time_var.get()
                 self.my_controller.backup_a_round(round_number, round_end_time, self.match_results_list)
-                logging.info(f'ChessMainViews : (2) couples_list={self.players_couple_list}')
-                logging.info(f'ChessMainViews : (2) round={a_match}')
+                logging.info(f'ChessMainViews: (2) couples_list={self.players_couple_list}')
+                logging.info(f'ChessMainViews: (2) round={a_match}')
                 logging.info(
-                    f'ChessMainViews : (2) len={len(self.match_results_list)} result={self.match_results_list}')
-
-                messagebox.showinfo('Info', f'Round {round_number} is terminated')
+                    f'ChessMainViews: (2) len={len(self.match_results_list)} result={self.match_results_list}')
+                logging.info(f'ChessMainViews: next_match: {round_number} is terminated')
+                messagebox.showinfo('Info', f'{round_number} is terminated')
                 self.match_results_list = []
-                self.continue_tournament()
+                self.continue_tournament(True)
         else:
-            messagebox.showerror('Info', 'ChessMainViews : commit_match (1) - Deadly case')
+            messagebox.showerror('Info', 'ChessMainViews: commit_match (1) - Deadly case')
 
     @staticmethod
     def fill_a_match_form(frame, string_var_list):
@@ -727,7 +737,7 @@ class ChessTournamentsView(ChessBasicView):
 
         tournament = (tournament_name, tournament_location, tournament_date, tournament_round_number,
                       tournament_time_control, tournament_description, self.my_controller.get_tournament_id())
-        logging.debug('ChessMainViews : add a tournament {tournament}')
+        logging.debug('ChessMainViews: add a tournament {tournament}')
         self.my_controller.save_a_tournament(tournament)
 
         self.tree.insert('', tk.END, values=tournament)
@@ -765,7 +775,7 @@ class ChessPlayersView(ChessBasicView):
         self.players_name_dict = None
 
     def item_selected(self, event, tree):
-        logging.debug('ChessMainViews : player nb item selected={len(self.tree.selection())}')
+        logging.debug('ChessMainViews: player nb item selected={len(self.tree.selection())}')
         nb_selected = len(self.tree.selection())
         selected_players_list = []
         if nb_selected == 1:
@@ -801,7 +811,7 @@ class ChessPlayersView(ChessBasicView):
         pass
 
     def load_players_list_in_view(self):
-        logging.debug('ChessMainViews :  : load_players_list_in_view')
+        logging.debug('ChessMainViews: : load_players_list_in_view')
         self.clear_players_list_selection()
         players_list = self.my_controller.load_players_list()
         logging.info(players_list)
@@ -810,13 +820,13 @@ class ChessPlayersView(ChessBasicView):
         self.my_controller.set_player_id(len(players_list))
 
     def modify_a_player_rank(self):
-        logging.debug('ChessMainViews :  : modify_a_player_rank')
+        logging.debug('ChessMainViews: : modify_a_player_rank')
         selected = self.tree.focus()
         if ChessUtils.check_int('Rank', self.rank_var2.get()) is False:
             return False
         values = self.tree.item(selected, 'values')
         player = (values[0], values[1], values[2], values[3], self.rank_var2.get(), values[5])
-        logging.info(f'ChessMainViews : {player}')
+        logging.info(f'ChessMainViews: {player}')
         self.my_controller.update_a_player_rank(player, self.rank_var2.get())
         self.tree.item(selected, text='', values=player)
         self.last_name_var2.set("")
@@ -840,7 +850,7 @@ class ChessPlayersView(ChessBasicView):
             return False
 
         player = (last_name, first_name, birthdate, gender, rank, self.my_controller.get_player_id())
-        logging.debug('ChessMainViews : add a player {player}')
+        logging.debug('ChessMainViews: add a player {player}')
         self.my_controller.save_a_player(player)
 
         self.tree.insert('', tk.END, values=player)
@@ -913,7 +923,7 @@ class ChessPlayersView(ChessBasicView):
                                                          command=lambda n=name: self.display_a_players_report(n))
 
     def display_a_players_report(self, name):
-        logging.debug('ChessMainViews : display_a_report')
+        logging.debug('ChessMainViews: display_a_report')
         if name == 'Players alphabetic order':
             self.display_report_players_ordered_by_name()
         elif name == 'Players rank order':
