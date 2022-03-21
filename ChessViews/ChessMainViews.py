@@ -232,7 +232,7 @@ class ChessTournamentsView(ChessBasicView):
             #     return False
 
             participants_score = self.my_controller.get_participants_score()
-            print(participants_score)
+            # print(participants_score)
             if participants_score:
                 messagebox.showinfo('Info', 'This tournament is on going or terminated')
                 return False
@@ -524,7 +524,7 @@ class ChessTournamentsView(ChessBasicView):
             logging.info(f'ChessMainViews: self.rounds_list[-1] = {self.rounds_list[-1]}')
 
             round_number = self.rounds_list[-1][0]
-            print(re.findall("\d+", round_number)[0])
+            # print(re.findall("\d+", round_number)[0])
             round_id = int(re.findall("\d+", round_number)[0])
             nb_matches_per_round = self.my_controller.get_nb_matches_per_round()
             logging.info(f'ChessMainViews: continue_tournament: nb_matches_per_round = {nb_matches_per_round}')
@@ -532,7 +532,10 @@ class ChessTournamentsView(ChessBasicView):
                 round_id += 1
                 self.players_couple_list = self.my_controller.algorithm_swiss(self.my_controller.selected_players_list)
             else:
-                round_id = 1
+                logging.info(f'ChessMainViews: continue_tournament: score_to_update={score_to_update}')
+                logging.info(f'ChessMainViews: continue_tournament: round_id={round_id}')
+                if score_to_update:
+                    round_id += 1
         elif score_to_update:
             round_id += 1
 

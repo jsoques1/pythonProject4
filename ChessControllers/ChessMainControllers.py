@@ -62,8 +62,10 @@ class ChessMatches:
         logging.info(f'ChessMatches: add_matches: round_number={round_number}')
         logging.info(f'ChessMatches: add_matches: match_results_list={match_results_list}')
         if not self.matches.get(tournament_id):
+            logging.info('ChessMatches: add_matches: cas(1)')
             self.matches[tournament_id] = copy.deepcopy(match_results_list)
         else:
+            logging.info('ChessMatches: add_matches: cas(2)')
             new_match_results_list = self.matches[tournament_id]
             new_match_results_list += copy.deepcopy(match_results_list)
             self.matches[tournament_id] = new_match_results_list
@@ -71,8 +73,10 @@ class ChessMatches:
         logging.info(f'ChessMatches: add_matches: self.matches[{tournament_id}]={self.matches[tournament_id]}')
 
     def remove_matches_of_a_round(self, tournament_id, round_number):
+        logging.debug('ChessMatches: remove_matches_of_a_round')
         matches = self.matches.get(tournament_id)
         if matches:
+            logging.debug(f'ChessMatches: remove_matches_of_a_round: matches={matches}')
             for a_match in matches:
                 if a_match[0] == round_number:
                     matches.remove(a_match)
@@ -82,13 +86,14 @@ class ChessMatches:
         logging.info(f'ChessMatches: compact_a_round: backup_round={backup_round}')
         retval = []
         if backup_round:
+            last_match = backup_round[-1]
             match_couples = []
             for a_match in backup_round:
                 match_couples.append([a_match[3], a_match[4]])
             first_match = backup_round[0]
             round_number = first_match[0]
             start_time = first_match[1]
-            end_time = first_match[2]
+            end_time = last_match[2]
             retval = [round_number, start_time, end_time, match_couples]
         logging.info(f'ChessMatches: compact_a_round: retval={retval}')
         return retval
@@ -221,8 +226,8 @@ class ChessMainController(VirtualController):
 
         new_match_results_list = copy.deepcopy(match_results_list)
 
-        if round_end_time:
-            self.matches.remove_matches_of_a_round(tournament_id, round_number)
+        # if round_end_time:
+        #     self.matches.remove_matches_of_a_round(tournament_id, round_number)
 
         for match in new_match_results_list:
             match[2] = round_end_time
@@ -405,10 +410,10 @@ class ChessMainController(VirtualController):
         nb_players = len(self.selected_players_list)
         if tournament:
             nb_rounds_max = float(tournament[3])
-            print(nb_players)
-            print(nb_rounds_max)
-            print(nb_players / nb_rounds_max)
-            print(int(nb_players / nb_rounds_max))
+            # print(nb_players)
+            # print(nb_rounds_max)
+            # print(nb_players / nb_rounds_max)
+            # print(int(nb_players / nb_rounds_max))
             return int(nb_players / nb_rounds_max)
         else:
             return 0
