@@ -194,7 +194,7 @@ class ChessMainModel(VirtualModel):
         logging.info(f'ChessMainModels: selected_tournament = {tournament}')
         tournament_entry = self.tournaments_db.get(doc_id=int(tournament[6]))
         tournament_entry['ParticipantsScore']
-        logging.info(f"ChessMainModels: score = {tournament_entry['ParticipantsScore']}")
+        logging.info(f"ChessMainModels: get_participants_score: score = {tournament_entry['ParticipantsScore']}")
         return tournament_entry['ParticipantsScore']
 
     def get_tournament_rounds_list(self, tournament):

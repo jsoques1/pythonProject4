@@ -62,10 +62,10 @@ class ChessMatches:
         logging.info(f'ChessMatches: add_matches: round_number={round_number}')
         logging.info(f'ChessMatches: add_matches: match_results_list={match_results_list}')
         if not self.matches.get(tournament_id):
-            logging.info('ChessMatches: add_matches: cas(1)')
+            logging.info('ChessMatches: add_matches: case(1)')
             self.matches[tournament_id] = copy.deepcopy(match_results_list)
         else:
-            logging.info('ChessMatches: add_matches: cas(2)')
+            logging.info('ChessMatches: add_matches: case(2)')
             new_match_results_list = self.matches[tournament_id]
             new_match_results_list += copy.deepcopy(match_results_list)
             self.matches[tournament_id] = new_match_results_list
@@ -89,7 +89,9 @@ class ChessMatches:
             last_match = backup_round[-1]
             match_couples = []
             for a_match in backup_round:
-                match_couples.append([a_match[3], a_match[4]])
+                a_couple = [a_match[3], a_match[4]]
+                if not (a_couple in match_couples):
+                    match_couples.append(a_couple)
             first_match = backup_round[0]
             round_number = first_match[0]
             start_time = first_match[1]
@@ -160,6 +162,7 @@ class ChessMainController(VirtualController):
         self.is_debug = ChessMainController.read_controllers_section_config_file()
         self.my_view = view
         self.my_model = model
+        self.round_id = 1
         self.player_id = 0
         self.tournament_id = 0
         self.selected_players_list = []
@@ -193,6 +196,13 @@ class ChessMainController(VirtualController):
     def get_selected_players_list(self):
         return self.selected_players_list
 
+    def get_round_id(self):
+        return self.round_id
+
+    def increment_round_id(self):
+        self.round_id += 1
+        return self.round_id
+
     def set_tournament_completed(self):
         self.selected_players_list = []
         self.selected_rounds_list = []
@@ -200,7 +210,7 @@ class ChessMainController(VirtualController):
         self.all_matches = []
 
     def update_score(self,  a_match):
-        logging.debug('ChessMainControllers: update_a_match_results_list_round')
+        logging.debug('ChessMainControllers: update_score')
         # selected_tournament = self.get_selected_tournament()
         logging.info(f'ChessMainControllers: a_match ={a_match}')
 
@@ -377,7 +387,7 @@ class ChessMainController(VirtualController):
                 logging.info(f'ChessMainControllers: get_rounds_and_players_couple_list: ' +
                              f'after sort:  players_list = {players_list}')
 
-                self.players_couple_list = self.algorithm_swiss(players_list)
+                self.players_couple_list = self.algorithm_swiss(players_list, [])
             else:
                 nb_players_couple = int(len(players_list) / 2)
                 self.players_couple_list = []
@@ -450,7 +460,7 @@ class ChessMainController(VirtualController):
                      f'simplified_players_couple_list={simplified_index_couple_list}')
         return simplified_index_couple_list
 
-    def algorithm_swiss(self, players_list):
+    def algorithm_swiss(self, players_list, allready_):
         logging.debug('ChessMainControllers: algorithm_swiss')
         logging.info(f'ChessMainControllers: algorithm_swiss: players_list={players_list}')
         simplified_index_couple_list = self.make_simplified_index_couple_list()
@@ -495,7 +505,7 @@ class ChessMainController(VirtualController):
                     logging.info(f'ChessMainControllers: swiss: opponent_player={players_list[opponent_index]}')
                     break
             if nb_search_failure == nb_players_couple:
-                break
+                continue
         return new_players_list
 
     def set_player_id(self, player_id):
@@ -654,6 +664,14 @@ class ChessMainController(VirtualController):
         logging.debug('ChessMainControllers: load_tournaments_list')
         model_tournaments_list = self.my_model.load_tournaments_in_db()
         tournaments_list = []
+
+        self.selected_players_list = []
+        self.selected_rounds_list = []
+        self.players_couple_list = []
+        self.all_matches = []
+        self.players_score = ChessPlayersScore()
+        self.matches = ChessMatches()
+
         for model_tournament in model_tournaments_list:
             tournaments_list.append(model_tournament.unserialize())
             logging.info(f'ChessMainControllers: load_tournaments_list: model_tournament = {model_tournament}')
@@ -674,3 +692,84 @@ class ChessMainController(VirtualController):
     def get_tournament_id(self):
         self.tournament_id += 1
         return self.tournament_id
+
+    def manage_round_id(self):
+
+        logging.info(f'ChessMainViews: self.players_couple_list = {self.players_couple_list}')
+
+        # nb_matches_per_round = self.my_controller.get_nb_matches_per_round(len(self.rounds_list))
+        # logging.info(f'ChessMainViews: continue_tournament: nb_matches_per_round = {nb_matches_per_round}')
+        # if nb_matches_per_round != 0:
+        #     round_id = int(float(len(all_matches)) / float(nb_matches_per_round))
+        # else:
+        #     round_id = 1
+        if self.rounds_list and self.rounds_list[-1]:
+            logging.info(f'ChessMainViews: continue_tournament(1c): self.rounds_list = {self.rounds_list}')
+            logging.info(f'ChessMainViews: continue_tournament(1c): self.rounds_list[-1] = {self.rounds_list[-1]}')
+
+            round_number = self.rounds_list[-1][0]
+            # print(re.findall("\d+", round_number)[0])
+            round_id = int(re.findall("\d+", round_number)[0])
+            nb_matches_per_round = self.my_controller.get_nb_matches_per_round()
+            logging.info(f'ChessMainViews: continue_tournament: nb_matches_per_round = {nb_matches_per_round}')
+            if nb_matches_per_round == len(self.rounds_list[-1][3]):
+                round_id += 1
+                logging.info(f'ChessMainViews: continue_tournament(1d) round_id={round_id}')
+                self.players_couple_list = self.my_controller.algorithm_swiss(self.my_controller.selected_players_list,
+                                                                              [])
+            else:
+                logging.info(f'ChessMainViews: continue_tournament: sort_by_score={sort_by_score}')
+                logging.info(f'ChessMainViews: continue_tournament(1e): round_id={round_id}')
+                logging.info(f'ChessMainViews: continue_tournament(1e): self.players_couple_list={self.players_couple_list}')
+                if (sort_by_score is False) and increment_score:
+                    sort_by_score = True
+                    round_id += 1
+                    if not self.players_couple_list:
+                        logging.info(f'ChessMainViews: continue_tournament(2) round_id={round_id}')
+                        self.players_couple_list = self.my_controller.algorithm_swiss(
+                            self.my_controller.selected_players_list,
+                            self.players_couple_list)
+                    else:
+                        logging.info(f'ChessMainViews: continue_tournament(3) round_id={round_id}')
+        elif sort_by_score and increment_score:
+            logging.info(f'ChessMainViews: continue_tournament(4): round_id={round_id}')
+            round_id += 1
+
+        logging.info(f'ChessMainViews: continue_tournament(5): round_id={round_id}')
+        if round_id == 1:
+            sort_by_score = False
+
+        # if round_id > self.my_controller.get_max_rounds_number():
+        if not self.players_couple_list:
+            self.set_tournament_completed()
+            self.my_controller.set_tournament_completed()
+            self.clear_round_match_form()
+            logging.info('ChessMainViews: continue_tournament: This tournament has been completed')
+            messagebox.showinfo('Info', 'This tournament has been completed')
+            return False
+        elif self.players_couple_list and self.rounds_list and (round_id == 1):
+            logging.info('ChessMainViews: continue_tournament - case(1)')
+            if self.players_couple_list:
+                self.round_number_var.set('Round ' + str(round_id))
+                round_number = self.round_number_var.get()
+                logging.info(f'ChessMainViews: continue_tournament: {round_number}')
+                start_time = self.rounds_list[0][1]
+                self.round_start_time_var.set(start_time)
+                self.round_end_time_var.set('')
+                logging.info(f'ChessMainViews: continue_tournament: self.players_couple_list{self.players_couple_list}')
+                self.match_first_player_var.set(self.players_couple_list[0][0])
+                self.match_second_player_var.set(self.players_couple_list[1][0])
+        elif len(self.players_couple_list) != 0:
+            logging.info('ChessMainViews: continue_tournament - case(2)')
+            self.round_number_var.set('Round ' + str(round_id))
+            round_number = self.round_number_var.get()
+            logging.info(f'ChessMainViews: continue_tournament: {round_number}')
+            start_time = ChessMainController.get_current_time()
+            self.round_start_time_var.set(start_time)
+            self.round_end_time_var.set('')
+            self.match_first_player_var.set(self.players_couple_list[0][0])
+            self.match_second_player_var.set(self.players_couple_list[1][0])
+            return True
+        else:
+            messagebox.showerror('Error', 'Deadly case')
+            return False
