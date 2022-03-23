@@ -165,7 +165,7 @@ class ChessMainModel(VirtualModel):
         logging.debug('ChessMainModels: get_rounds_and_players_and_score')
         logging.info(f'ChessMainModels: selected_tournament = {tournament}')
         tournament_entry = self.tournaments_db.get(doc_id=int(tournament[6]))
-        logging.info(f'ChessMainModels: get_rounds_and_players_and_score:  rounds={tournament_entry["Rounds"]}')
+        logging.info(f'ChessMainModels: get_rounds_and_players_and_score: rounds={tournament_entry["Rounds"]}')
         logging.info(f'ChessMainModels: get_rounds_and_players_and_score: {tournament_entry["Participants"]}')
         logging.info(f'ChessMainModels: get_rounds_and_players_and_score: {tournament_entry["ParticipantsScore"]}')
         return tournament_entry['Rounds'], tournament_entry['Participants'], tournament_entry['ParticipantsScore']
