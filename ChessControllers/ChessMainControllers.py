@@ -381,10 +381,34 @@ class ChessMainController(VirtualController):
         else:
             return 0
 
+    def is_max_rounds_number_reached(self):
+        logging.debug('ChessMainControllers: is_max_rounds_number_reached')
+
+        logging.info('ChessMainControllers: is_max_rounds_number_reached: ' +
+                     f'selected_rounds_list={self.selected_rounds_list}')
+        logging.info('ChessMainControllers: is_max_rounds_number_reached: ' +
+                     f'get_max_rounds_number={self.get_max_rounds_number()}')
+
+        if len(self.selected_rounds_list) == self.get_max_rounds_number():
+            return True
+        else:
+            return False
+
+    def is_last_round_nb_matches_reached(self):
+        logging.debug('ChessMainControllers: is_last_round_nb_matches_reached')
+
+        logging.info('ChessMainControllers: is_last_round_nb_matches_reached: ' +
+                     f'self.selected_rounds_list[-1][3]={self.selected_rounds_list[-1][3]}')
+        logging.info('ChessMainControllers: is_last_round_nb_matches_reached: ' +
+                     f'get_nb_matches_per_round={self.get_nb_matches_per_round()}')
+        if len(self.selected_rounds_list[-1][3]) == self.get_nb_matches_per_round():
+            return True
+        else:
+            return False
+
     def is_tournament_terminated(self):
         logging.debug('ChessMainControllers: is_tournament_terminated')
-        if (len(self.selected_rounds_list) == self.get_max_rounds_number()) and \
-           (len(self.selected_rounds_list[-1]) == self.get_nb_matches_per_round):
+        if self.is_max_rounds_number_reached() and self.is_last_round_nb_matches_reached():
             logging.info('ChessMainControllers: is_tournament_terminated: True')
             return True
         else:
