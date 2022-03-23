@@ -382,10 +382,13 @@ class ChessMainController(VirtualController):
             return 0
 
     def is_tournament_terminated(self):
+        logging.debug('ChessMainControllers: is_tournament_terminated')
         if (len(self.selected_rounds_list) == self.get_max_rounds_number()) and \
            (len(self.selected_rounds_list[-1]) == self.get_nb_matches_per_round):
+            logging.info('ChessMainControllers: is_tournament_terminated: True')
             return True
         else:
+            logging.info('ChessMainControllers: is_tournament_terminated: False')
             return False
 
     def couple_already_has_played(self, first_player, second_player):
@@ -400,31 +403,17 @@ class ChessMainController(VirtualController):
                 for a_match in a_round[3]:
                     logging.info(f'ChessMainModels: couple_already_has_played: a_match={a_match}')
                     a_first_player = a_match[0][0]
-                    a_second_player = a_match[0][1]
+                    a_second_player = a_match[1][0]
                     logging.info('ChessMainControllers: couple_already_has_played:' +
-                                 f'a_first_player_name]={a_first_player[0]}')
+                                 f'a_first_player_name={a_first_player}')
                     logging.info(f'ChessMainControllers: couple_already_has_played:' +
-                                 f'a_second_player_name]={a_second_player[0]}')
-                    if (first_player == a_first_player[0]) and (second_player == a_second_player[0]):
+                                 f'a_second_player_name={a_second_player}')
+                    if (first_player == a_first_player) and (second_player == a_second_player):
                         a_match = [first_player, second_player]
                         logging.info(f'ChessMainModels: couple_already_has_played: SKIP =====> {a_match}')
-            # logging.info('ChessMainControllers: couple_already_has_played: not found')
+                        return True
+            logging.info('ChessMainControllers: couple_already_has_played: NOT FOUND !!!')
         return False
-
-    # def retrieve_start_time(self, first_player, second_player):
-    #     logging.debug('ChessMainControllers: retrieve_start_time')
-    #     if self.selected_rounds_list:
-    #         logging.debug(f'ChessMainControllers: retrieve_start_time: first_player={first_player}')
-    #         logging.debug(f'ChessMainControllers: retrieve_start_time: second_player={second_player}')
-    #         for a_round in self.selected_rounds_list:
-    #             a_first_player = a_round[3][0][0]
-    #             a_second_player = a_round[3][0][1]
-    #             logging.info(f'ChessMainModels: retrieve_start_time: a_round_first_player={a_first_player[0]}')
-    #             logging.info(f'ChessMainModels: retrieve_start_time: a_round_first_player={a_second_player[0]}')
-    #             if (first_player == a_first_player[0]) and (second_player == a_second_player[0]):
-    #                 logging.info(f'ChessMainModels: retrieve_start_time: found a_round={a_round}')
-    #                 return a_round[1]
-    #     return None
 
     def get_rounds_and_players_couple_list(self, score_to_update=False):
         logging.debug('ChessMainControllers: get_rounds_and_players_couple_list')
@@ -438,7 +427,6 @@ class ChessMainController(VirtualController):
         elif (len(self.selected_rounds_list) == self.get_max_rounds_number()) and \
              (len(self.selected_rounds_list[-1]) == self.get_nb_matches_per_round):
             return self.selected_rounds_list, self.players_couple_list
-        # self.players_score.set(self.my_model.get_participants_score(tournament))
         logging.info(f'ChessMainControllers: get_rounds_and_players_couple_list: players = {players_list}')
         logging.info('ChessMainControllers: get_rounds_and_players_couple_list: ' +
                      f'players_score = {str(self.players_score)}')

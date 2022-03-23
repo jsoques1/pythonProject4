@@ -547,7 +547,7 @@ class ChessTournamentsView(ChessBasicView):
             self.match_second_player_var.set(self.players_couple_list[1][0])
             return True
         else:
-            messagebox.showerror('Error', 'Deadly case')
+            messagebox.showerror('Error', 'The tournament end has not been saved')
             return False
 
     def next_match(self):
@@ -613,10 +613,11 @@ class ChessTournamentsView(ChessBasicView):
                 logging.info(f'ChessMainViews: next_match:(2) {round_number} is terminated')
                 messagebox.showinfo('Info', f'{round_number} is terminated')
                 self.match_results_list = []
-                self.my_controller.increment_tournament_round_id()
+                if self.my_controller.is_tournament_terminated():
+                    self.my_controller.increment_tournament_round_id()
                 self.continue_tournament()
         else:
-            messagebox.showerror('Info', 'ChessMainViews: commit_match (1) - Deadly case')
+            messagebox.showerror('Error', 'The tournament end has not been saved')
 
     @staticmethod
     def fill_a_match_form(frame, string_var_list):
