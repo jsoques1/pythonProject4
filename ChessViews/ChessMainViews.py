@@ -499,16 +499,18 @@ class ChessTournamentsView(ChessBasicView):
         all_matches = self.my_controller.get_all_matches()
         if not all_matches:
             logging.info('ChessMainViews: continue_tournament: all_matches is Null ')
-            all_matches, round_id = self.my_controller.rebuild_all_matches()
-            self.my_controller.set_tournament_round_id(round_id)
+            all_matches = self.my_controller.rebuild_all_matches()
             logging.info(f'ChessMainViews: continue_tournament (0): all_matches={all_matches}')
         else:
             logging.info(f'ChessMainViews: continue_tournament (1): all_matches={all_matches}')
 
-        round_id = self.my_controller.get_tournament_round_id()
+        round_id = self.my_controller.get_expected_tournament_round_id(all_matches)
+        self.my_controller.set_tournament_round_id(round_id)
         sort_by_score = False
+
         if round_id > 1:
             sort_by_score = True
+
         logging.info(f'ChessMainViews: continue_tournament: round_id={round_id} sort_by_score={sort_by_score}')
         self.rounds_list, self.players_couple_list = \
             self.my_controller.get_rounds_and_players_couple_list(sort_by_score)

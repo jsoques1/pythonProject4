@@ -48,10 +48,13 @@ class ChessRoundId:
         return self.tournament_round_id[tournament_id]
 
     def increment_tournament_round_id(self, tournament_id):
+        logging.debug('ChessRoundId: increment_tournament_round_id')
         if not self.tournament_round_id.get(tournament_id):
             self.tournament_round_id[tournament_id] = 1
         else:
             self.tournament_round_id[tournament_id] += 1
+        logging.debug('ChessRoundId: increment_tournament_round_id: round_id= ' +
+                      f'{self.tournament_round_id[tournament_id]}')
         return self.tournament_round_id[tournament_id]
 
     def display(self):
@@ -73,7 +76,7 @@ class ChessMatches:
     @staticmethod
     def make_flat(rounds):
         logging.debug('ChessMatches: make_flat')
-        logging.info(f'ChessMatches: add_matches: rounds={rounds}')
+        logging.info(f'ChessMatches: add_matches: rounds={copy.deepcopy(rounds)}')
         new_matches = []
         for a_round in rounds:
             round_number = a_round[0]
@@ -424,6 +427,22 @@ class ChessMainController(VirtualController):
         else:
             return False
 
+    def get_expected_tournament_round_id(self, all_matches):
+        logging.debug('ChessMainControllers: get_expected_tournament_round_id')
+        round_id = 1
+        if len(all_matches) >= self.get_nb_matches_per_round():
+            retval = float(len(all_matches)) / float(self.get_nb_matches_per_round())
+            logging.info(f'ChessMainControllers: get_expected_tournament_round_id: {retval} ' +
+                         f'{self.get_nb_matches_per_round()}')
+            logging.info(f'ChessMainControllers: get_expected_tournament_round_id: {int(retval)} ' +
+                         f'{round(retval)}')
+            if int(retval) == round(retval):
+                round_id = int(retval) + 1
+            else:
+                round_id = int(retval)
+        logging.info(f'ChessMainControllers: get_expected_tournament_round_id: {round_id}')
+        return round_id
+
     def is_tournament_terminated(self):
         logging.debug('ChessMainControllers: is_tournament_terminated')
         if self.is_max_rounds_number_reached() and self.is_last_round_nb_matches_reached():
@@ -432,6 +451,13 @@ class ChessMainController(VirtualController):
         else:
             logging.info('ChessMainControllers: is_tournament_terminated: False')
             return False
+        # if self.is_last_round_nb_matches_reached() and \
+        #    len(self.selected_rounds_list) == (self.get_max_rounds_number() * self.get_nb_matches_per_round()):
+        #     logging.info('ChessMainControllers: is_tournament_terminated: True')
+        #     return True
+        # else:
+        #     logging.info('ChessMainControllers: is_tournament_terminated: False')
+        #     return False
 
     def couple_already_has_played(self, first_player, second_player):
         logging.debug('ChessMainControllers: couple_already_has_played')
@@ -486,6 +512,8 @@ class ChessMainController(VirtualController):
                 players_list = sorted(players_list, key=lambda x: float(x[4]), reverse=True)
                 logging.info(f'ChessMainControllers: get_rounds_and_players_couple_list: ' +
                              f'after sort:  players_list = {players_list}')
+                for player in players_list:
+                    logging.info(f'ChessMainControllers: get_rounds_and_players_couple_list: player={player}')
 
                 self.players_couple_list = self.algorithm_swiss(players_list)
             else:
@@ -519,8 +547,7 @@ class ChessMainController(VirtualController):
         tournament = self.get_selected_tournament()
         nb_players = len(self.selected_players_list)
         if tournament:
-            nb_rounds_max = float(tournament[3])
-            return int(nb_players / nb_rounds_max)
+            return int(nb_players / 2)
         else:
             return 0
 
@@ -540,16 +567,12 @@ class ChessMainController(VirtualController):
                     second_player[2] = float(second_player[2])
                     new_couples_list.append(a_couple)
                 self.all_matches = new_couples_list
-            round_id = int(re.findall(r"\d+", round_number)[0])
-        else:
-            round_id = self.get_tournament_round_id()
 
         logging.info(f'ChessMainControllers: rebuild_all_matches (2): rounds_list={rounds_list}')
         logging.info(f'ChessMainControllers: rebuild_all_matches: players_list={players_list}')
         logging.info(f'ChessMainControllers: rebuild_all_matches: self.all_matches={self.all_matches}')
-        logging.info(f'ChessMainControllers: rebuild_all_matches: round_id={round_id}')
 
-        return self.all_matches, round_id
+        return self.all_matches
 
     def make_simplified_index_couple_list(self):
         logging.debug('ChessMainControllers: make_simplified_index_couple_list')
@@ -607,6 +630,7 @@ class ChessMainController(VirtualController):
                     self.all_matches.append([first_player, second_player])
                     logging.info(f'ChessMainControllers: swiss: current_player={players_list[current_index]}')
                     logging.info(f'ChessMainControllers: swiss: opponent_player={players_list[opponent_index]}')
+                    i = (i + 1) % nb_players_couple
                     break
             if nb_search_failure == nb_players_couple:
                 continue
@@ -627,7 +651,7 @@ class ChessMainController(VirtualController):
 
     def get_tournament_players_ordered_by_rank(self):
         rounds_list, players_list = self.get_rounds_and_players()
-        ordered_players_list = sorted(players_list, key=itemgetter(0))
+        ordered_players_list = sorted(players_list, key=itemgetter(4), reverse=True)
         return ordered_players_list
 
     def get_all_tournaments(self):
@@ -718,7 +742,9 @@ class ChessMainController(VirtualController):
 
     def get_players_ordered_by_rank(self):
         players_list = self.load_players_list()
-        ordered_players_list = sorted(players_list, key=itemgetter(4))
+        print(f' before {self.load_players_list}')
+        ordered_players_list = sorted(players_list, key=itemgetter(4), reverse=True)
+        print(f' after {self.load_players_list}')
         return ordered_players_list
 
     def get_dummy_tournaments_list(self):
