@@ -2,7 +2,9 @@
 
 P4: Développez un programme logiciel en Python
 
-* These steps are for Win32 on which the code was built.
+* Remark
+
+    Developed and tested with Pycharm 2021.3 under Win32 Python 3.10.1
 
 * Set up of the environment:
 
@@ -40,7 +42,5 @@ P4: Développez un programme logiciel en Python
 
     flake8
 
-* Remark
 
-    Developed and tested with Pycharm 2021.3 under Win32 Python 3.10.1
 
