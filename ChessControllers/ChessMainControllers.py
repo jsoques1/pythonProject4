@@ -233,6 +233,10 @@ class ChessMainController(VirtualController):
             tournament_round_id = self.round_id.get_tournament_round_id(tournament_id)
         return tournament_round_id
 
+    def initialize_tournament_round_id(self, tournament_id, round_id):
+        tournament_round_id = self.round_id.set_tournament_round_id(tournament_id, round_id)
+        return tournament_round_id
+
     def set_tournament_round_id(self, round_id):
         tournament_round_id = 1
         selected_tournament = self.get_selected_tournament()
@@ -362,7 +366,7 @@ class ChessMainController(VirtualController):
         return self.selected_players_list, matches_list
 
     @staticmethod
-    def get_current_time():
+    def get_current_date_time():
         return time.strftime("%d/%m/%Y %H:%M:%S")
 
     def get_max_rounds_number(self):
@@ -745,6 +749,7 @@ class ChessMainController(VirtualController):
         logging.debug('ChessMainControllers: load_tournaments_list')
         model_tournaments_list = self.my_model.load_tournaments_in_db()
         tournaments_list = []
+        last_matches = []
 
         self.selected_players_list = []
         self.selected_rounds_list = []
@@ -764,6 +769,28 @@ class ChessMainController(VirtualController):
             logging.info(f'ChessMainControllers: load_tournaments_list: tournament_id = {tournament_id}')
             logging.info(f'ChessMainControllers: load_tournaments_list: matches={matches}')
             self.matches.set(tournament_id, matches)
+            if not matches:
+                round_id = 1
+                logging.info('ChessMainControllers: load_tournaments_list: initialize_tournament_round_id ' +
+                             f'tournament_id={tournament_id} round_id={round_id}')
+                self.initialize_tournament_round_id(tournament_id, round_id)
+            last_matches = matches
+
+        if last_matches:
+            if self.get_selected_tournament():
+                logging.info(f'ChessMainControllers: load_tournaments_list: last_matches={last_matches}')
+                logging.info(f'ChessMainControllers: load_tournaments_list: last_matches[-1]={last_matches[-1]}')
+                logging.info(f'ChessMainControllers: load_tournaments_list: last_matches[-1][0]={last_matches[-1][0]}')
+                logging.info(f'ChessMainControllers: load_tournaments_list: type(last_matches[-1][0])={type(last_matches[-1][0])}')
+                if not self.is_tournament_terminated():
+                    round_id = int(re.findall(r"\d+", last_matches[-1][0])[0])
+                    self.set_tournament_round_id(round_id)
+                else:
+                    round_id = self.get_tournament_round_id()
+                logging.info(f'ChessMainControllers: load_tournaments_list: round_id={round_id}')
+
+
+
         return tournaments_list
 
     def set_tournament_id(self, tournament_id):

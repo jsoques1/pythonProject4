@@ -130,7 +130,7 @@ class ChessTournamentsView(ChessBasicView):
         if len(self.tree.selection()) == 0:
             pass
         elif len(self.tree.selection()) != 1:
-            messagebox.showerror('Error', 'Select only one tk.Entry')
+            messagebox.showerror('Error', 'Select only one entry')
             return False
         else:
             selected_item = self.tree.selection()[0]
@@ -540,7 +540,7 @@ class ChessTournamentsView(ChessBasicView):
             self.round_number_var.set('Round ' + str(round_id))
             round_number = self.round_number_var.get()
             logging.info(f'ChessMainViews: continue_tournament: {round_number}')
-            start_time = ChessMainController.get_current_time()
+            start_time = ChessMainController.get_current_date_time()
             self.round_start_time_var.set(start_time)
             self.round_end_time_var.set('')
             self.match_first_player_var.set(self.players_couple_list[0][0])
@@ -599,7 +599,7 @@ class ChessTournamentsView(ChessBasicView):
                 round_end_time = self.round_end_time_var.get()
                 self.my_controller.backup_a_round(round_number, round_end_time, self.match_results_list)
             else:
-                self.round_end_time_var.set(ChessMainController.get_current_time())
+                self.round_end_time_var.set(ChessMainController.get_current_date_time())
                 round_end_time = self.round_end_time_var.get()
                 a_match[2] = round_end_time
                 self.my_controller.update_score(a_match)
@@ -613,8 +613,9 @@ class ChessTournamentsView(ChessBasicView):
                 logging.info(f'ChessMainViews: next_match:(2) {round_number} is terminated')
                 messagebox.showinfo('Info', f'{round_number} is terminated')
                 self.match_results_list = []
-                if self.my_controller.is_tournament_terminated():
-                    self.my_controller.increment_tournament_round_id()
+                # if self.my_controller.is_tournament_terminated():
+                #     self.my_controller.increment_tournament_round_id()
+                self.my_controller.increment_tournament_round_id()
                 self.continue_tournament()
         else:
             messagebox.showerror('Error', 'The tournament end has not been saved')

@@ -16,24 +16,31 @@ P4: Développez un programme logiciel en Python
 
     python -m venv mypath/venv
 
-* install the additional pip package:
+  * install the additional pip package:
 
-    mypath/env/Scripts/activate
-    pip install -r mypath/pythonProject4/requirement.txt
+    cd mypath/pythonProject4
+
+    ./env/Scripts/activate
+
+    pip install -r requirement.txt
 
 * Execution:
 
     cd mypath/pythonProject4
-    mypath/env/Scripts/activate
+
+    ./env/Scripts/activate
+
     python main.py 
 
 * Flake8:
 
     cd mypath/pythonProject4
-    mypath/env/Scripts/activate
+
+    ./env/Scripts/activate
+
     flake8
 
 * Remark
 
-    Developped and tested with Pycharm 2021.3 under Win32 Python 3.10.1
+    Developed and tested with Pycharm 2021.3 under Win32 Python 3.10.1
 
