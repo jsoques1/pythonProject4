@@ -453,13 +453,16 @@ class ChessTournamentsView(ChessBasicView):
         messagebox.showinfo('Info', 'Current tournament state has been saved')
 
     def start_tournament(self):
+        logging.debug('ChessMainViews: start_tournament')
         tournament = self.my_controller.get_selected_tournament()
         if tournament is None:
             messagebox.showerror('Error', 'No tournament selected')
             return False
 
-        round_id = self.my_controller.get_tournament_round_id()
         self.rounds_list, self.players_couple_list = self.my_controller.get_rounds_and_players_couple_list()
+        round_id = self.my_controller.get_tournament_round_id()
+        tournament_id = tournament[6]
+        logging.debug(f'ChessMainViews: start_tournament: tournament_id={tournament_id} round_id={round_id}')
 
         if self.my_controller.is_tournament_terminated():
             messagebox.showinfo('Info', 'This tournament has been completed')
@@ -528,7 +531,7 @@ class ChessTournamentsView(ChessBasicView):
             if self.players_couple_list:
                 self.round_number_var.set('Round ' + str(round_id))
                 round_number = self.round_number_var.get()
-                logging.info(f'ChessMainViews: continue_tournament: {round_number}')
+                logging.info(f'ChessMainViews: continue_tournament: round_number={round_number}')
                 start_time = self.rounds_list[0][1]
                 self.round_start_time_var.set(start_time)
                 self.round_end_time_var.set('')
@@ -539,7 +542,7 @@ class ChessTournamentsView(ChessBasicView):
             logging.info('ChessMainViews: continue_tournament - case(2)')
             self.round_number_var.set('Round ' + str(round_id))
             round_number = self.round_number_var.get()
-            logging.info(f'ChessMainViews: continue_tournament: {round_number}')
+            logging.info(f'ChessMainViews: continue_tournament: round_number={round_number}')
             start_time = ChessMainController.get_current_date_time()
             self.round_start_time_var.set(start_time)
             self.round_end_time_var.set('')
