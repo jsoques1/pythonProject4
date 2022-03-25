@@ -153,7 +153,6 @@ class ChessTournamentsView(ChessBasicView):
             sorted_values = sorted(values, key=itemgetter(column - 1))
             self.tree.delete(*self.tree.get_children())
             for value in sorted_values:
-                # tournament = (value[0], value[1], value[2], value[3], value[4], value[5], value[6])
                 tournament = (value[0], value[1], value[2], value[3], value[4], value[5])
                 self.tree.insert('', tk.END, values=tournament)
         else:
@@ -574,7 +573,7 @@ class ChessTournamentsView(ChessBasicView):
                                           match_first_player_score, ['0', '0.5', '1']) is False or \
                ChessUtils.check_enumerate('SecondPlayerScore',
                                           match_second_player_score, ['0', '0.5', '1']) is False or \
-               ChessUtils.check_score('PlayerScores', match_first_player_score,
+               ChessUtils.check_score('PlayerScores: sum must be equal to 1', match_first_player_score,
                                       match_second_player_score) is False:
                 logging.debug('ChessMainViews: Check exit')
                 return False
@@ -618,8 +617,6 @@ class ChessTournamentsView(ChessBasicView):
                 logging.info(f'ChessMainViews: next_match:(2) {round_number} is terminated')
                 messagebox.showinfo('Info', f'{round_number} is terminated')
                 self.match_results_list = []
-                # if self.my_controller.is_tournament_terminated():
-                #     self.my_controller.increment_tournament_round_id()
                 self.my_controller.increment_tournament_round_id()
                 self.continue_tournament()
         else:
@@ -810,11 +807,14 @@ class ChessPlayersView(ChessBasicView):
     def clear_players_list_selection(self):
         for item in self.tree.get_children():
             self.tree.selection_remove(item)
-        pass
+
+    def delete_players_list(self):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
 
     def load_players_list_in_view(self):
         logging.debug('ChessMainViews: : load_players_list_in_view')
-        self.clear_players_list_selection()
+        self.delete_players_list()
         players_list = self.my_controller.load_players_list()
         logging.info(players_list)
         for player in players_list:
