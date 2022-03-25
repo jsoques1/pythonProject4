@@ -103,12 +103,10 @@ class ChessMainModel(VirtualModel):
     def insert_players_in_db(self, players_list):
         self.participants_db.truncate()
         for player in players_list:
-            player_entry = self.make_a_player_from_entry(player)
-            self.participants_db.insert(player_entry)
+            self.participants_db.insert(player.serialize())
         return True
 
     def insert_a_player_in_db(self, player):
-        # player_entry = self.make_a_player_from_entry(player)
         self.participants_db.insert(player.serialize())
         return True
 

@@ -817,11 +817,11 @@ class ChessMainController(VirtualController):
 
     def get_dummy_tournaments_list(self):
         dummy_tournaments_list = [('Toronto tournament', 'Toronto', '07/03/1984', 4, 'Blitz', 'Bitz tournament',
-                                   self.get_tournament_id()),
+                                   self.get_tournament_id(), [], []),
                                   ('Paris tournament', 'Paris', '07/03/1984', 3, 'Bullet', 'Bullet tournament',
-                                   self.get_tournament_id()),
+                                   self.get_tournament_id(), [], []),
                                   ('Milan tournament', 'Milan', '07/03/1984', 2, 'Fast', 'Fast tournament',
-                                   self.get_tournament_id())]
+                                   self.get_tournament_id(), [], [])]
 
         self.save_tournaments_list(dummy_tournaments_list)
         return dummy_tournaments_list

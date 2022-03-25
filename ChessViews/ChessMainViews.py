@@ -516,6 +516,9 @@ class ChessTournamentsView(ChessBasicView):
         if tournament is None:
             messagebox.showerror('Error', 'No tournament selected')
             return False
+        if not self.my_controller.get_participants_score():
+            messagebox.showinfo('Info', 'This tournament has not started')
+            return False
 
         logging.info(f'ChessMainViews: continue_tournament: tournament={tournament}')
         logging.info(f'ChessMainViews: continue_tournament: self.rounds_list={self.rounds_list}')
