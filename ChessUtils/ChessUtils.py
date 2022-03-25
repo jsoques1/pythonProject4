@@ -36,9 +36,9 @@ def check_time(name, value):
         return True
 
 
-def check_enumerate(name, value, enumarate):
+def check_enumerate(name, value, enumerated):
     if check_str(name, value) is True:
-        if value not in enumarate:
+        if value not in enumerated:
             showerror('Error', 'Invalid ' + name)
             return False
         else:

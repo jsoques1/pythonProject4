@@ -42,15 +42,12 @@ class Tournament:
     def unserialize(self):
         retval = (self.name, self.location, self.date, self.rounds_number, self.time_control, self.description,
                   self.tournament_id, self.participants, self.rounds, self.participants_score)
-        # retval = (self.name, self.location, self.date, self.rounds_number, self.time_control, self.description,
-        #           self.tournament_id)
         return retval
 
     def __str__(self):
-        # return f'{self.name} {self.location} {self.date} {self.rounds_number} {self.time_control} {self.description} \
-#{self.tournament_id}'
-        return f'{self.name} {self.location} {self.date} {self.rounds_number} {self.time_control} {self.description} \
-{self.tournament_id} {self.participants} {self.rounds} {self.participants_score}'
+        return f'{self.name} {self.location} {self.date} {self.rounds_number} {self.time_control} ' + \
+               f'{self.description} {self.tournament_id} {self.participants} {self.rounds} {self.participants_score}'
+
 
 class Player:
     def __init__(self, last_name=None, first_name=None, birthdate=None, gender=None, rank=None, player_id=0):
@@ -106,13 +103,11 @@ class ChessMainModel(VirtualModel):
     def insert_players_in_db(self, players_list):
         self.participants_db.truncate()
         for player in players_list:
-            player_entry = self.make_a_player_from_entry(player)
-            self.participants_db.insert(player_entry)
+            self.participants_db.insert(player.serialize())
         return True
 
     def insert_a_player_in_db(self, player):
-        player_entry = self.make_a_player_from_entry(player)
-        self.participants_db.insert(player_entry)
+        self.participants_db.insert(player.serialize())
         return True
 
     def update_a_player_rank_in_db(self, player):
@@ -134,6 +129,7 @@ class ChessMainModel(VirtualModel):
 
     @staticmethod
     def make_a_player_from_entry(player_entry):
+        logging.info(f'ChessMainModels: player={player_entry}')
         player = Player(player_entry["LastName"],
                         player_entry["FirstName"],
                         player_entry["Birthdate"],
@@ -169,18 +165,6 @@ class ChessMainModel(VirtualModel):
         logging.info(f'ChessMainModels: get_rounds_and_players_and_score: {tournament_entry["Participants"]}')
         logging.info(f'ChessMainModels: get_rounds_and_players_and_score: {tournament_entry["ParticipantsScore"]}')
         return tournament_entry['Rounds'], tournament_entry['Participants'], tournament_entry['ParticipantsScore']
-        # return tournament_entry['Rounds'], tournament_entry['Participants']
-
-    # def update_a_tournament_round(self, tournament, round_id, round_start_time, round_end_time, match_list,
-    #                               participants_score):
-    #     logging.debug('ChessMainModels: update_a_tournament_rounds')
-    #     logging.info(f'ChessMainModels: selected_tournament = {tournament}')
-    #     tournament_entry = self.tournaments_db.get(doc_id=int(tournament[6]))
-    #     rounds_list = tournament_entry['Rounds']
-    #     rounds_list.append([round_id, round_start_time, round_end_time, match_list])
-    #     retval1 = self.tournaments_db.update({"Rounds": rounds_list}, doc_ids=[int(tournament[6])])
-    #     retval2 = self.tournaments_db.update({"ParticipantsScore": participants_score}, doc_ids=[int(tournament[6])])
-    #     return retval1 and retval2
 
     def update_a_tournament_round(self, tournament_id, all_rounds, participants_score):
         logging.debug('ChessMainModels: update_a_tournament_rounds')
@@ -193,7 +177,6 @@ class ChessMainModel(VirtualModel):
         logging.debug('ChessMainModels: get_participants_score')
         logging.info(f'ChessMainModels: selected_tournament = {tournament}')
         tournament_entry = self.tournaments_db.get(doc_id=int(tournament[6]))
-        tournament_entry['ParticipantsScore']
         logging.info(f"ChessMainModels: get_participants_score: score = {tournament_entry['ParticipantsScore']}")
         return tournament_entry['ParticipantsScore']
 
