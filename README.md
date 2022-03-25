@@ -22,7 +22,7 @@ P4: Développez un programme logiciel en Python
 
     cd mypath/pythonProject4
 
-    ./env/Scripts/activate
+    .\env\Scripts\activate
 
     pip install -r requirement.txt
 
@@ -30,7 +30,7 @@ P4: Développez un programme logiciel en Python
 
     cd mypath/pythonProject4
 
-    ./env/Scripts/activate
+    .\env\Scripts\activate
 
     python main.py 
 
@@ -38,7 +38,7 @@ P4: Développez un programme logiciel en Python
 
     cd mypath/pythonProject4
 
-    ./env/Scripts/activate
+    .\env\Scripts\activate
 
     flake8
 

@@ -108,8 +108,8 @@ class ChessMainModel(VirtualModel):
         return True
 
     def insert_a_player_in_db(self, player):
-        player_entry = self.make_a_player_from_entry(player)
-        self.participants_db.insert(player_entry)
+        # player_entry = self.make_a_player_from_entry(player)
+        self.participants_db.insert(player.serialize())
         return True
 
     def update_a_player_rank_in_db(self, player):
@@ -131,6 +131,7 @@ class ChessMainModel(VirtualModel):
 
     @staticmethod
     def make_a_player_from_entry(player_entry):
+        logging.info(f'ChessMainModels: player={player_entry}')
         player = Player(player_entry["LastName"],
                         player_entry["FirstName"],
                         player_entry["Birthdate"],

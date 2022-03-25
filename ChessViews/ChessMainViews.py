@@ -507,16 +507,14 @@ class ChessTournamentsView(ChessBasicView):
         self.my_controller.set_tournament_round_id(round_id)
         sort_by_score = False
 
+        logging.info(f'ChessMainViews: continue_tournament(1): round_id={round_id} sort_by_score={sort_by_score}')
+
         if round_id > 1:
             sort_by_score = True
 
-        logging.info(f'ChessMainViews: continue_tournament: round_id={round_id} sort_by_score={sort_by_score}')
+        logging.info(f'ChessMainViews: continue_tournament(2): round_id={round_id} sort_by_score={sort_by_score}')
         self.rounds_list, self.players_couple_list = \
             self.my_controller.get_rounds_and_players_couple_list(sort_by_score)
-
-        if self.my_controller.is_tournament_terminated():
-            messagebox.showinfo('Info', 'This tournament has been completed')
-            return False
 
         logging.info(f'ChessMainViews: continue_tournament: self.players_couple_list = {self.players_couple_list}')
 
@@ -524,7 +522,7 @@ class ChessTournamentsView(ChessBasicView):
             self.set_tournament_completed()
             self.my_controller.set_tournament_completed()
             self.clear_round_match_form()
-            logging.info('ChessMainViews: continue_tournament: This tournament has been completed')
+            logging.info('ChessMainViews: continue_tournament: This tournament has been completed (2)')
             messagebox.showinfo('Info', 'This tournament has been completed')
             return False
         elif self.players_couple_list and self.rounds_list and (round_id == 1):
@@ -617,6 +615,7 @@ class ChessTournamentsView(ChessBasicView):
                 logging.info(f'ChessMainViews: next_match:(2) {round_number} is terminated')
                 messagebox.showinfo('Info', f'{round_number} is terminated')
                 self.match_results_list = []
+                # self.my_controller.check_if_increment_tournament_round_id_needed(round_number)
                 self.my_controller.increment_tournament_round_id()
                 self.continue_tournament()
         else:
@@ -852,7 +851,7 @@ class ChessPlayersView(ChessBasicView):
             return False
 
         player = (last_name, first_name, birthdate, gender, rank, self.my_controller.get_player_id())
-        logging.debug('ChessMainViews: add a player {player}')
+        logging.debug('ChessMainViews: add a player{player}')
         self.my_controller.save_a_player(player)
 
         self.tree.insert('', tk.END, values=player)
