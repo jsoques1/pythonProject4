@@ -208,7 +208,9 @@ class ChessTournamentsView(ChessBasicView):
         self.clear_round_match_form()
         # self.my_controller.set_selected_tournament(None)
         self.my_controller.reinitialize()
-        # messagebox.showinfo('Info', 'All tournaments have been loaded\n!!! Please reselect a tournament !!!')
+
+        if self.is_visible():
+            messagebox.showinfo('Info', 'All tournaments have been loaded\n!!! Please reselect a tournament !!!')
 
     def show_tournaments_list_frame(self):
         self.tree_frame = tk.LabelFrame(self.main_window, text='Tournaments list')
@@ -825,6 +827,7 @@ class ChessPlayersView(ChessBasicView):
             self.birthdate_var2.set("")
             self.gender_var2.set("")
             self.rank_var2.set("")
+            logging.info(f'ChessMainViews: player nb item selected={len(self.tree.selection())}')
             for selected_item in self.tree.selection():
                 item = self.tree.item(selected_item)
                 player = item['values']
@@ -851,7 +854,8 @@ class ChessPlayersView(ChessBasicView):
         for player in players_list:
             self.tree.insert('', tk.END, values=player)
         self.my_controller.set_player_id(len(players_list))
-        # messagebox.info('Info', 'All players have been loaded')
+        if self.is_visible():
+            messagebox.showinfo('Info', 'All players have been loaded')
 
     def modify_a_player_rank(self):
         logging.debug('ChessMainViews: : modify_a_player_rank')
