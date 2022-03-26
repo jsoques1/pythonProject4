@@ -72,6 +72,9 @@ class ChessMatches:
     def set(self, tournament_id, rounds):
         self.matches[tournament_id] = ChessMatches.make_flat(copy.deepcopy(rounds))
 
+    def get(self):
+        return self.matches
+
     def get_nb_matches(self, tournament_id):
         return len(self.matches.get(tournament_id))
 
@@ -229,6 +232,9 @@ class ChessMainController(VirtualController):
 
     def get_selected_tournament(self):
         return self.selected_tournament
+
+    def get_matches(self):
+        return self.matches.get()
 
     def set_selected_players_list(self, selected_players_list):
         logging.debug('ChessMainControllers: set_selected_players_list')
@@ -445,22 +451,6 @@ class ChessMainController(VirtualController):
     def get_expected_tournament_round_id(self, all_matches):
         logging.debug('ChessMainControllers: get_expected_tournament_round_id')
         round_id = 1
-        # if self.selected_rounds_list and self.selected_rounds_list[-1]:
-        #     logging.info('ChessMainControllers: get_expected_tournament_round_id: ' +
-        #                  f'self.selected_rounds_list[-1][0]={self.selected_rounds_list[-1][0]}')
-        #     logging.info('ChessMainControllers: get_expected_tournament_round_id: ' +
-        #                  f'self.selected_rounds_list[-1][2]={self.selected_rounds_list[-1][2]}')
-        #     round_id = int(re.findall(r"\d+", self.selected_rounds_list[-1][0])[0])
-        #     if self.selected_rounds_list[-1][2] and (round_id == self.get_tournament_round_id()):
-        #         return self.increment_tournament_round_id()
-        #     elif self.is_last_round_nb_matches_reached():
-        #         return self.increment_tournament_round_id()
-        #     elif round_id == self.get_tournament_round_id():
-        #         return self.get_tournament_round_id()
-        #     else:
-        #         logging.error('ChessMainControllers: get_expected_tournament_round_id: ' +
-        #                       f'self.selected_rounds_list[-1][0]={self.selected_rounds_list[-1][0]}')
-        #         return self.get_tournament_round_id()
         retval = 1
         if len(all_matches) > self.get_nb_matches_per_round():
             retval = float(len(all_matches)) / float(self.get_nb_matches_per_round())
@@ -472,41 +462,13 @@ class ChessMainController(VirtualController):
             round_id = int(retval) + 1
             logging.info(f'ChessMainControllers: get_expected_tournament_round_id(1): round_id={round_id}')
             self.set_tournament_round_id(round_id)
-            # if decimal == 0.0:
-            #     round_id = int(retval) + 1
-            #     logging.info(f'ChessMainControllers: get_expected_tournament_round_id(1a): round_id={round_id}')
-            #     self.set_tournament_round_id(round_id)
-            # else:
-            #     round_id = int(retval)
-            #     self.set_tournament_round_id(round_id)
-            #     logging.info(f'ChessMainControllers: get_expected_tournament_round_id(1b): round_id={round_id}')
         elif len(all_matches) == self.get_nb_matches_per_round():
-            # retval = float(len(all_matches)) / float(self.get_nb_matches_per_round())
-            # logging.info(f'ChessMainControllers: get_expected_tournament_round_id(2): {retval} ' +
-            #              f'{self.get_nb_matches_per_round()} {len(all_matches)}')
-            # decimal = retval - int(retval)
-            # logging.info(f'ChessMainControllers: get_expected_tournament_round_id(2): {int(retval)} ' +
-            #              f'{decimal}')
-            # round_id = self.get_tournament_round_id()
-            # if round_id < retval:
-            #     round_id = self.set_tournament_round_id(round_id + 1)
             round_id = self.increment_tournament_round_id()
             logging.info(f'ChessMainControllers: get_expected_tournament_round_id(2): round_id={round_id}')
         else:
             round_id = self.get_tournament_round_id()
             round_id = self.set_tournament_round_id(round_id)
             logging.info(f'ChessMainControllers: get_expected_tournament_round_id(3): round_id={round_id}')
-
-            # x = re.findall(r'\d+', string(retval))
-            # x = x[0]
-            # y = int(x)
-            # print(float(x) - y)
-            # if int(retval) == round(retval):
-            #     round_id = int(retval) + 1
-            # else:
-            #     round_id = round(retval)
-            # logging.info(f'ChessMainControllers: get_expected_tournament_round_id: {round_id}')
-
         return round_id
 
     def is_a_round_terminated(self):
