@@ -208,7 +208,9 @@ class ChessTournamentsView(ChessBasicView):
         self.clear_round_match_form()
         # self.my_controller.set_selected_tournament(None)
         self.my_controller.reinitialize()
-        # messagebox.showinfo('Info', 'All tournaments have been loaded\n!!! Please reselect a tournament !!!')
+
+        if self.is_visible():
+            messagebox.showinfo('Info', 'All tournaments have been loaded\n!!! Please reselect a tournament !!!')
 
     def show_tournaments_list_frame(self):
         self.tree_frame = tk.LabelFrame(self.main_window, text='Tournaments list')
@@ -241,57 +243,75 @@ class ChessTournamentsView(ChessBasicView):
     def display_report_players_ordered_by_name(self):
         if self.my_controller.get_selected_tournament() is not None:
             result_list = self.my_controller.get_tournament_players_ordered_by_name()
-            read_only_text = ChessBasicView.generic_display_report('Tournament players ordered by name')
-            read_only_text.insert(tk.INSERT,
-                                  '{:25s} {:25s} {:25s} {:10s} {:10s}\n'.format("last Name", "First Nme", "Birthdate",
-                                                                                "Gender", "Rank"))
-            for values in result_list:
+            if result_list:
+                read_only_text = ChessBasicView.generic_display_report('Tournament players ordered by name')
                 read_only_text.insert(tk.INSERT,
-                                      '{:25s} {:25s} {:25s} {:10s} {:10s}\n'.format(values[0], values[1], values[2],
-                                                                                    values[3], str(values[4])))
+                                      '{:25s} {:25s} {:25s} {:10s} {:10s}\n'.format("last Name", "First Nme",
+                                                                                    "Birthdate",
+                                                                                    "Gender", "Rank"))
+                for values in result_list:
+                    read_only_text.insert(tk.INSERT,
+                                          '{:25s} {:25s} {:25s} {:10s} {:10s}\n'.format(values[0], values[1],
+                                                                                        values[2],
+                                                                                        values[3], str(values[4])))
+            else:
+                messagebox.showerror("Error", 'No players assigned')
         else:
             messagebox.showerror("Error", 'No tournament selected')
 
     def display_report_a_tournament_players_ordered_by_rank(self):
         if self.my_controller.get_selected_tournament() is not None:
             result_list = self.my_controller.get_tournament_players_ordered_by_rank()
-            read_only_text = ChessBasicView.generic_display_report('Tournament players ordered by rank')
-            read_only_text.insert(tk.INSERT,
-                                  '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format("last Name", "First Nme", "Birthdate",
-                                                                                "Gender", "Rank"))
-            for values in result_list:
+            if result_list:
+                read_only_text = ChessBasicView.generic_display_report('Tournament players ordered by rank')
                 read_only_text.insert(tk.INSERT,
-                                      '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format(values[0], values[1], values[2],
-                                                                                    values[3], str(values[4])))
+                                      '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format("last Name", "First Nme",
+                                                                                    "Birthdate",
+                                                                                    "Gender", "Rank"))
+                for values in result_list:
+                    read_only_text.insert(tk.INSERT,
+                                          '{:25s} {:25s} {:25s} {:25s} {:25s}\n'.format(values[0], values[1],
+                                                                                        values[2],
+                                                                                        values[3], str(values[4])))
+            else:
+                messagebox.showerror("Error", 'No players assigned')
         else:
             messagebox.showerror("Error", 'No tournament selected')
 
     def display_report_all_tournaments(self):
         result_list = self.my_controller.get_all_tournaments()
-        logging.info('ChessMainViews: display_report_all_tournaments: result_list')
-        read_only_text = ChessBasicView.generic_display_report('All tournaments')
-        read_only_text.insert(tk.INSERT,
-                              '{:25s} {:25s} {:10s} {:6s} {:12s} {:25s}\n'.format("Name", "Location", "Date", 'Rounds',
-                                                                                  "Time Control", "Description"))
+        if result_list:
+            logging.info('ChessMainViews: display_report_all_tournaments: result_list')
+            read_only_text = ChessBasicView.generic_display_report('All tournaments')
+            read_only_text.insert(tk.INSERT,
+                                  '{:25s} {:25s} {:10s} {:6s} {:12s} {:25s}\n'.format("Name", "Location", "Date",
+                                                                                      'Rounds',
+                                                                                      "Time Control", "Description"))
 
-        for values in result_list:
-            read_only_text.insert(tk.INSERT, '{:25s} {:25s} {:10s} {:6s} {:12s} {:25s}\n'.format(values[0], values[1],
-                                                                                                 values[2],
-                                                                                                 str(values[3]),
-                                                                                                 str(values[4]),
-                                                                                                 values[5]))
+            for values in result_list:
+                read_only_text.insert(tk.INSERT, '{:25s} {:25s} {:10s} {:6s} {:12s} {:25s}\n'.format(values[0],
+                                                                                                     values[1],
+                                                                                                     values[2],
+                                                                                                     str(values[3]),
+                                                                                                     str(values[4]),
+                                                                                                     values[5]))
+        else:
+            messagebox.showerror("Error", 'No Tournament defined')
 
     def display_report_a_tournament_rounds(self):
         logging.debug('ChessMainViews: display_report_a_tournament_rounds')
         if self.my_controller.get_selected_tournament() is not None:
             result_list = self.my_controller.get_a_tournament_rounds()
-            logging.info(f'ChessMainViews: display_report_a_tournament_rounds: result_list = {result_list}')
-            read_only_text = ChessBasicView.generic_display_report('Tournament rounds')
-            read_only_text.insert(tk.INSERT,
-                                  '{:10s} {:30} {:30s}\n'.format("Name", "Start Date", 'End Date'))
-            for values in result_list:
+            if result_list:
+                logging.info(f'ChessMainViews: display_report_a_tournament_rounds: result_list = {result_list}')
+                read_only_text = ChessBasicView.generic_display_report('Tournament rounds')
                 read_only_text.insert(tk.INSERT,
-                                      '{:10s} {:30} {:30s}\n'.format(values[0], values[1], values[2]))
+                                      '{:10s} {:30} {:30s}\n'.format("Name", "Start Date", 'End Date'))
+                for values in result_list:
+                    read_only_text.insert(tk.INSERT,
+                                          '{:10s} {:30} {:30s}\n'.format(values[0], values[1], values[2]))
+            else:
+                messagebox.showerror("Error", 'The tournament has not started')
         else:
             messagebox.showerror("Error", 'No tournament selected')
 
@@ -299,33 +319,37 @@ class ChessTournamentsView(ChessBasicView):
         if self.my_controller.get_selected_tournament() is not None:
             logging.debug('ChessMainViews: display_report_a_tournament_matches')
             players_list, result_list = self.my_controller.get_a_tournament_matches()
-            logging.info(f'ChessMainViews: display_report_a_tournament_matches: matches = {result_list}')
-            read_only_text = ChessBasicView.generic_display_report('Tournament matches')
-            read_only_text.insert(tk.INSERT,
-                                  '{:25s} {:10s}\n'.format("Name", "Rank"))
-            for values in players_list:
+            if result_list:
+                logging.info(f'ChessMainViews: display_report_a_tournament_matches: matches = {result_list}')
+                read_only_text = ChessBasicView.generic_display_report('Tournament matches')
                 read_only_text.insert(tk.INSERT,
-                                      '{:25s} {:10s}\n'.format(values[0], str(values[4])))
+                                      '{:25s} {:10s}\n'.format("Name", "Rank"))
+                for values in players_list:
+                    read_only_text.insert(tk.INSERT,
+                                          '{:25s} {:10s}\n'.format(values[0], str(values[4])))
 
-            read_only_text.insert(tk.INSERT, '\n\n')
+                read_only_text.insert(tk.INSERT, '\n\n')
 
-            read_only_text.insert(tk.INSERT,
-                                  '{:10s} {:25s} {:5s} {:25s} {:5s}\n'.format('Round', "Name", "Score",
-                                                                              'Name', 'Score'))
-
-            for values in result_list:
-                read_only_text.insert(tk.INSERT, '{:10s} {:25s} {:5s} {:25s} {:5s}\n'.format(values[0],
-                                                                                             values[1],
-                                                                                             values[2],
-                                                                                             values[3],
-                                                                                             values[4]))
-
-            read_only_text.insert(tk.INSERT,
-                                  '\n\n{:25s} {:6s}\n'.format("Name", "Score"))
-            result_list = self.my_controller.get_participants_score()
-            for values in result_list:
                 read_only_text.insert(tk.INSERT,
-                                      '{:25s} {:6s}\n'.format(values[0], str(values[1])))
+                                      '{:10s} {:25s} {:5s} {:25s} {:5s}\n'.format('Round', "Name", "Score",
+                                                                                  'Name', 'Score'))
+
+                for values in result_list:
+                    read_only_text.insert(tk.INSERT, '{:10s} {:25s} {:5s} {:25s} {:5s}\n'.format(values[0],
+                                                                                                 values[1],
+                                                                                                 values[2],
+                                                                                                 values[3],
+                                                                                                 values[4]))
+
+                read_only_text.insert(tk.INSERT,
+                                      '\n\n{:25s} {:6s}\n'.format("Name", "Score"))
+                result_list = self.my_controller.get_participants_score()
+                for values in result_list:
+                    read_only_text.insert(tk.INSERT,
+                                          '{:25s} {:6s}\n'.format(values[0], str(values[1])))
+
+            else:
+                messagebox.showerror("Error", 'The tournament has not started')
         else:
             messagebox.showerror("Error", 'No tournament selected')
 
@@ -461,7 +485,6 @@ class ChessTournamentsView(ChessBasicView):
             messagebox.showerror('Error', 'No tournament selected')
             return False
 
-        round_id = 1
         sort_by_score = False
 
         all_matches = self.my_controller.get_all_matches()
@@ -825,6 +848,7 @@ class ChessPlayersView(ChessBasicView):
             self.birthdate_var2.set("")
             self.gender_var2.set("")
             self.rank_var2.set("")
+            logging.info(f'ChessMainViews: player nb item selected={len(self.tree.selection())}')
             for selected_item in self.tree.selection():
                 item = self.tree.item(selected_item)
                 player = item['values']
@@ -851,7 +875,8 @@ class ChessPlayersView(ChessBasicView):
         for player in players_list:
             self.tree.insert('', tk.END, values=player)
         self.my_controller.set_player_id(len(players_list))
-        # messagebox.info('Info', 'All players have been loaded')
+        if self.is_visible():
+            messagebox.showinfo('Info', 'All players have been loaded')
 
     def modify_a_player_rank(self):
         logging.debug('ChessMainViews: : modify_a_player_rank')
