@@ -4,7 +4,7 @@ import logging
 import re
 import time
 from operator import itemgetter
-from ChessModels import ChessMainModels
+from ChessModels import ChessMainModels_1924py
 
 
 class VirtualController:
@@ -175,7 +175,7 @@ class ChessPlayersScore:
     def update_a_score(self, player, score):
         logging.debug('ChessPlayersScore: update_a_score')
         logging.info(f'ChessPlayersScore: update_a_score: player={player} score={score}')
-        if not self.players_score.get(player):
+        if not self.players_score.get_score(player):
             self.players_score[player] = float(score)
         else:
             self.players_score[player] += float(score)
@@ -191,8 +191,8 @@ class ChessPlayersScore:
 
     def get_score(self, player):
         logging.debug('ChessPlayersScore: get_score')
-        logging.info(f'ChessPlayersScore: get_score: player={player} score={self.players_score.get(player)}')
-        return self.players_score.get(player)
+        logging.info(f'ChessPlayersScore: get_score: player={player} score={self.players_score.get_score(player)}')
+        return self.players_score.get_score(player)
 
     def __str__(self):
         return str(self.players_score)
@@ -579,6 +579,9 @@ class ChessMainController(VirtualController):
         self.players_score = ChessPlayersScore()
         self.set_selected_tournament(None)
 
+    def get_matches(self):
+        return self.matches
+
     def get_all_matches(self):
         return self.all_matches
 
@@ -736,19 +739,19 @@ class ChessMainController(VirtualController):
     def save_players_list(self, players_list):
         model_players_list = []
         for player in players_list:
-            model_player = ChessMainModels.Player(player[0], player[1], player[2], player[3], player[4], player[5])
+            model_player = ChessMainModels_1924py.Player(player[0], player[1], player[2], player[3], player[4], player[5])
             model_players_list.append(model_player)
         status = self.my_model.insert_players_in_db(model_players_list)
         return status
 
     def save_a_player(self, player):
-        model_player = ChessMainModels.Player(player[0], player[1], player[2], player[3], player[4], player[5])
+        model_player = ChessMainModels_1924py.Player(player[0], player[1], player[2], player[3], player[4], player[5])
         status = self.my_model.insert_a_player_in_db(model_player)
         return status
 
     def update_a_player_rank(self, player, new_rank):
         logging.debug(f'update_a_player_rank: new_rank={new_rank}')
-        model_player = ChessMainModels.Player(player[0], player[1], player[2], player[3], player[4], player[5])
+        model_player = ChessMainModels_1924py.Player(player[0], player[1], player[2], player[3], player[4], player[5])
         status = self.my_model.update_a_player_rank_in_db(model_player)
         return status
 
@@ -791,17 +794,17 @@ class ChessMainController(VirtualController):
     def save_tournaments_list(self, tournaments_list):
         model_tournaments_list = []
         for tournament in tournaments_list:
-            model_tournament = ChessMainModels.Tournament(tournament[0], tournament[1], tournament[2], tournament[3],
-                                                          tournament[4], tournament[5], tournament[6], tournament[7],
-                                                          tournament[8], participants_score=dict())
+            model_tournament = ChessMainModels_1924py.Tournament(tournament[0], tournament[1], tournament[2], tournament[3],
+                                                                 tournament[4], tournament[5], tournament[6], tournament[7],
+                                                                 tournament[8], participants_score=dict())
             model_tournaments_list.append(model_tournament)
         status = self.my_model.insert_tournaments_in_db(model_tournaments_list)
         return status
 
     def save_a_tournament(self, tournament):
-        model_tournament = ChessMainModels.Tournament(tournament[0], tournament[1], tournament[2], tournament[3],
-                                                      tournament[4], tournament[5], tournament[6], [],
-                                                      [], participants_score=dict())
+        model_tournament = ChessMainModels_1924py.Tournament(tournament[0], tournament[1], tournament[2], tournament[3],
+                                                             tournament[4], tournament[5], tournament[6], [],
+                                                             [], participants_score=dict())
         status = self.my_model.insert_a_tournament_in_db(model_tournament)
         return status
 
