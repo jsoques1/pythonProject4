@@ -397,8 +397,6 @@ class ChessMainController(VirtualController):
                 self.my_model.get_rounds_and_players_and_score(selected_tournament)
             logging.info(f'ChessMainControllers: get_players_and_matches: rounds_list = {self.selected_rounds_list}')
             logging.info(f'ChessMainControllers: get_players_and_matches: players_list = {self.selected_players_list}')
-            # self.players_score.set(players_score)
-            # logging.info(f'ChessMainControllers: get_players_and_matches: players_score = {self.players_score.get()}')
 
         matches_list = []
         for a_round in self.selected_rounds_list:
@@ -513,7 +511,7 @@ class ChessMainController(VirtualController):
 
     def couple_already_has_played(self, first_player, second_player):
         logging.debug('ChessMainControllers: couple_already_has_played')
-        logging.info(f'ChessMainControllers: couple_already_has_played: ' +
+        logging.info('ChessMainControllers: couple_already_has_played: ' +
                      f'selected_rounds_list={self.selected_rounds_list}')
         if self.selected_rounds_list:
             logging.info(f'ChessMainControllers: couple_already_has_played: first_player={first_player}')
