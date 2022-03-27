@@ -1021,6 +1021,8 @@ class ChessPlayersView(ChessBasicView):
             dummy_players_list = self.my_controller.get_dummy_players_list()
             for dummy_player in dummy_players_list:
                 self.tree.insert('', tk.END, values=dummy_player)
+        else:
+            self.load_players_list_in_view()
 
     def create_tree_widget(self, frame):
         style = ttk.Style()
