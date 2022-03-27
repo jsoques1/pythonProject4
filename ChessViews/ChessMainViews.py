@@ -652,30 +652,39 @@ class ChessTournamentsView(ChessBasicView):
             return False
         # elif self.players_couple_list and self.rounds_list and (round_id == 1):
         elif self.players_couple_list and self.rounds_list:
-            logging.info('ChessMainViews: continue_tournament - case(1)')
+            logging.info('ChessMainViews: continue_tournament(1)')
             if self.players_couple_list:
                 self.round_number_var.set('Round ' + str(round_id))
                 round_number = self.round_number_var.get()
                 logging.info(f'ChessMainViews: continue_tournament: round_number={round_number}')
-                start_time = self.rounds_list[0][1]
-                self.round_start_time_var.set(start_time)
+                if round_number == self.rounds_list[-1][0]:
+                    start_time = self.rounds_list[-1][1]
+                    self.round_start_time_var.set(start_time)
+                    logging.info(f'ChessMainViews: continue_tournament(1a): start_time={start_time}')
+                else:
+                    start_time = ChessMainController.get_current_date_time()
+                    self.round_start_time_var.set(start_time)
+                    logging.info(f'ChessMainViews: continue_tournament(1b): start_time={start_time}')
+                # if not self.round_start_time_var.get():
+
                 self.round_end_time_var.set('')
                 logging.info(f'ChessMainViews: continue_tournament: players_couple_list{self.players_couple_list}')
                 self.match_first_player_var.set(self.players_couple_list[0][0])
                 self.match_second_player_var.set(self.players_couple_list[1][0])
         elif self.players_couple_list:
-            logging.info('ChessMainViews: continue_tournament - case(2)')
+            logging.info('ChessMainViews: continue_tournament(2)')
             self.round_number_var.set('Round ' + str(round_id))
             round_number = self.round_number_var.get()
-            logging.info(f'ChessMainViews: continue_tournament: round_number={round_number}')
+            logging.info(f'ChessMainViews: continue_tournament(2): round_number={round_number}')
             start_time = ChessMainController.get_current_date_time()
             self.round_start_time_var.set(start_time)
+            logging.info(f'ChessMainViews: continue_tournament(2): start_time={start_time}')
             self.round_end_time_var.set('')
             self.match_first_player_var.set(self.players_couple_list[0][0])
             self.match_second_player_var.set(self.players_couple_list[1][0])
             return True
         else:
-            logging.info("ChessMainViews: continue_tournament: showerror=No tournament selected")
+            logging.info("ChessMainViews: continue_tournament: showerror=The tournament end has not been saved")
             messagebox.showerror('Error', 'The tournament end has not been saved')
             return False
 
@@ -752,8 +761,10 @@ class ChessTournamentsView(ChessBasicView):
                 logging.info(f'ChessMainViews: next_match:(2) {round_number} is terminated')
                 messagebox.showwarning('Warning', f'{round_number} is terminated\n***    Mind to save    ***')
                 self.match_results_list = []
-                # self.my_controller.check_if_increment_tournament_round_id_needed(round_number)
-                # self.my_controller.increment_tournament_round_id()
+
+                start_time = ChessMainController.get_current_date_time()
+                self.round_start_time_var.set(start_time)
+                logging.info(f'ChessMainViews: next_match: start_time={start_time}')
                 self.continue_tournament()
         else:
             logging.info("ChessMainViews: next_match: showerror=No tournament selected")
