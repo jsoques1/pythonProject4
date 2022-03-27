@@ -171,7 +171,7 @@ class ChessTournamentsView(ChessBasicView):
         style.configure('Treeview.Heading', background=bg, font=('calibre', 10, 'bold'))
 
         columns = ('name', 'location', 'date', 'round', 'time control', 'description')
-        self.tree = ttk.Treeview(frame, columns=columns, show='headings')
+        self.tree = ttk.Treeview(frame, columns=columns, show='headings', selectmode='browse')
         self.tree.bind('<Button>', lambda event: self.sort_tree_column(event))
 
         self.tournament_name_var = tk.StringVar()
@@ -632,12 +632,12 @@ class ChessTournamentsView(ChessBasicView):
         self.my_controller.set_tournament_round_id(round_id)
         sort_by_score = False
 
-        logging.info(f'ChessMainViews: continue_tournament(1): round_id={round_id} sort_by_score={sort_by_score}')
+        logging.info(f'ChessMainViews: continue_tournament(0a): round_id={round_id} sort_by_score={sort_by_score}')
 
         if round_id > 1:
             sort_by_score = True
 
-        logging.info(f'ChessMainViews: continue_tournament(2): round_id={round_id} sort_by_score={sort_by_score}')
+        logging.info(f'ChessMainViews: continue_tournament(0b): round_id={round_id} sort_by_score={sort_by_score}')
         self.rounds_list, self.players_couple_list, _ = \
             self.my_controller.get_rounds_and_players_couple_list(sort_by_score)
 
