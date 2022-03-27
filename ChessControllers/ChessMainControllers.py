@@ -725,8 +725,6 @@ class ChessMainController(VirtualController):
     def get_a_tournament_rounds(self):
         logging.debug('ChessMainControllers: get_a_tournament_rounds')
         rounds_list, players_list = self.get_rounds_and_players()
-        print(f'get_a_tournament_rounds: {type(self.get_participants_score())}')
-        # self.players_score.set(self.get_participants_score())
         return rounds_list
 
     def get_a_tournament_matches(self):
@@ -827,9 +825,7 @@ class ChessMainController(VirtualController):
 
     def get_players_ordered_by_rank(self):
         players_list = self.load_players_list()
-        print(f' before {self.load_players_list}')
         ordered_players_list = sorted(players_list, key=itemgetter(4), reverse=True)
-        print(f' after {self.load_players_list}')
         return ordered_players_list
 
     def get_dummy_tournaments_list(self):

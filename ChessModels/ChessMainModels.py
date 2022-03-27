@@ -164,7 +164,6 @@ class ChessMainModel(VirtualModel):
         logging.info(f'ChessMainModels: get_rounds_and_players_and_score: rounds={tournament_entry["Rounds"]}')
         logging.info(f'ChessMainModels: get_rounds_and_players_and_score: {tournament_entry["Participants"]}')
         logging.info(f'ChessMainModels: get_rounds_and_players_and_score: {tournament_entry["ParticipantsScore"]}')
-        print(f"get_rounds_and_players_and_score: {type(tournament_entry['ParticipantsScore'])}")
         return tournament_entry['Rounds'], tournament_entry['Participants'], tournament_entry['ParticipantsScore']
 
     def update_a_tournament_round(self, tournament_id, all_rounds, participants_score):
