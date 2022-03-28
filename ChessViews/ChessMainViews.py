@@ -307,9 +307,19 @@ class ChessTournamentsView(ChessBasicView):
         if tournament is not None:
             logging.info('ChessMainViews: display_report_a_tournament_rounds: ' +
                          f'matches={self.my_controller.get_matches()}')
+
             all_rounds = self.my_controller.get_all_rounds(tournament[6])
             logging.info('ChessMainViews: display_report_a_tournament_rounds: get_all_rounds ' +
                          f'all_rounds={all_rounds}')
+
+            is_tournament_terminated = self.my_controller.is_tournament_terminated()
+            logging.info('ChessMainViews: display_report_a_tournament_matches: ' +
+                         f'is_tournament_terminated={is_tournament_terminated}')
+
+            if not all_rounds:
+                messagebox.showerror("Error", 'Tournament has no result yet')
+                return False
+
             result_list = self.my_controller.get_a_tournament_rounds()
             logging.info('ChessMainViews: display_report_a_tournament_rounds: get_a_tournament_rounds ' +
                          f'result_list={result_list}')
@@ -318,7 +328,7 @@ class ChessTournamentsView(ChessBasicView):
             logger.handlers[0].flush()
             read_only_text = ChessBasicView.generic_display_report('Tournament rounds')
 
-            if all_rounds and (all_rounds != result_list):
+            if all_rounds and (not is_tournament_terminated):
                 read_only_text.insert(tk.INSERT,
                                       '{:30s}\n'.format("*** Temporary results ***"))
                 read_only_text.insert(tk.INSERT,
@@ -329,7 +339,7 @@ class ChessTournamentsView(ChessBasicView):
                 read_only_text.insert(tk.INSERT, '\n\n')
 
             if result_list:
-                if all_rounds and (all_rounds != result_list):
+                if all_rounds and (not is_tournament_terminated):
                     read_only_text.insert(tk.INSERT,
                                           '{:30s}\n'.format("*** Saved results ***"))
                 else:
@@ -341,8 +351,10 @@ class ChessTournamentsView(ChessBasicView):
                 for values in result_list:
                     read_only_text.insert(tk.INSERT,
                                           '{:10s} {:30s} {:30s}\n'.format(values[0], values[1], values[2]))
+                return True
         else:
             messagebox.showerror("Error", 'No tournament selected')
+            return False
 
     def display_report_a_tournament_matches(self):
         logging.debug('ChessMainViews: display_report_a_tournament_matches')
@@ -351,8 +363,18 @@ class ChessTournamentsView(ChessBasicView):
             all_matches_list = self.my_controller.get_all_matches_as_list()
             logging.info('ChessMainViews: display_report_a_tournament_matches: ' +
                          f'all_matches={all_matches_list}')
+
+            if not all_matches_list:
+                messagebox.showerror("Error", 'Tournament has no result yet')
+                return False
+
             players_list, result_list = self.my_controller.get_a_tournament_matches()
             logging.info(f'ChessMainViews: display_report_a_tournament_matches: result_list={result_list}')
+
+            is_tournament_terminated = self.my_controller.is_tournament_terminated()
+            logging.info('ChessMainViews: display_report_a_tournament_matches: ' +
+                         f'is_tournament_terminated={is_tournament_terminated}')
+
             logger = logging.getLogger()
             logger.handlers[0].flush()
             read_only_text = ChessBasicView.generic_display_report('Tournament matches')
@@ -364,20 +386,20 @@ class ChessTournamentsView(ChessBasicView):
 
             read_only_text.insert(tk.INSERT, '\n\n')
 
-            if all_matches_list and (all_matches_list != result_list):
+            if all_matches_list and (not is_tournament_terminated):
                 read_only_text.insert(tk.INSERT, '*** Temporary results ***\n')
                 read_only_text.insert(tk.INSERT,
-                                      '{:10s} {:25s} {:5s} {:25s} {:5s}\n'.format('Round', "Name", "Score",
+                                      '{:10s} {:25s} {:10s} {:25s} {:5s}\n'.format('Round', "Name", "Score",
                                                                                   'Name', 'Score'))
                 for values in all_matches_list:
                     logging.info('ChessMainViews: display_report_a_tournament_matches: ' +
                                  f'values={values}')
 
-                    read_only_text.insert(tk.INSERT, '{:10s} {:25s} {:5s} {:25s} {:5s}\n'.format(values[0],
-                                                                                                 values[1],
-                                                                                                 values[2],
-                                                                                                 values[3],
-                                                                                                 values[4]))
+                    read_only_text.insert(tk.INSERT, '{:10s} {:25s} {:10s} {:25s} {:5s}\n'.format(values[0],
+                                                                                                  values[1],
+                                                                                                  values[2],
+                                                                                                  values[3],
+                                                                                                  values[4]))
 
                 read_only_text.insert(tk.INSERT,
                                       '\n\n{:25s} {:6s}\n'.format("Name", "Score"))
@@ -387,7 +409,7 @@ class ChessTournamentsView(ChessBasicView):
                                           '{:25s} {:6s}\n'.format(values[0], str(values[1])))
 
             if result_list:
-                if all_matches_list and (all_matches_list != result_list):
+                if all_matches_list and (not is_tournament_terminated):
                     read_only_text.insert(tk.INSERT, '\n\n')
                     read_only_text.insert(tk.INSERT,
                                           '{:30s}\n'.format("*** Saved results ***"))
@@ -396,14 +418,14 @@ class ChessTournamentsView(ChessBasicView):
                                           '{:30s}\n'.format("*** Final results ***"))
 
                 read_only_text.insert(tk.INSERT,
-                                      '{:10s} {:25s} {:5s} {:25s} {:5s}\n'.format('Round', "Name", "Score",
+                                      '{:10s} {:25s} {:10s} {:25s} {:5s}\n'.format('Round', "Name", "Score",
                                                                                   'Name', 'Score'))
                 for values in result_list:
-                    read_only_text.insert(tk.INSERT, '{:10s} {:25s} {:5s} {:25s} {:5s}\n'.format(values[0],
-                                                                                                 values[1],
-                                                                                                 values[2],
-                                                                                                 values[3],
-                                                                                                 values[4]))
+                    read_only_text.insert(tk.INSERT, '{:10s} {:25s} {:10s} {:25s} {:5s}\n'.format(values[0],
+                                                                                                  values[1],
+                                                                                                  values[2],
+                                                                                                  values[3],
+                                                                                                  values[4]))
 
                 read_only_text.insert(tk.INSERT,
                                       '\n\n{:25s} {:6s}\n'.format("Name", "Score"))

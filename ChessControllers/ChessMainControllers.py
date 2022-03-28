@@ -161,26 +161,29 @@ class ChessMatches:
         logging.debug('ChessMatches: get_all_rounds')
         matches = copy.deepcopy(self.matches.get(tournament_id))
         logging.info(f'ChessMatches: get_all_rounds: matches={matches}')
-        backup_round = []
-        all_rounds = []
-        for a_match in matches:
-            logging.info(f'ChessMatches: get_all_rounds: a_match={a_match}')
-            if (not backup_round) or (a_match[0] == backup_round[0][0]):
-                backup_round.append(a_match)
-            else:
+        if matches:
+            backup_round = []
+            all_rounds = []
+            for a_match in matches:
+                logging.info(f'ChessMatches: get_all_rounds: a_match={a_match}')
+                if (not backup_round) or (a_match[0] == backup_round[0][0]):
+                    backup_round.append(a_match)
+                else:
+                    a_round = ChessMatches.compact_a_round(backup_round)
+                    logging.info(f'ChessMatches: get_all_rounds: a_round(1)={a_round}')
+                    all_rounds.append(a_round)
+                    backup_round.clear()
+                    backup_round.append(a_match)
+
+            if backup_round:
                 a_round = ChessMatches.compact_a_round(backup_round)
-                logging.info(f'ChessMatches: get_all_rounds: a_round(1)={a_round}')
+                logging.info(f'ChessMatches: get_all_rounds: a_round(2)={a_round}')
                 all_rounds.append(a_round)
-                backup_round.clear()
-                backup_round.append(a_match)
 
-        if backup_round:
-            a_round = ChessMatches.compact_a_round(backup_round)
-            logging.info(f'ChessMatches: get_all_rounds: a_round(2)={a_round}')
-            all_rounds.append(a_round)
-
-        logging.info(f'ChessMatches: get_all_rounds: all_rounds={all_rounds}')
-        return all_rounds
+            logging.info(f'ChessMatches: get_all_rounds: all_rounds={all_rounds}')
+            return all_rounds
+        else:
+            return []
 
     def __str__(self):
         return str(self.matches)
@@ -488,7 +491,11 @@ class ChessMainController(VirtualController):
             round_id = int(retval) + 1
             logging.info(f'ChessMainControllers: get_expected_tournament_round_id(1): round_id={round_id}')
             self.set_tournament_round_id(round_id)
-        elif len(all_matches) == self.get_nb_matches_per_round():
+        elif all_matches and (len(all_matches) == self.get_nb_matches_per_round()):
+            logging.info('ChessMainControllers: get_expected_tournament_round_id(2): ' +
+                         f'all_matches={all_matches}')
+            logging.info('ChessMainControllers: get_expected_tournament_round_id(2): ' +
+                         f'nb_matches_per_round={self.get_nb_matches_per_round()}')
             round_id = self.increment_tournament_round_id()
             logging.info(f'ChessMainControllers: get_expected_tournament_round_id(2): round_id={round_id}')
         else:
