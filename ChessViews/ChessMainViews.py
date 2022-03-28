@@ -230,10 +230,10 @@ class ChessTournamentsView(ChessBasicView):
             messagebox.showerror('Error', 'No tournament selected')
             return False
         else:
-            participants_score = self.my_controller.get_participants_score()
-            if participants_score:
-                logging.info("ChessMainViews: add_players_list: showwarning=This tournament is on going or terminated")
-                messagebox.showwarning('Warning', 'This tournament is on going or terminated')
+            participants_list = self.my_controller.get_participants_list()
+            if participants_list:
+                logging.warning("ChessMainViews: add_players_list: showwarning=Players have already joined")
+                messagebox.showwarning('Warning', 'Players have already joined')
                 return False
 
         retval = self.my_controller.assign_selected_players_to_selected_tournament()
@@ -609,6 +609,7 @@ class ChessTournamentsView(ChessBasicView):
             messagebox.showerror('Error', 'No players have been added')
             return False
         if len(self.players_couple_list) == 0:
+            logging.info("ChessMainViews: start_tournament: showinfo=This tournament has been completed")
             messagebox.showinfo('Info', 'This tournament has been completed')
             return True
         if self.my_controller.get_all_matches() and self.rounds_list:

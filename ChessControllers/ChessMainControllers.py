@@ -543,7 +543,7 @@ class ChessMainController(VirtualController):
     def is_tournament_terminated(self):
         logging.debug('ChessMainControllers: is_tournament_terminated')
         # if self.get_tournament_state():
-        if self.is_last_round_reached_and_end_time_stamped():
+        if self.check_tournament_end():
             logging.info('ChessMainControllers: is_tournament_terminated: True')
             return True
         else:
@@ -924,6 +924,31 @@ class ChessMainController(VirtualController):
         self.selected_players_list = self.my_model.get_participants_list(a_tournament)
         self.players_score.set(self.my_model.get_participants_score(a_tournament))
         return a_tournament
+
+    def check_tournament_end(self):
+        logging.debug('ChessMainControllers: check_tournament')
+        tournament = self.get_selected_tournament()
+        if tournament is None:
+            logging.info("ChessMainViews: check_tournament: showerror=No tournament selected'")
+            messagebox.showerror('Error', 'No tournament selected')
+            return False
+
+        all_matches = self.rebuild_all_matches()
+        round_id = self.get_expected_tournament_round_id(all_matches)
+        sort_by_score = False
+
+        if round_id > 1:
+            sort_by_score = True
+
+        _, players_couple_list, _ = \
+            self.get_rounds_and_players_couple_list(sort_by_score)
+
+        logging.debug(f'ChessMainControllers: check_tournament players_couple_list={players_couple_list}')
+
+        if players_couple_list:
+            return False
+        else:
+            return True
 
     def load_tournaments_list(self):
         logging.debug('ChessMainControllers: load_tournaments_list')
