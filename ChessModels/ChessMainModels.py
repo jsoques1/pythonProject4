@@ -187,6 +187,14 @@ class ChessMainModel(VirtualModel):
         retval = tournament_entry['Rounds']
         return retval
 
+    def reload_a_tournament_in_db(self, tournament_id):
+        logging.debug('ChessMainModels: reload_a_tournament_in_db')
+        tournament_entry = self.tournaments_db.get(doc_id=tournament_id)
+        tournament = self.make_a_tournament_from_entry(tournament_entry)
+        logging.info(f'ChessMainModels: reload_a_tournament_in_db: Rounds = {tournament_entry["Rounds"]}')
+        logging.info(f'ChessMainModels: reload_a_tournament_in_db: tournaments_list = {tournament}')
+        return tournament, tournament_entry["Rounds"]
+
     def load_tournaments_in_db(self):
         logging.debug('ChessMainModels: load_tournaments_in_db')
         tournaments_list = []

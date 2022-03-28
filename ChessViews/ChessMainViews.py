@@ -127,7 +127,7 @@ class ChessTournamentsView(ChessBasicView):
             self.load_tournaments_list_in_view()
 
     def item_selected(self, event, tree):
-        logging.debug(f'ChessMainViews: tournaments nb item selected={len(self.tree.selection())}')
+        logging.debug(f'ChessMainViews: item_selected={self.tree.selection()}')
         if len(self.tree.selection()) == 0:
             pass
         elif len(self.tree.selection()) != 1:
@@ -138,7 +138,8 @@ class ChessTournamentsView(ChessBasicView):
             item = self.tree.item(selected_item)
             tournament = item['values']
             self.my_controller.set_selected_tournament(tournament)
-            # self.load_tournaments_list_in_view(False)
+            self.my_controller.reload_a_tournament(tournament[6])
+            self.clear_round_match_form()
             return True
 
     def clear_tree_selection(self):
@@ -552,6 +553,7 @@ class ChessTournamentsView(ChessBasicView):
         save_match_btn.grid(row=2, column=1)
 
     def set_tournament_completed(self):
+        logging.debug('ChessMainViews: set_tournament_completed')
         self.rounds_list = []
         self.players_couple_list = []
         self.match_results_list = []
@@ -672,7 +674,6 @@ class ChessTournamentsView(ChessBasicView):
             logging.info("ChessMainViews: continue_tournament=This tournament has been completed (2)")
             messagebox.showinfo('Info', 'This tournament has been completed')
             return False
-        # elif self.players_couple_list and self.rounds_list and (round_id == 1):
         elif self.players_couple_list and self.rounds_list:
             logging.info('ChessMainViews: continue_tournament(1)')
             if self.players_couple_list:
