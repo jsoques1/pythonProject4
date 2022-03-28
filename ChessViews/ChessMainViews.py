@@ -586,10 +586,6 @@ class ChessTournamentsView(ChessBasicView):
         else:
             logging.info(f'ChessMainViews: start_tournament (1): all_matches={all_matches}')
 
-        # if self.my_controller.is_tournament_terminated():
-        #     messagebox.showinfo('Info', 'This tournament has been completed')
-        #     return False
-
         round_id = self.my_controller.get_tournament_round_id()
 
         round_id = self.my_controller.get_expected_tournament_round_id(all_matches)
@@ -653,6 +649,11 @@ class ChessTournamentsView(ChessBasicView):
             logging.info(f'ChessMainViews: continue_tournament (1): all_matches={all_matches}')
 
         round_id = self.my_controller.get_expected_tournament_round_id(all_matches)
+        if round_id > self.my_controller.get_max_rounds_number():
+            logging.info("ChessMainViews: continue_tournament=This tournament has been completed (0)")
+            messagebox.showinfo('Info', 'This tournament has been completed')
+            return False
+
         self.my_controller.set_tournament_round_id(round_id)
         sort_by_score = False
 
@@ -694,6 +695,9 @@ class ChessTournamentsView(ChessBasicView):
                 logging.info(f'ChessMainViews: continue_tournament: players_couple_list{self.players_couple_list}')
                 self.match_first_player_var.set(self.players_couple_list[0][0])
                 self.match_second_player_var.set(self.players_couple_list[1][0])
+
+                # TBC
+                return True
         elif self.players_couple_list:
             logging.info('ChessMainViews: continue_tournament(2)')
             self.round_number_var.set('Round ' + str(round_id))

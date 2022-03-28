@@ -173,6 +173,13 @@ class ChessMainModel(VirtualModel):
         retval2 = self.tournaments_db.update({"ParticipantsScore": participants_score}, doc_ids=[int(tournament_id)])
         return retval1 and retval2
 
+    def get_participants_list(self, tournament):
+        logging.debug('ChessMainModels: get_participants_list')
+        logging.info(f'ChessMainModels: selected_tournament = {tournament}')
+        tournament_entry = self.tournaments_db.get(doc_id=int(tournament[6]))
+        logging.info(f"ChessMainModels: get_participants_list: participants_list={tournament_entry['Participants']}")
+        return tournament_entry['Participants']
+
     def get_participants_score(self, tournament):
         logging.debug('ChessMainModels: get_participants_score')
         logging.info(f'ChessMainModels: selected_tournament = {tournament}')
