@@ -663,7 +663,7 @@ class ChessTournamentsView(ChessBasicView):
             self.my_controller.set_tournament_completed()
             self.clear_round_match_form()
             logging.info("ChessMainViews: continue_tournament=This tournament has been completed (2)")
-            messagebox.showinfo('Info', 'This tournament has been completed')
+            messagebox.showwarning('Warning', 'This tournament has been completed\n***   Mind to save   ***')
             return False
         # elif self.players_couple_list and self.rounds_list and (round_id == 1):
         elif self.players_couple_list and self.rounds_list:
