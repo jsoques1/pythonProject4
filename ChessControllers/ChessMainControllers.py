@@ -265,9 +265,16 @@ class ChessMainController(VirtualController):
         self.selected_players_list = selected_players_list
 
     def get_selected_players_list(self):
-        logging.debug('ChessMainControllers: get_selected_players_list')
-        logging.info(f'ChessMainControllers: get_selected_players_list = {self.selected_players_list}')
-        return self.selected_players_list
+        selected_tournament = self.get_selected_tournament()
+        if selected_tournament:
+            logging.debug('ChessMainControllers: get_selected_players_list')
+            logging.info(f'ChessMainControllers: get_selected_players_list = {self.selected_players_list}')
+            if not self.selected_players_list:
+                self.selected_players_list = self.my_model.get_participants_list(selected_tournament)
+            return self.selected_players_list
+        else:
+            logging.info(f'ChessMainControllers: get_selected_players_list selected_tournament= {selected_tournament}')
+            return []
 
     def get_tournament_round_id(self):
         logging.debug('ChessMainControllers: get_tournament_round_id')
@@ -362,18 +369,21 @@ class ChessMainController(VirtualController):
         selected_players_list = self.get_selected_players_list()
         if selected_tournament is None:
             return 'No selected tournament'
+        # elif selected_players_list:
+        #     return 'Players have already joined'
         elif not selected_players_list:
             return 'No selected players'
         else:
             sorted_selected_players_list = sorted(selected_players_list, key=itemgetter(4), reverse=True)
             logging.info(f'ChessMainControllers: sorted_selected_players_list = {sorted_selected_players_list}')
             self.my_model.update_a_tournament_players_list(selected_tournament, sorted_selected_players_list)
-            self.selected_players_list.clear()
+            self.selected_players_list = []
             self.my_view.clear_player_view_tree_players_list_selection()
             return ''
 
     def get_all_rounds(self, tournament_id):
-        return self.matches.get_all_rounds(tournament_id)
+        self.selected_rounds_list = self.matches.get_all_rounds(tournament_id)
+        return self.selected_rounds_list
 
     def get_rounds_and_players(self):
         logging.debug('ChessMainModels: get_rounds_and_players')
@@ -539,9 +549,7 @@ class ChessMainController(VirtualController):
         tournament = self.get_selected_tournament()
         if tournament is None:
             return [], []
-        # elif (len(self.selected_rounds_list) == self.get_max_rounds_number()) and \
-        #      (len(self.selected_rounds_list[-1]) == self.get_nb_matches_per_round):
-        #     return self.selected_rounds_list, self.players_couple_list
+
         tournament_id = tournament[6]
         round_id = self.get_tournament_round_id()
         logging.info(f'ChessMainControllers: get_rounds_and_players_couple_list: tournament_id={tournament_id} ' +
@@ -652,17 +660,26 @@ class ChessMainController(VirtualController):
         new_players_list = []
         opponents_index_list = [i + nb_players_couple for i in range(nb_players_couple)]
         logging.info(f'ChessMainControllers: algorithm_swiss: opponents_index_list={opponents_index_list}')
+
         i = 0
         for current_index in range(nb_players_couple):
             nb_search_failure = 0
             while nb_search_failure != nb_players_couple:
+                found = False
+                logging.info(f'ChessMainControllers: algorithm_swiss: i={i}')
                 opponent_index = opponents_index_list[i]
                 logging.info(f'ChessMainControllers: algorithm_swiss: current_idx={current_index}')
                 logging.info(f'ChessMainControllers: algorithm_swiss: opponent_idx={opponent_index}')
-                if ([players_list[current_index][5], players_list[opponent_index][5]] in
-                   simplified_index_couple_list) or \
-                   ([players_list[current_index][5], players_list[opponent_index][5]] in
-                   simplified_index_couple_list):
+                logging.info(f'ChessMainControllers: algorithm_swiss: current_id={players_list[current_index][5]}')
+                logging.info(f'ChessMainControllers: algorithm_swiss: opponent_id={players_list[opponent_index][5]}')
+                if [players_list[current_index][5], players_list[opponent_index][5]] in simplified_index_couple_list:
+                    found = True
+                    print([players_list[current_index][5], players_list[opponent_index][5]])
+                elif [players_list[opponent_index][5], players_list[current_index][5]] in simplified_index_couple_list:
+                    found = True
+                    print([players_list[opponent_index][5], players_list[current_index][5]])
+
+                if found:
                     logging.info('ChessMainControllers: algorithm_swiss: ======================')
                     logging.info(f'ChessMainControllers: algorithm_swiss: {players_list[current_index][5]}')
                     logging.info(f'ChessMainControllers: algorithm_swiss: {players_list[opponent_index][5]}')
@@ -860,7 +877,7 @@ class ChessMainController(VirtualController):
         model_tournaments_list = self.my_model.load_tournaments_in_db()
         tournaments_list = []
 
-        self.selected_players_list = []
+        # self.selected_players_list = []
         self.selected_rounds_list = []
         self.players_couple_list = []
         self.all_matches = []
