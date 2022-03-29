@@ -391,7 +391,7 @@ class ChessTournamentsView(ChessBasicView):
                 read_only_text.insert(tk.INSERT, '*** Temporary results ***\n')
                 read_only_text.insert(tk.INSERT,
                                       '{:10s} {:25s} {:10s} {:25s} {:5s}\n'.format('Round', "Name", "Score",
-                                                                                  'Name', 'Score'))
+                                                                                   'Name', 'Score'))
                 for values in all_matches_list:
                     logging.info('ChessMainViews: display_report_a_tournament_matches: ' +
                                  f'values={values}')
@@ -420,7 +420,7 @@ class ChessTournamentsView(ChessBasicView):
 
                 read_only_text.insert(tk.INSERT,
                                       '{:10s} {:25s} {:10s} {:25s} {:5s}\n'.format('Round', "Name", "Score",
-                                                                                  'Name', 'Score'))
+                                                                                   'Name', 'Score'))
                 for values in result_list:
                     read_only_text.insert(tk.INSERT, '{:10s} {:25s} {:10s} {:25s} {:5s}\n'.format(values[0],
                                                                                                   values[1],
