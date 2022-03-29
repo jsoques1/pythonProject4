@@ -496,10 +496,6 @@ class ChessMainController(VirtualController):
             self.set_tournament_round_id(round_id)
             if (round_id == self.get_max_rounds_number()) and self.selected_rounds_list[-1][2]:
                 return True
-            # elif self.selected_rounds_list[-1][2]:
-            #     self.increment_tournament_round_id()
-            # else:
-            #     return False
         else:
             return False
 

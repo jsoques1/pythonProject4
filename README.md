@@ -34,6 +34,14 @@ P4: Développez un programme logiciel en Python
 
     python main.py 
 
+* Hints
+  
+  To assign a players list to a tournament, multi-select items in the Players List, select a tournament
+
+  and click on 'Add Users'
+
+  The program is designed to follow a tournament once at a time till its completion and save of the datas
+
 * Flake8:
 
     cd mypath/pythonProject4

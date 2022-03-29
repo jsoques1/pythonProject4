@@ -329,7 +329,8 @@ class ChessTournamentsView(ChessBasicView):
             logger.handlers[0].flush()
             read_only_text = ChessBasicView.generic_display_report('Tournament rounds')
 
-            if all_rounds and (not is_tournament_terminated):
+            # if all_rounds and (not is_tournament_terminated):
+            if all_rounds and (not result_list):
                 read_only_text.insert(tk.INSERT,
                                       '{:30s}\n'.format("*** Temporary results ***"))
                 read_only_text.insert(tk.INSERT,
@@ -383,7 +384,8 @@ class ChessTournamentsView(ChessBasicView):
 
             read_only_text.insert(tk.INSERT, '\n\n')
 
-            if all_matches_list and (not is_tournament_terminated):
+            # if all_matches_list and (not is_tournament_terminated):
+            if all_matches_list and (not result_list):
                 read_only_text.insert(tk.INSERT, '*** Temporary results ***\n')
                 read_only_text.insert(tk.INSERT,
                                       '{:10s} {:25s} {:10s} {:25s} {:5s}\n'.format('Round', "Name", "Score",
@@ -545,7 +547,7 @@ class ChessTournamentsView(ChessBasicView):
         save_match_btn.grid(row=2, column=1)
 
     def set_tournament_completed(self):
-        self.rounds_list = []
+        # self.rounds_list = []
         self.players_couple_list = []
         self.match_results_list = []
 
@@ -576,10 +578,6 @@ class ChessTournamentsView(ChessBasicView):
             logging.info(f'ChessMainViews: start_tournament (0): all_matches={all_matches}')
         else:
             logging.info(f'ChessMainViews: start_tournament (1): all_matches={all_matches}')
-
-        # if self.my_controller.is_tournament_terminated():
-        #     messagebox.showinfo('Info', 'This tournament has been completed')
-        #     return False
 
         round_id = self.my_controller.get_tournament_round_id()
 
@@ -663,7 +661,7 @@ class ChessTournamentsView(ChessBasicView):
             self.my_controller.set_tournament_completed()
             self.clear_round_match_form()
             logging.info("ChessMainViews: continue_tournament=This tournament has been completed (2)")
-            messagebox.showwarning('Warning', 'This tournament has been completed\n***   Mind to save   ***')
+            messagebox.showinfo('Info', 'This tournament has been completed')
             return False
         # elif self.players_couple_list and self.rounds_list and (round_id == 1):
         elif self.players_couple_list and self.rounds_list:
