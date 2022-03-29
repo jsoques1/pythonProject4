@@ -231,8 +231,8 @@ class ChessTournamentsView(ChessBasicView):
         else:
             participants_score = self.my_controller.get_participants_score()
             if participants_score:
-                logging.info("ChessMainViews: add_players_list: showwarning=This tournament is on going or terminated")
-                messagebox.showwarning('Warning', 'This tournament is on going or terminated')
+                logging.info("ChessMainViews: add_players_list: showwarning=Players have already joined")
+                messagebox.showwarning('Warning', 'Players have already joined')
                 return False
 
         retval = self.my_controller.assign_selected_players_to_selected_tournament()
@@ -308,9 +308,10 @@ class ChessTournamentsView(ChessBasicView):
             logging.info('ChessMainViews: display_report_a_tournament_rounds: ' +
                          f'matches={self.my_controller.get_matches()}')
 
-            all_rounds = self.my_controller.get_all_rounds(tournament[6])
             logging.info('ChessMainViews: display_report_a_tournament_rounds: get_all_rounds ' +
-                         f'all_rounds={all_rounds}')
+                         f'tournament={tournament}')
+
+            all_rounds = self.my_controller.get_all_rounds(tournament[6])
 
             is_tournament_terminated = self.my_controller.is_tournament_terminated()
             logging.info('ChessMainViews: display_report_a_tournament_matches: ' +
@@ -657,12 +658,12 @@ class ChessTournamentsView(ChessBasicView):
 
         logging.info(f'ChessMainViews: continue_tournament: self.players_couple_list = {self.players_couple_list}')
 
-        if not self.players_couple_list:
+        if not self.players_couple_list or (round_id > self.my_controller.get_max_rounds_number()):
             self.set_tournament_completed()
             self.my_controller.set_tournament_completed()
             self.clear_round_match_form()
             logging.info("ChessMainViews: continue_tournament=This tournament has been completed (2)")
-            messagebox.showinfo('Info', 'This tournament has been completed')
+            messagebox.showwarning('Warning', 'This tournament has been completed\n***   Mind to save   ***')
             return False
         # elif self.players_couple_list and self.rounds_list and (round_id == 1):
         elif self.players_couple_list and self.rounds_list:
@@ -961,10 +962,9 @@ class ChessPlayersView(ChessBasicView):
             logging.info(f'ChessMainViews: player nb item selected={len(self.tree.selection())}')
             for selected_item in self.tree.selection():
                 item = self.tree.item(selected_item)
-                # self.tree.focus(item)
                 player = item['values']
                 selected_players_list.append(player)
-            self.my_controller.set_selected_players_list(selected_players_list)
+            self.my_controller.set_new_selected_players_list(selected_players_list)
 
             return True
 
