@@ -658,7 +658,7 @@ class ChessTournamentsView(ChessBasicView):
 
         logging.info(f'ChessMainViews: continue_tournament: self.players_couple_list = {self.players_couple_list}')
 
-        if not self.players_couple_list:
+        if not self.players_couple_list or (round_id > ):
             self.set_tournament_completed()
             self.my_controller.set_tournament_completed()
             self.clear_round_match_form()
@@ -962,10 +962,9 @@ class ChessPlayersView(ChessBasicView):
             logging.info(f'ChessMainViews: player nb item selected={len(self.tree.selection())}')
             for selected_item in self.tree.selection():
                 item = self.tree.item(selected_item)
-                # self.tree.focus(item)
                 player = item['values']
                 selected_players_list.append(player)
-            self.my_controller.set_selected_players_list(selected_players_list)
+            self.my_controller.set_new_selected_players_list(selected_players_list)
 
             return True
 
