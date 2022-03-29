@@ -658,7 +658,7 @@ class ChessTournamentsView(ChessBasicView):
 
         logging.info(f'ChessMainViews: continue_tournament: self.players_couple_list = {self.players_couple_list}')
 
-        if not self.players_couple_list or (round_id > ):
+        if not self.players_couple_list or (round_id > self.my_controller.get_max_rounds_number()):
             self.set_tournament_completed()
             self.my_controller.set_tournament_completed()
             self.clear_round_match_form()
