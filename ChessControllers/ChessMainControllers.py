@@ -259,15 +259,15 @@ class ChessMainController(VirtualController):
         self.my_model.set_my_controller(self)
         self.my_view.display_interface()
 
-    def get_tournament_state(self):
-        selected_tournament = self.get_selected_tournament()
-        if selected_tournament:
-            return self.tournament_state.get_state(selected_tournament[6])
-
-    def set_tournament_state(self, state_end=True):
-        selected_tournament = self.get_selected_tournament()
-        if selected_tournament:
-            return self.tournament_state.set_state(selected_tournament[6], state_end)
+    # def get_tournament_state(self):
+    #     selected_tournament = self.get_selected_tournament()
+    #     if selected_tournament:
+    #         return self.tournament_state.get_state(selected_tournament[6])
+    #
+    # def set_tournament_state(self, state_end=True):
+    #     selected_tournament = self.get_selected_tournament()
+    #     if selected_tournament:
+    #         return self.tournament_state.set_state(selected_tournament[6], state_end)
 
     def get_all_matches(self):
         return self.all_matches
@@ -395,6 +395,8 @@ class ChessMainController(VirtualController):
             return 'No selected tournament'
         elif not selected_players_list:
             return 'No selected players'
+        elif selected_players_list:
+            return 'Players have already joined'
         else:
             sorted_selected_players_list = sorted(selected_players_list, key=itemgetter(4), reverse=True)
             logging.info(f'ChessMainControllers: sorted_selected_players_list = {sorted_selected_players_list}')
@@ -770,7 +772,9 @@ class ChessMainController(VirtualController):
 
     def get_participants_score(self):
         tournament = self.get_selected_tournament()
-        players_score = self.my_model.get_participants_score(tournament)
+        players_score = dict()
+        if tournament:
+            players_score = self.my_model.get_participants_score(tournament)
         return players_score
 
     def get_partial_participant_score_as_sorted_list(self):
@@ -785,16 +789,20 @@ class ChessMainController(VirtualController):
 
     def get_participant_score_as_sorted_list(self):
         tournament = self.get_selected_tournament()
-        players_score = self.my_model.get_participants_score(tournament)
         final_scores = []
-        for key, value in players_score.items():
-            final_scores.append([key, value])
-        final_scores = sorted(final_scores, key=itemgetter(1), reverse=True)
+        if tournament:
+            players_score = self.my_model.get_participants_score(tournament)
+            final_scores = []
+            for key, value in players_score.items():
+                final_scores.append([key, value])
+            final_scores = sorted(final_scores, key=itemgetter(1), reverse=True)
         return final_scores
 
     def retrieve_participants_score(self):
         tournament = self.get_selected_tournament()
-        players_score = self.my_model.get_participants_score(tournament)
+        players_score = dict()
+        if tournament:
+            players_score = self.my_model.get_participants_score(tournament)
         return players_score
 
     @staticmethod
@@ -930,7 +938,6 @@ class ChessMainController(VirtualController):
         tournament = self.get_selected_tournament()
         if tournament is None:
             logging.info("ChessMainViews: check_tournament: showerror=No tournament selected'")
-            messagebox.showerror('Error', 'No tournament selected')
             return False
 
         all_matches = self.rebuild_all_matches()
@@ -949,6 +956,13 @@ class ChessMainController(VirtualController):
             return False
         else:
             return True
+
+    def get_participants_list(self):
+        tournament = self.get_selected_tournament()
+        if tournament:
+            self.my_model.get_participants_list(tournament)
+        else:
+            return []
 
     def load_tournaments_list(self):
         logging.debug('ChessMainControllers: load_tournaments_list')

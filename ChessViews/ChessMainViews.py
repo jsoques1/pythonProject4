@@ -983,14 +983,16 @@ class ChessPlayersView(ChessBasicView):
             return True
 
     def clear_players_list_selection(self):
-        if self.tree.get_children():
-            for item in self.tree.get_children():
-                self.tree.selection_remove(item)
+        if self.tree:
+            if self.tree.get_children():
+                for item in self.tree.get_children():
+                    self.tree.selection_remove(item)
 
     def delete_players_list(self):
-        if self.tree.get_children():
-            for item in self.tree.get_children():
-                self.tree.delete(item)
+        if self.tree:
+            if self.tree.get_children():
+                for item in self.tree.get_children():
+                    self.tree.delete(item)
 
     def load_players_list_in_view(self):
         logging.debug('ChessMainViews: : load_players_list_in_view')
