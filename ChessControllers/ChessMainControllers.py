@@ -315,16 +315,6 @@ class ChessMainController(VirtualController):
         self.round_id.display()
         return tournament_round_id
 
-    def get_tournament_round_id(self):
-        logging.debug('ChessMainControllers: get_tournament_round_id')
-        tournament_round_id = 1
-        selected_tournament = self.get_selected_tournament()
-        if selected_tournament:
-            tournament_id = selected_tournament[6]
-            tournament_round_id = self.round_id.get_tournament_round_id(tournament_id)
-        self.round_id.display()
-        return tournament_round_id
-
     def increment_tournament_round_id(self):
         logging.debug('ChessMainControllers: increment_tournament_round_id')
         tournament_round_id = 1
@@ -332,8 +322,8 @@ class ChessMainController(VirtualController):
         if selected_tournament:
             tournament_id = selected_tournament[6]
             tournament_round_id = self.round_id.increment_tournament_round_id(tournament_id)
-        logging.debug(f'ChessMainControllers: increment_tournament_round_id: tournament_id={tournament_id} ' +
-                      f'round_id={tournament_round_id}')
+            logging.debug(f'ChessMainControllers: increment_tournament_round_id: tournament_id={tournament_id} ' +
+                          f'round_id={tournament_round_id}')
         self.round_id.display()
         return tournament_round_id
 
