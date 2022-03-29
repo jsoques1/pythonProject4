@@ -330,7 +330,7 @@ class ChessTournamentsView(ChessBasicView):
             read_only_text = ChessBasicView.generic_display_report('Tournament rounds')
 
             # if all_rounds and (not is_tournament_terminated):
-            if all_rounds and (not result_list):
+            if all_rounds and (all_rounds != result_list):
                 read_only_text.insert(tk.INSERT,
                                       '{:30s}\n'.format("*** Temporary results ***"))
                 read_only_text.insert(tk.INSERT,
@@ -385,7 +385,7 @@ class ChessTournamentsView(ChessBasicView):
             read_only_text.insert(tk.INSERT, '\n\n')
 
             # if all_matches_list and (not is_tournament_terminated):
-            if all_matches_list and (not result_list):
+            if all_matches_list and (all_matches_list != result_list):
                 read_only_text.insert(tk.INSERT, '*** Temporary results ***\n')
                 read_only_text.insert(tk.INSERT,
                                       '{:10s} {:25s} {:10s} {:25s} {:5s}\n'.format('Round', "Name", "Score",
